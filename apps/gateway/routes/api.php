@@ -1,11 +1,6 @@
 <?php
 
+use App\Presentation\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return [
-        'data' => [
-            'message' => 'Hello World'
-        ]
-    ];
-});
+Route::post('/users', [AuthController::class, 'register']);
