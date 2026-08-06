@@ -24,6 +24,24 @@ class EloquentUserRepository implements UserRepositoryInterface
         );
     }
 
+    public function findByEmail(string $email): ?User
+    {
+        $eloquentModel = EloquentUser::where('email', $email)->first();
+
+        if (! $eloquentModel) {
+            return null;
+        }
+
+        return new User(
+            id: $eloquentModel->id,
+            username: $eloquentModel->username,
+            email: $eloquentModel->email,
+            passwordHash: $eloquentModel->password,
+            bio: $eloquentModel->bio,
+            image: $eloquentModel->image,
+        );
+    }
+
     public function save(User $user): void
     {
         EloquentUser::updateOrCreate([
