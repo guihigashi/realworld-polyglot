@@ -1,0 +1,3 @@
+[submodule "reference/realworld-spec"]
+	path = reference/realworld-spec
+	url = git@github.com:realworld-apps/realworld.git
