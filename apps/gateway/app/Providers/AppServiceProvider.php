@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Domain\Auth\Contracts\JwtDecoderInterface;
 use App\Domain\Auth\Contracts\JwtGeneratorInterface;
 use App\Domain\Auth\Contracts\PasswordHasherInterface;
 use App\Domain\Auth\Contracts\UserRepositoryInterface;
+use App\Infrastructure\Auth\Providers\FirebaseJwtDecoder;
 use App\Infrastructure\Auth\Providers\FirebaseJwtGenerator;
 use App\Infrastructure\Auth\Providers\LaravelPasswordHasher;
 use App\Infrastructure\Auth\Repositories\EloquentUserRepository;
@@ -22,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(JwtGeneratorInterface::class, FirebaseJwtGenerator::class);
 
         $this->app->singleton(PasswordHasherInterface::class, LaravelPasswordHasher::class);
+
+        $this->app->singleton(JwtDecoderInterface::class, FirebaseJwtDecoder::class);
     }
 
     /**
