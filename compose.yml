@@ -2,7 +2,7 @@ services:
   gateway:
     image: localhost/identity-gateway:dev
     build:
-      context: ./apps/1-identity-gateway
+      context: ./apps/gateway
       dockerfile: Containerfile
     ports:
       - "8000:8000"
@@ -14,7 +14,7 @@ services:
       - DB_USERNAME=realworld
       - DB_PASSWORD=secret
     volumes:
-      - ./apps/1-identity-gateway:/app:z
+      - ./apps/gateway:/app:z
     depends_on:
       postgres:
         condition: service_healthy
