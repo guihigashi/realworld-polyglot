@@ -43,12 +43,28 @@ class User
         return $this->image;
     }
 
-    public function changeEmail(string $newEmail): void
+    public function changeUsername(string $username): void
     {
-        if (! filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
-            throw new \InvalidArgumentException('Invalid email format.');
-        }
+        $this->username = $username;
+    }
 
-        $this->email = $newEmail;
+    public function changeEmail(string $email): void
+    {
+        $this->email = $email;
+    }
+
+    public function changePassword(string $passwordHash): void
+    {
+        $this->passwordHash = $passwordHash;
+    }
+
+    public function changeBio(?string $bio): void
+    {
+        $this->bio = trim((string) $bio) === '' ? null : $bio;
+    }
+
+    public function changeImage(?string $image): void
+    {
+        $this->image = trim((string) $image) === '' ? null : $image;
     }
 }

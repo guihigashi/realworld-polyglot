@@ -11,4 +11,9 @@ class LaravelPasswordHasher implements PasswordHasherInterface
     {
         return Hash::check($plainPassword, $hashedPassword);
     }
+
+    public function hash(string $plainPassword): string
+    {
+        return Hash::make($plainPassword);
+    }
 }

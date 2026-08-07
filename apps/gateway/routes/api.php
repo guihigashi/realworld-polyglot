@@ -10,4 +10,5 @@ Route::post('/users', [AuthController::class, 'register']);
 
 Route::middleware([JwtAuthenticationMiddleware::class])->group(function () {
     Route::get('/user', [UserController::class, 'show']);
+    Route::put('/user', [UserController::class, 'update']);
 });

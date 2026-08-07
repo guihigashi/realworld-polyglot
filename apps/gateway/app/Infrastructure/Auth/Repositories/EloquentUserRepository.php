@@ -16,12 +16,7 @@ class EloquentUserRepository implements UserRepositoryInterface
             return null;
         }
 
-        return new User(
-            id: $eloquentModel->id,
-            username: $eloquentModel->username,
-            email: $eloquentModel->email,
-            passwordHash: $eloquentModel->password
-        );
+        return $this->toDomain($eloquentModel);
     }
 
     public function findByEmail(string $email): ?User
@@ -32,14 +27,7 @@ class EloquentUserRepository implements UserRepositoryInterface
             return null;
         }
 
-        return new User(
-            id: $eloquentModel->id,
-            username: $eloquentModel->username,
-            email: $eloquentModel->email,
-            passwordHash: $eloquentModel->password,
-            bio: $eloquentModel->bio,
-            image: $eloquentModel->image,
-        );
+        return $this->toDomain($eloquentModel);
     }
 
     public function save(User $user): void
@@ -50,6 +38,20 @@ class EloquentUserRepository implements UserRepositoryInterface
             'username' => $user->getUsername(),
             'email' => $user->getEmail(),
             'password' => $user->getPasswordHash(),
+            'bio' => $user->getBio(),
+            'image' => $user->getImage(),
         ]);
+    }
+
+    private function toDomain(EloquentUser $model): User
+    {
+        return new User(
+            id: $model->id,
+            username: $model->username,
+            email: $model->email,
+            passwordHash: $model->password,
+            bio: $model->bio,
+            image: $model->image,
+        );
     }
 }
