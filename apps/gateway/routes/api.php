@@ -13,5 +13,7 @@ Route::middleware([JwtAuthenticationMiddleware::class])->group(function () {
     Route::get('/user', [UserController::class, 'show']);
     Route::put('/user', [UserController::class, 'update']);
 
+    Route::get('/profiles/{username}', [ProfileController::class, 'show']);
     Route::post('/profiles/{username}/follow', [ProfileController::class, 'follow']);
+    Route::delete('/profiles/{username}/follow', [ProfileController::class, 'unfollow']);
 });
