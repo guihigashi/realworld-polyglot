@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package conduit.social;
+
+option java_multiple_files = true;
+option java_package = "com.conduit.social.grpc";
+
+service SocialGraphService {
+  // Follow a user
+  rpc FollowUser (FollowRequest) returns (ProfileResponse);
+
+  // Unfollow a user
+  rpc UnfollowUser (UnfollowRequest) returns (ProfileResponse);
+
+  // Get a user's profile (including if the current user follows them)
+  rpc GetProfile (GetProfileRequest) returns (ProfileResponse);
+}
+
+message FollowRequest {
+  string follower_id = 1; // From the PHP Gateway JWT
+  string target_username = 2;
+}
+
+message UnfollowRequest {
+  string follower_id = 1;
+  string target_username = 2;
+}
+
+message GetProfileRequest {
+  string requestor_id = 1; // Optional: The user making the request
+  string target_username = 2;
+}
+
+message ProfileResponse {
+  string username = 1;
+  string bio = 2;
+  string image = 3;
+  bool following = 4;
+}
