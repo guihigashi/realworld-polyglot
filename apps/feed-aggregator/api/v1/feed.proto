@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package com.github.guihigashi.conduit.feed;
+
+option go_package = "github.com/guihigashi/conduit/feed/internal/protov1";
+
+option php_namespace = "Generated\\Grpc\\Feed";
+option php_metadata_namespace = "Generated\\Grpc\\Feed\\Metadata";
+
+service FeedService {
+  // Get personalized feed for a user
+  rpc GetFeed (FeedRequest) returns (FeedResponse);
+}
+
+message FeedRequest {
+  string requestor_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message Article {
+  string slug = 1;
+  string title = 2;
+  string description = 3;
+  string body = 4;
+  repeated string tag_list = 5;
+  string created_at = 6;
+  string updated_at = 7;
+  bool favorited = 8;
+  int32 favorites_count = 9;
+
+  // Flattened author info for simplicity
+  string author_username = 10;
+  string author_bio = 11;
+  string author_image = 12;
+  bool author_following = 13;
+}
+
+message FeedResponse {
+  repeated Article articles = 1;
+  int32 articles_count = 2;
+}
