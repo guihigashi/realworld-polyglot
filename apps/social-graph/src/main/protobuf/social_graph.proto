@@ -1,9 +1,14 @@
 syntax = "proto3";
 
-package conduit.social;
+package com.github.guihigashi.conduit.social;
 
 option java_multiple_files = true;
-option java_package = "com.conduit.social.grpc";
+option java_package = "com.github.guihigashi.conduit.social.grpc";
+
+option go_package = "github.com/guihigashi/conduit/social/grpc;social_graph";
+
+option php_namespace = "Generated\\Grpc\\SocialGraph";
+option php_metadata_namespace = "Generated\\Grpc\\SocialGraph\\Metadata";
 
 service SocialGraphService {
   // Follow a user

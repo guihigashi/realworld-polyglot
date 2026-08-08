@@ -1,4 +1,4 @@
-package com.conduit.social
+package com.github.guihigashi.conduit.social
 
 import io.grpc.ServerBuilder
 import io.grpc.protobuf.services.ProtoReflectionServiceV1

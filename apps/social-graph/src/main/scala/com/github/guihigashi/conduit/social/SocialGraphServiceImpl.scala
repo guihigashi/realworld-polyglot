@@ -1,6 +1,6 @@
-package com.conduit.social
+package com.github.guihigashi.conduit.social
 
-import com.conduit.social.grpc.social_graph.*
+import com.github.guihigashi.conduit.social.grpc.social_graph.*
 import io.grpc.StatusException
 import zio.*
 
