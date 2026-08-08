@@ -1,27 +1,14 @@
 package com.conduit.social
 
-import com.conduit.social.grpc.social_graph.SocialGraphServiceGrpc.SocialGraphService
-import io.grpc.netty.NettyServerBuilder
-import io.grpc.protobuf.services.ProtoReflectionService
+import io.grpc.ServerBuilder
+import io.grpc.protobuf.services.ProtoReflectionServiceV1
+import scalapb.zio_grpc.{ServerLayer, ServiceList}
 import zio.*
 
-import scala.concurrent.ExecutionContext
-
 object Main extends ZIOAppDefault:
-  def run =
-    for
-      runtime <- ZIO.runtime[Any]
-      service = new SocialGraphServiceImpl(runtime)
+  private val serverLayer = ServerLayer.fromServiceList(
+    ServerBuilder.forPort(9090).addService(ProtoReflectionServiceV1.newInstance()),
+    ServiceList.add(SocialGraphServiceImpl)
+  )
 
-      _ <- ZIO.attemptBlocking {
-        val port = 9090
-
-        NettyServerBuilder
-          .forPort(port)
-          .addService(SocialGraphService.bindService(service, ExecutionContext.global))
-          .addService(ProtoReflectionService.newInstance())
-          .build()
-          .start()
-          .awaitTermination()
-      }
-    yield ()
+  def run = serverLayer.launch
