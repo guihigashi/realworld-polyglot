@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package com.github.guihigashi.conduit.article;
+
+option java_multiple_files = true;
+option java_package = "com.github.guihigashi.conduit.article.grpc";
+
+option php_namespace = "Generated\\Grpc\\Article";
+option php_metadata_namespace = "Generated\\Grpc\\Article\\Metadata";
+
+service ArticleService {
+  // Get a single article by slug
+  rpc GetArticle (GetArticleRequest) returns (ArticleResponse);
+}
+
+message GetArticleRequest {
+  string slug = 1;
+  string requestor_id = 2; // For calculating 'favorited' status
+}
+
+message Article {
+  string slug = 1;
+  string title = 2;
+  string description = 3;
+  string body = 4;
+  repeated string tag_list = 5;
+  string created_at = 6;
+  string updated_at = 7;
+  bool favorited = 8;
+  int32 favorites_count = 9;
+
+  string author_username = 10;
+  string author_bio = 11;
+  string author_image = 12;
+  bool author_following = 13;
+}
+
+message ArticleResponse {
+  Article article = 1;
+}
