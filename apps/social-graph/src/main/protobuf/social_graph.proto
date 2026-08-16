@@ -34,14 +34,14 @@ message UnfollowRequest {
 }
 
 message GetProfileRequest {
-  string requestor_id = 1; // Optional: The user making the request
+  optional string requestor_id = 1;
   string target_username = 2;
 }
 
 message ProfileResponse {
   string username = 1;
-  string bio = 2;
-  string image = 3;
+  optional string bio = 2;
+  optional string image = 3;
   bool following = 4;
 }
 

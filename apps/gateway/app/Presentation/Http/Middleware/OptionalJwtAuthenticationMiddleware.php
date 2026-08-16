@@ -5,17 +5,15 @@ namespace App\Presentation\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class JwtAuthenticationMiddleware extends AbstractJwtMiddleware
+class OptionalJwtAuthenticationMiddleware extends AbstractJwtMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
         [$payload, $errorMessage] = $this->resolvePayload($request);
 
-        if ($payload === null) {
-            return response()->json(['message' => $errorMessage], 401);
+        if ($payload !== null) {
+            $request->attributes->set('auth_user_id', $payload->sub);
         }
-
-        $request->attributes->set('auth_user_id', $payload->sub);
 
         return $next($request);
     }
