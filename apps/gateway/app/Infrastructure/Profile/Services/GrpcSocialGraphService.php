@@ -2,6 +2,7 @@
 
 namespace App\Infrastructure\Profile\Services;
 
+use App\Domain\Auth\Entities\User;
 use App\Domain\Profile\Contracts\SocialGraphServiceInterface;
 use App\Domain\Profile\Entities\Profile;
 use Generated\Grpc\SocialGraph\FollowRequest;
@@ -9,6 +10,7 @@ use Generated\Grpc\SocialGraph\GetProfileRequest;
 use Generated\Grpc\SocialGraph\ProfileResponse;
 use Generated\Grpc\SocialGraph\SocialGraphServiceClient;
 use Generated\Grpc\SocialGraph\UnfollowRequest;
+use Generated\Grpc\SocialGraph\UpsertProfileRequest;
 use Grpc\ChannelCredentials;
 
 class GrpcSocialGraphService implements SocialGraphServiceInterface
@@ -20,6 +22,21 @@ class GrpcSocialGraphService implements SocialGraphServiceInterface
         $this->client = new SocialGraphServiceClient('localhost:9090', [
             'credentials' => ChannelCredentials::createInsecure(),
         ]);
+    }
+
+    public function upsertProfileProjection(User $user): void
+    {
+        $request = (new UpsertProfileRequest)
+            ->setUserId($user->getId())
+            ->setUsername($user->getUsername())
+            ->setBio($user->getBio() ?? '')
+            ->setImage($user->getImage() ?? '');
+
+        [$response, $status] = $this->client->UpsertProfileProjection($request)->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException("Failed to project profile: $status->details");
+        }
     }
 
     public function getProfile(string $requestorId, string $targetUsername): Profile

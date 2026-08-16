@@ -61,4 +61,18 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
         $metadata, $options);
     }
 
+    /**
+     * @param \Generated\Grpc\SocialGraph\UpsertProfileRequest $argument input argument
+     * @param array $metadata metadata
+     * @param array $options call options
+     * @return \Grpc\UnaryCall
+     */
+    public function UpsertProfileProjection(\Generated\Grpc\SocialGraph\UpsertProfileRequest $argument,
+      $metadata = [], $options = []) {
+        return $this->_simpleRequest('/com.github.guihigashi.conduit.social.SocialGraphService/UpsertProfileProjection',
+        $argument,
+        ['\Generated\Grpc\SocialGraph\UpsertProfileResponse', 'decode'],
+        $metadata, $options);
+    }
+
 }

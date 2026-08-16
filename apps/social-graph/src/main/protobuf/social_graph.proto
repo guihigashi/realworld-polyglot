@@ -19,6 +19,8 @@ service SocialGraphService {
 
   // Get a user's profile (including if the current user follows them)
   rpc GetProfile (GetProfileRequest) returns (ProfileResponse);
+
+  rpc UpsertProfileProjection (UpsertProfileRequest) returns (UpsertProfileResponse);
 }
 
 message FollowRequest {
@@ -41,4 +43,15 @@ message ProfileResponse {
   string bio = 2;
   string image = 3;
   bool following = 4;
+}
+
+message UpsertProfileRequest {
+  string user_id = 1;
+  string username = 2;
+  string bio = 3;
+  string image = 4;
+}
+
+message UpsertProfileResponse {
+  bool success = 1;
 }
