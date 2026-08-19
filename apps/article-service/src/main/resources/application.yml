@@ -1,6 +1,28 @@
 spring:
   application:
     name: article-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/articles
+    username: realworld
+    password: secret
+    driver-class-name: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      pool-name: ArticleServicePool
+      minimum-idle: 5
+      maximum-pool-size: 20
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      auto-commit: false
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
   grpc:
     server:
       port: 9092
