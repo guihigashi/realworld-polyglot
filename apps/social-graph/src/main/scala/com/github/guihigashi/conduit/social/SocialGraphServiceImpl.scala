@@ -10,19 +10,41 @@ import java.util.UUID
 case class SocialGraphServiceImpl(profileRepository: ProfileRepository) extends ZioSocialGraph.SocialGraphService:
 
   override def followUser(request: FollowRequest): IO[StatusException, ProfileResponse] =
-    ZIO.succeed(ProfileResponse(
+    for
+      followerId <- ZIO
+        .attempt(UUID.fromString(request.followerId))
+        .mapError(e =>
+          StatusException(Status.INVALID_ARGUMENT.withDescription(s"Invalid follower_id: ${e.getMessage}"))
+        )
+      _ <- profileRepository
+        .follow(followerId, request.targetUsername)
+        .mapError(e =>
+          StatusException(Status.INVALID_ARGUMENT.withDescription(s"Failed to follow user: ${e.getMessage}"))
+        )
+    yield ProfileResponse(
       username = request.targetUsername,
-      bio = "This is a dummy bio",
-      image = "https://example.com/image.png",
+      bio = None,
+      image = None,
       following = true
-    ))
+    )
 
   override def unfollowUser(request: UnfollowRequest): IO[StatusException, ProfileResponse] =
-    ZIO.succeed(ProfileResponse(
+    for
+      followerId <- ZIO
+        .attempt(UUID.fromString(request.followerId))
+        .mapError(e =>
+          StatusException(Status.INVALID_ARGUMENT.withDescription(s"Invalid follower_id: ${e.getMessage}"))
+        )
+      _ <- profileRepository
+        .unfollow(followerId, request.targetUsername)
+        .mapError(e =>
+          StatusException(Status.INVALID_ARGUMENT.withDescription(s"Failed to unfollow user: ${e.getMessage}"))
+        )
+    yield ProfileResponse(
       username = request.targetUsername,
-      bio = "This is a dummy bio",
-      image = "https://example.com/image.png"
-    ))
+      bio = None,
+      image = None,
+    )
 
   override def getProfile(request: GetProfileRequest): IO[StatusException, ProfileResponse] =
     for
@@ -33,9 +55,26 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository) extends 
         )
     yield ProfileResponse(
       username = profile._1,
-      bio = profile._2.getOrElse(""),
-      image = profile._3.getOrElse(""),
+      bio = profile._2,
+      image = profile._3,
     )
+
+  override def getProfilesByIds(request: GetProfilesByIdsRequest): IO[StatusException, ProfilesResponse] =
+    for
+      ids <- ZIO
+        .foreach(request.userIds.toList) { id =>
+          ZIO.attempt(UUID.fromString(id))
+        }
+        .mapError(e =>
+          StatusException(Status.INVALID_ARGUMENT.withDescription(s"Invalid user_id format: ${e.getMessage}"))
+        )
+      profiles <- profileRepository
+        .getProfilesByIds(ids)
+        .mapError(e =>
+          StatusException(Status.INTERNAL.withDescription(s"Database error: ${e.getMessage}"))
+        )
+        .map(_.map((id, p) => id.toString -> ProfileResponse(p._1, p._2, p._3)))
+    yield ProfilesResponse(profiles)
 
   override def upsertProfileProjection(request: UpsertProfileRequest): IO[StatusException, UpsertProfileResponse] =
     for
@@ -53,6 +92,17 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository) extends 
         )
         .mapError(e => StatusException(Status.INTERNAL.withDescription(s"Database error: ${e.getMessage}")))
     yield UpsertProfileResponse(success = true)
+
+  override def resolveIdsByUsernames(request: ResolveIdsByUsernamesRequest)
+      : IO[StatusException, ResolveIdsByUsernamesResponse] =
+    profileRepository
+      .resolveIdsByUsernames(request.usernames.toList)
+      .mapError(e => StatusException(Status.INTERNAL.withDescription(s"Database error: ${e.getMessage}")))
+      .map { idMap =>
+        ResolveIdsByUsernamesResponse(
+          idMap.map((name, id) => name -> id.fold("")(_.toString)).toMap
+        )
+      }
 
 object SocialGraphServiceImpl:
   val live: URLayer[ProfileRepository, ZioSocialGraph.SocialGraphService] =

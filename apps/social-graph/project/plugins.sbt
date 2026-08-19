@@ -1,4 +1,5 @@
 addDependencyTreePlugin
+addSbtPlugin("io.spray" % "sbt-revolver" % "0.10.0")
 addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.1.0-RC2")
 
 libraryDependencies ++= Seq(
