@@ -29,7 +29,3 @@ Route::middleware([OptionalJwtAuthenticationMiddleware::class])->group(function 
     Route::get('/articles/{slug}', [ArticleController::class, 'show']);
     Route::get('/tags', [TagController::class, 'index']);
 });
-
-Route::middleware([OptionalJwtAuthenticationMiddleware::class])->group(function () {
-    Route::get('/profiles/{username}', [ProfileController::class, 'show']);
-});
