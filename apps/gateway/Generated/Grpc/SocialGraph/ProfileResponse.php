@@ -19,13 +19,13 @@ class ProfileResponse extends \Google\Protobuf\Internal\Message
      */
     protected $username = '';
     /**
-     * Generated from protobuf field <code>string bio = 2;</code>
+     * Generated from protobuf field <code>optional string bio = 2;</code>
      */
-    protected $bio = '';
+    protected $bio = null;
     /**
-     * Generated from protobuf field <code>string image = 3;</code>
+     * Generated from protobuf field <code>optional string image = 3;</code>
      */
-    protected $image = '';
+    protected $image = null;
     /**
      * Generated from protobuf field <code>bool following = 4;</code>
      */
@@ -71,16 +71,26 @@ class ProfileResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string bio = 2;</code>
+     * Generated from protobuf field <code>optional string bio = 2;</code>
      * @return string
      */
     public function getBio()
     {
-        return $this->bio;
+        return isset($this->bio) ? $this->bio : '';
+    }
+
+    public function hasBio()
+    {
+        return isset($this->bio);
+    }
+
+    public function clearBio()
+    {
+        unset($this->bio);
     }
 
     /**
-     * Generated from protobuf field <code>string bio = 2;</code>
+     * Generated from protobuf field <code>optional string bio = 2;</code>
      * @param string $var
      * @return $this
      */
@@ -93,16 +103,26 @@ class ProfileResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string image = 3;</code>
+     * Generated from protobuf field <code>optional string image = 3;</code>
      * @return string
      */
     public function getImage()
     {
-        return $this->image;
+        return isset($this->image) ? $this->image : '';
+    }
+
+    public function hasImage()
+    {
+        return isset($this->image);
+    }
+
+    public function clearImage()
+    {
+        unset($this->image);
     }
 
     /**
-     * Generated from protobuf field <code>string image = 3;</code>
+     * Generated from protobuf field <code>optional string image = 3;</code>
      * @param string $var
      * @return $this
      */

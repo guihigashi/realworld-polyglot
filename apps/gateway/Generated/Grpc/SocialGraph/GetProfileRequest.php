@@ -15,11 +15,9 @@ use Google\Protobuf\RepeatedField;
 class GetProfileRequest extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Optional: The user making the request
-     *
-     * Generated from protobuf field <code>string requestor_id = 1;</code>
+     * Generated from protobuf field <code>optional string requestor_id = 1;</code>
      */
-    protected $requestor_id = '';
+    protected $requestor_id = null;
     /**
      * Generated from protobuf field <code>string target_username = 2;</code>
      */
@@ -32,7 +30,6 @@ class GetProfileRequest extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $requestor_id
-     *           Optional: The user making the request
      *     @type string $target_username
      * }
      */
@@ -42,20 +39,26 @@ class GetProfileRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Optional: The user making the request
-     *
-     * Generated from protobuf field <code>string requestor_id = 1;</code>
+     * Generated from protobuf field <code>optional string requestor_id = 1;</code>
      * @return string
      */
     public function getRequestorId()
     {
-        return $this->requestor_id;
+        return isset($this->requestor_id) ? $this->requestor_id : '';
+    }
+
+    public function hasRequestorId()
+    {
+        return isset($this->requestor_id);
+    }
+
+    public function clearRequestorId()
+    {
+        unset($this->requestor_id);
     }
 
     /**
-     * Optional: The user making the request
-     *
-     * Generated from protobuf field <code>string requestor_id = 1;</code>
+     * Generated from protobuf field <code>optional string requestor_id = 1;</code>
      * @param string $var
      * @return $this
      */

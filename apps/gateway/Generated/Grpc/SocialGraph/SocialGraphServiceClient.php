@@ -62,6 +62,20 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
     }
 
     /**
+     * @param \Generated\Grpc\SocialGraph\GetProfilesByIdsRequest $argument input argument
+     * @param array $metadata metadata
+     * @param array $options call options
+     * @return \Grpc\UnaryCall
+     */
+    public function GetProfilesByIds(\Generated\Grpc\SocialGraph\GetProfilesByIdsRequest $argument,
+      $metadata = [], $options = []) {
+        return $this->_simpleRequest('/com.github.guihigashi.conduit.social.SocialGraphService/GetProfilesByIds',
+        $argument,
+        ['\Generated\Grpc\SocialGraph\ProfilesResponse', 'decode'],
+        $metadata, $options);
+    }
+
+    /**
      * @param \Generated\Grpc\SocialGraph\UpsertProfileRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
@@ -72,6 +86,20 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
         return $this->_simpleRequest('/com.github.guihigashi.conduit.social.SocialGraphService/UpsertProfileProjection',
         $argument,
         ['\Generated\Grpc\SocialGraph\UpsertProfileResponse', 'decode'],
+        $metadata, $options);
+    }
+
+    /**
+     * @param \Generated\Grpc\SocialGraph\ResolveIdsByUsernamesRequest $argument input argument
+     * @param array $metadata metadata
+     * @param array $options call options
+     * @return \Grpc\UnaryCall
+     */
+    public function ResolveIdsByUsernames(\Generated\Grpc\SocialGraph\ResolveIdsByUsernamesRequest $argument,
+      $metadata = [], $options = []) {
+        return $this->_simpleRequest('/com.github.guihigashi.conduit.social.SocialGraphService/ResolveIdsByUsernames',
+        $argument,
+        ['\Generated\Grpc\SocialGraph\ResolveIdsByUsernamesResponse', 'decode'],
         $metadata, $options);
     }
 
