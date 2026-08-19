@@ -6,8 +6,8 @@ class Profile
 {
     public function __construct(
         public string $username,
-        public string $bio,
-        public string $image,
+        public ?string $bio,
+        public ?string $image,
         public bool $following
     ) {}
 

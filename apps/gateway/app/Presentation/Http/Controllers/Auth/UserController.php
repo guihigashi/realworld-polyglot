@@ -4,7 +4,7 @@ namespace App\Presentation\Http\Controllers\Auth;
 
 use App\Application\Auth\UseCases\GetCurrentUser;
 use App\Application\Auth\UseCases\UpdateUser;
-use App\Http\Controllers\Controller;
+use App\Presentation\Http\Controllers\Controller;
 use App\Presentation\Http\Requests\UpdateUserRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

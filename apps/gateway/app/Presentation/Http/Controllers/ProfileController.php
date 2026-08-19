@@ -5,7 +5,6 @@ namespace App\Presentation\Http\Controllers;
 use App\Application\Profile\UseCases\FollowUser;
 use App\Application\Profile\UseCases\GetProfile;
 use App\Application\Profile\UseCases\UnfollowUser;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

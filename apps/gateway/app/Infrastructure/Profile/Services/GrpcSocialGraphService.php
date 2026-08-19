@@ -7,11 +7,16 @@ use App\Domain\Profile\Contracts\SocialGraphServiceInterface;
 use App\Domain\Profile\Entities\Profile;
 use Generated\Grpc\SocialGraph\FollowRequest;
 use Generated\Grpc\SocialGraph\GetProfileRequest;
+use Generated\Grpc\SocialGraph\GetProfilesByIdsRequest;
 use Generated\Grpc\SocialGraph\ProfileResponse;
+use Generated\Grpc\SocialGraph\ProfilesResponse;
+use Generated\Grpc\SocialGraph\ResolveIdsByUsernamesRequest;
+use Generated\Grpc\SocialGraph\ResolveIdsByUsernamesResponse;
 use Generated\Grpc\SocialGraph\SocialGraphServiceClient;
 use Generated\Grpc\SocialGraph\UnfollowRequest;
 use Generated\Grpc\SocialGraph\UpsertProfileRequest;
 use Grpc\ChannelCredentials;
+use stdClass;
 
 class GrpcSocialGraphService implements SocialGraphServiceInterface
 {
@@ -26,24 +31,27 @@ class GrpcSocialGraphService implements SocialGraphServiceInterface
 
     public function upsertProfileProjection(User $user): void
     {
-        $request = (new UpsertProfileRequest)
+        $grpcRequest = (new UpsertProfileRequest)
             ->setUserId($user->getId())
             ->setUsername($user->getUsername())
             ->setBio($user->getBio() ?? '')
             ->setImage($user->getImage() ?? '');
 
-        [$response, $status] = $this->client->UpsertProfileProjection($request)->wait();
+        [, $status] = $this->client->UpsertProfileProjection($grpcRequest)->wait();
 
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException("Failed to project profile: $status->details");
         }
     }
 
-    public function getProfile(string $requestorId, string $targetUsername): Profile
+    public function getProfile(?string $requestorId, string $targetUsername): Profile
     {
-        $grpcRequest = new GetProfileRequest;
-        $grpcRequest->setTargetUsername($targetUsername);
-        $grpcRequest->setRequestorId($requestorId); // Passed directly per the proto
+        $grpcRequest = (new GetProfileRequest)
+            ->setTargetUsername($targetUsername);
+
+        if ($requestorId) {
+            $grpcRequest->setRequestorId($requestorId);
+        }
 
         /** @var ProfileResponse $response */
         [$response, $status] = $this->client->getProfile($grpcRequest)->wait();
@@ -51,11 +59,40 @@ class GrpcSocialGraphService implements SocialGraphServiceInterface
         return $this->handleResponse($response, $status);
     }
 
+    public function getProfilesByIds(array $userIds, ?string $requestorId): array
+    {
+        $request = (new GetProfilesByIdsRequest)
+            ->setUserIds($userIds);
+
+        if ($requestorId) {
+            $request->setRequestorId($requestorId);
+        }
+
+        /** @var ProfilesResponse $response */
+        [$response, $status] = $this->client->getProfilesByIds($request)->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException("gRPC Error ({$status->code}): {$status->details}");
+        }
+
+        $profiles = [];
+        foreach ($response->getProfiles() as $id => $profile) {
+            $profiles[$id] = new Profile(
+                username: $profile->getUsername(),
+                bio: $profile->hasBio() ? $profile->getBio() : null,
+                image: $profile->hasImage() ? $profile->getImage() : null,
+                following: $profile->getFollowing()
+            );
+        }
+
+        return $profiles;
+    }
+
     public function followUser(string $followerId, string $targetUsername): Profile
     {
-        $grpcRequest = new FollowRequest;
-        $grpcRequest->setTargetUsername($targetUsername);
-        $grpcRequest->setFollowerId($followerId);
+        $grpcRequest = (new FollowRequest)
+            ->setFollowerId($followerId)
+            ->setTargetUsername($targetUsername);
 
         /** @var ProfileResponse $response */
         [$response, $status] = $this->client->followUser($grpcRequest)->wait();
@@ -65,17 +102,32 @@ class GrpcSocialGraphService implements SocialGraphServiceInterface
 
     public function unfollowUser(string $followerId, string $targetUsername): Profile
     {
-        $grpcRequest = new UnfollowRequest;
-        $grpcRequest->setTargetUsername($targetUsername);
-        $grpcRequest->setFollowerId($followerId);
+        $request = (new UnfollowRequest)
+            ->setFollowerId($followerId)
+            ->setTargetUsername($targetUsername);
 
         /** @var ProfileResponse $response */
-        [$response, $status] = $this->client->unfollowUser($grpcRequest)->wait();
+        [$response, $status] = $this->client->unfollowUser($request)->wait();
 
         return $this->handleResponse($response, $status);
     }
 
-    private function handleResponse($response, $status): Profile
+    public function resolveIdsByUsernames(array $usernames): array
+    {
+        $request = (new ResolveIdsByUsernamesRequest)
+            ->setUsernames($usernames);
+
+        /** @var ResolveIdsByUsernamesResponse $response */
+        [$response, $status] = $this->client->resolveIdsByUsernames($request)->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException("gRPC Error ({$status->code}): {$status->details}");
+        }
+
+        return iterator_to_array($response->getResolvedIds());
+    }
+
+    private function handleResponse(ProfileResponse $response, stdClass $status): Profile
     {
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException("gRPC Error ({$status->code}): {$status->details}");
@@ -83,8 +135,8 @@ class GrpcSocialGraphService implements SocialGraphServiceInterface
 
         return new Profile(
             username: $response->getUsername(),
-            bio: $response->getBio(),
-            image: $response->getImage(),
+            bio: $response->hasBio() ? $response->getBio() : null,
+            image: $response->hasImage() ? $response->getImage() : null,
             following: $response->getFollowing()
         );
     }

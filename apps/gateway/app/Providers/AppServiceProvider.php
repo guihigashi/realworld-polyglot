@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Domain\Article\Contracts\ArticleServiceInterface;
 use App\Domain\Auth\Contracts\JwtDecoderInterface;
 use App\Domain\Auth\Contracts\JwtGeneratorInterface;
 use App\Domain\Auth\Contracts\PasswordHasherInterface;
 use App\Domain\Auth\Contracts\UserRepositoryInterface;
 use App\Domain\Profile\Contracts\SocialGraphServiceInterface;
+use App\Infrastructure\Article\Services\GrpcArticleService;
 use App\Infrastructure\Auth\Providers\FirebaseJwtDecoder;
 use App\Infrastructure\Auth\Providers\FirebaseJwtGenerator;
 use App\Infrastructure\Auth\Providers\LaravelPasswordHasher;
@@ -30,6 +32,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(JwtDecoderInterface::class, FirebaseJwtDecoder::class);
 
         $this->app->bind(SocialGraphServiceInterface::class, GrpcSocialGraphService::class);
+
+        $this->app->bind(ArticleServiceInterface::class, GrpcArticleService::class);
     }
 
     /**
