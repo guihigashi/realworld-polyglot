@@ -41,12 +41,12 @@ public class ArticleEntity {
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "article_tags", joinColumns = @JoinColumn(name = "article_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
-    private Set<TagEntity> tags = new HashSet<>();
+    private Set<TagEntity> tagList = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "favorites", joinColumns = @JoinColumn(name = "article_id"))
     @Column(name = "user_id", nullable = false)
-    private Set<UUID> favoritedByUsers = new HashSet<>();
+    private Set<UUID> favoritedBy = new HashSet<>();
 
     public UUID getId() {
         return id;
@@ -112,27 +112,27 @@ public class ArticleEntity {
         this.createdAt = createdAt;
     }
 
-    public Set<TagEntity> getTags() {
-        return tags;
+    public Set<TagEntity> getTagList() {
+        return tagList;
     }
 
-    public void setTags(Set<TagEntity> tags) {
-        this.tags = tags;
+    public void setTagList(Set<TagEntity> tags) {
+        this.tagList = tags;
     }
 
-    public Set<UUID> getFavoritedByUsers() {
-        return favoritedByUsers;
+    public Set<UUID> getFavoritedBy() {
+        return favoritedBy;
     }
 
-    public void setFavoritedByUsers(Set<UUID> favoritedByUsers) {
-        this.favoritedByUsers = favoritedByUsers;
+    public void setFavoritedBy(Set<UUID> favoritedByUsers) {
+        this.favoritedBy = favoritedByUsers;
     }
 
     public void addFavorite(UUID userId) {
-        this.favoritedByUsers.add(userId);
+        this.favoritedBy.add(userId);
     }
 
     public void removeFavorite(UUID userId) {
-        this.favoritedByUsers.remove(userId);
+        this.favoritedBy.remove(userId);
     }
 }

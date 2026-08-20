@@ -4,6 +4,7 @@ import com.github.guihigashi.conduit.article.service.domain.Article;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ArticleRepository {
     Article save(Article article);
@@ -12,8 +13,8 @@ public interface ArticleRepository {
 
     List<Article> findAllArticles(
             String tag,
-            String author,
-            String favoritedBy,
+            UUID authorId,
+            UUID favoritedById,
             int limit,
             int offset
     );

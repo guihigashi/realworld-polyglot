@@ -2,12 +2,10 @@ package com.github.guihigashi.conduit.article.service.infrastructure.persistence
 
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.github.guihigashi.conduit.article.service.domain.Article;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -16,11 +14,11 @@ import java.util.stream.Collectors;
 @Repository
 public class JpaArticleRepositoryAdapter implements ArticleRepository {
 
-    private final SpringDataArticleRepository jpaRepository;
+    private final SpringDataArticleRepository articleRepository;
     private final SpringDataTagRepository tagRepository;
 
-    public JpaArticleRepositoryAdapter(SpringDataArticleRepository jpaRepository, SpringDataTagRepository tagRepository) {
-        this.jpaRepository = jpaRepository;
+    public JpaArticleRepositoryAdapter(SpringDataArticleRepository articleRepository, SpringDataTagRepository tagRepository) {
+        this.articleRepository = articleRepository;
         this.tagRepository = tagRepository;
     }
 
@@ -28,7 +26,7 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
     @Transactional
     public Article save(Article article) {
         ArticleEntity entity = (article.id() != null)
-                ? jpaRepository.findById(article.id()).orElseGet(ArticleEntity::new)
+                ? articleRepository.findById(article.id()).orElseGet(ArticleEntity::new)
                 : new ArticleEntity();
 
         entity.setSlug(article.slug());
@@ -37,10 +35,10 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
         entity.setBody(article.body());
         entity.setAuthorId(article.authorId());
 
-        if (entity.getTags() == null) {
-            entity.setTags(new HashSet<>());
+        if (entity.getTagList() == null) {
+            entity.setTagList(new HashSet<>());
         } else {
-            entity.getTags().clear();
+            entity.getTagList().clear();
         }
 
         if (article.tagList() != null) {
@@ -54,109 +52,131 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
                             newTag.setName(tagName);
                             return tagRepository.save(newTag);
                         });
-                entity.getTags().add(tagEntity);
+                entity.getTagList().add(tagEntity);
             }
         }
 
         entity.setCreatedAt(article.createdAt());
         entity.setUpdatedAt(article.updatedAt());
 
-        var saved = jpaRepository.save(entity);
+        var saved = articleRepository.save(entity);
         return mapToDomain(saved, article.authorId().toString());
     }
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<Article> findBySlug(String slug) {
-        return jpaRepository.findBySlug(slug).map(articleEntity -> mapToDomain(articleEntity, null));
+        return articleRepository.findBySlug(slug).map(articleEntity -> mapToDomain(articleEntity, null));
     }
 
     @Override
-    public List<Article> findAllArticles(String tag, String author, String favoritedBy, int limit, int offset) {
-        Specification<ArticleEntity> spec = ((root, query, cb) -> {
+    public List<Article> findAllArticles(String tag, UUID authorId, UUID favoritedById, int limit, int offset) {
+        Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-            if (Long.class != query.getResultType()) {
-                root.fetch("tags", jakarta.persistence.criteria.JoinType.LEFT);
-                root.fetch("favoritedByUsers", jakarta.persistence.criteria.JoinType.LEFT);
-                query.distinct(true);
-            }
+        List<ArticleSummaryProjection> projections = articleRepository.findArticleSummaries(
+                tag, authorId, favoritedById, pageable
+        );
 
-            List<Predicate> predicates = new ArrayList<>();
+        if (projections.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-            if (tag != null && !tag.isBlank()) {
-                predicates.add(cb.equal(root.join("tags", JoinType.LEFT).get("name"), tag));
-            }
-            if (author != null && !author.isBlank()) {
-                predicates.add(cb.equal(root.get("authorId"), UUID.fromString(author)));
-            }
-            if (favoritedBy != null && !favoritedBy.isBlank()) {
-                predicates.add(cb.isMember(UUID.fromString(favoritedBy), root.get("favoritedByUsers")));
-            }
+        List<UUID> articleIds = projections.stream().map(ArticleSummaryProjection::id).toList();
 
+        Map<UUID, List<String>> tagsByArticle = articleRepository.findTagsForArticles(articleIds).stream()
+                .collect(Collectors.groupingBy(
+                        TagForArticle::articleId,
+                        Collectors.mapping(TagForArticle::tag, Collectors.toList())
+                ));
 
-            return cb.and(predicates.toArray(new Predicate[0]));
-        });
+        Map<UUID, Set<UUID>> favoritesByArticle = articleRepository.findFavoritesForArticles(articleIds).stream()
+                .collect(Collectors.groupingBy(
+                        FavoriteForArticle::articleId,
+                        Collectors.mapping(FavoriteForArticle::userId, Collectors.toSet())
+                ));
 
-        Pageable pageable = new OffsetPageRequest(offset, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        return jpaRepository.findAll(spec, pageable)
-                .stream()
-                .map(articleEntity -> mapToDomain(articleEntity, null))
-                .collect(java.util.stream.Collectors.toList());
+        // 3. Map safely across the Use Case boundary
+        return projections.stream()
+                .map(projection -> mapToDomain(
+                        projection,
+                        tagsByArticle.getOrDefault(projection.id(), Collections.emptyList()),
+                        favoritesByArticle.getOrDefault(projection.id(), Collections.emptySet()),
+                        null // currentUserId if contextually available
+                ))
+                .toList();
     }
 
     @Override
     public void deleteBySlug(String slug) {
-        jpaRepository.deleteBySlug(slug);
+        articleRepository.deleteBySlug(slug);
 
     }
 
     @Override
     public List<String> findAllTags() {
-        return jpaRepository.findAllDistinctTags();
+        return articleRepository.findAllDistinctTags();
     }
 
     @Override
     @Transactional
     public Article favoriteArticle(String slug, String requestorId) {
-        ArticleEntity entity = jpaRepository.findBySlug(slug)
+        ArticleEntity entity = articleRepository.findBySlug(slug)
                 .orElseThrow(() -> new RuntimeException("Article not found"));
 
         entity.addFavorite(UUID.fromString(requestorId));
 
-        var saved = jpaRepository.save(entity);
+        var saved = articleRepository.save(entity);
         return mapToDomain(saved, requestorId);
     }
 
     @Override
     @Transactional
     public Article unfavoriteArticle(String slug, String requestorId) {
-        ArticleEntity entity = jpaRepository.findBySlug(slug)
+        ArticleEntity entity = articleRepository.findBySlug(slug)
                 .orElseThrow(() -> new RuntimeException("Article not found"));
 
         entity.removeFavorite(UUID.fromString(requestorId));
 
-        var saved = jpaRepository.save(entity);
+        var saved = articleRepository.save(entity);
         return mapToDomain(saved, requestorId);
     }
 
     private Article mapToDomain(ArticleEntity entity, String currentUserId) {
         boolean isFavorited = currentUserId != null &&
-                entity.getFavoritedByUsers().contains(UUID.fromString(currentUserId));
+                entity.getFavoritedBy().contains(UUID.fromString(currentUserId));
+
         return new Article(
                 entity.getId(),
                 entity.getSlug(),
                 entity.getTitle(),
                 entity.getDescription(),
                 entity.getBody(),
-                entity.getTags() != null
-                        ? entity.getTags().stream().map(TagEntity::getName).collect(Collectors.toList())
+                entity.getTagList() != null
+                        ? entity.getTagList().stream().map(TagEntity::getName).collect(Collectors.toList())
                         : Collections.emptyList(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt(),
                 isFavorited,
-                entity.getFavoritedByUsers().size(),
+                entity.getFavoritedBy().size(),
                 entity.getAuthorId()
+        );
+    }
+
+    private Article mapToDomain(ArticleSummaryProjection projection, List<String> tags, Set<UUID> favoritedBy, String currentUserId) {
+        boolean isFavorited = currentUserId != null && favoritedBy.contains(UUID.fromString(currentUserId));
+
+        return new Article(
+                projection.id(),
+                projection.slug(),
+                projection.title(),
+                projection.description(),
+                "", // Body is successfully omitted at the database level
+                tags,
+                projection.createdAt(),
+                projection.updatedAt(),
+                isFavorited,
+                favoritedBy.size(),
+                projection.authorId()
         );
     }
 

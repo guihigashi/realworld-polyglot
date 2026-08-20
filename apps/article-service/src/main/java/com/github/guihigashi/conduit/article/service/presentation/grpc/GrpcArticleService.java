@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.grpc.server.service.GrpcService;
 
+import java.util.List;
 import java.util.UUID;
 
 @GrpcService
@@ -70,17 +71,17 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     public void listArticles(ListArticlesRequest request, StreamObserver<ListArticlesResponse> responseObserver) {
         try {
             int limit = request.getLimit() > 0 ? request.getLimit() : 20;
-            int offset = request.getOffset() > 0 ? request.getOffset() : 0;
+            int offset = Math.max(request.getOffset(), 0);
 
-            var articles = articleRepository.findAllArticles(
+            List<com.github.guihigashi.conduit.article.service.domain.Article> articles = articleRepository.findAllArticles(
                     request.hasTag() ? request.getTag() : null,
-                    request.hasAuthorId() ? request.getAuthorId() : null,
-                    request.hasFavoritedById() ? request.getFavoritedById() : null,
+                    request.hasAuthorId() ? UUID.fromString(request.getAuthorId()) : null,
+                    request.hasFavoritedById() ? UUID.fromString(request.getFavoritedById()) : null,
                     limit,
                     offset
             );
 
-            var response = ListArticlesResponse.newBuilder()
+            ListArticlesResponse response = ListArticlesResponse.newBuilder()
                     .addAllArticles(
                             articles.stream()
                                     .map(ArticleGrpcMapper::toSummaryProto)
