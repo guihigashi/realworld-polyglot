@@ -15,7 +15,7 @@ use Google\Protobuf\RepeatedField;
 class ListArticlesResponse extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>repeated .com.github.guihigashi.conduit.article.Article articles = 1;</code>
+     * Generated from protobuf field <code>repeated .com.github.guihigashi.conduit.article.ArticleSummary articles = 1;</code>
      */
     private $articles;
 
@@ -25,7 +25,7 @@ class ListArticlesResponse extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type \Generated\Grpc\Article\Article[] $articles
+     *     @type \Generated\Grpc\Article\ArticleSummary[] $articles
      * }
      */
     public function __construct($data = NULL) {
@@ -34,8 +34,8 @@ class ListArticlesResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>repeated .com.github.guihigashi.conduit.article.Article articles = 1;</code>
-     * @return RepeatedField<\Generated\Grpc\Article\Article>
+     * Generated from protobuf field <code>repeated .com.github.guihigashi.conduit.article.ArticleSummary articles = 1;</code>
+     * @return RepeatedField<\Generated\Grpc\Article\ArticleSummary>
      */
     public function getArticles()
     {
@@ -43,13 +43,13 @@ class ListArticlesResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>repeated .com.github.guihigashi.conduit.article.Article articles = 1;</code>
-     * @param \Generated\Grpc\Article\Article[] $var
+     * Generated from protobuf field <code>repeated .com.github.guihigashi.conduit.article.ArticleSummary articles = 1;</code>
+     * @param \Generated\Grpc\Article\ArticleSummary[] $var
      * @return $this
      */
     public function setArticles(array|RepeatedField $var)
     {
-        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Generated\Grpc\Article\Article::class);
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Generated\Grpc\Article\ArticleSummary::class);
         $this->articles = $arr;
 
         return $this;

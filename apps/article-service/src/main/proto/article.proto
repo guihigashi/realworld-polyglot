@@ -58,8 +58,20 @@ message ArticleResponse {
   Article article = 1;
 }
 
+message ArticleSummary {
+  string slug = 1;
+  string title = 2;
+  string description = 3;
+  repeated string tag_list = 4;
+  string created_at = 5;
+  string updated_at = 6;
+  bool favorited = 7;
+  int32 favorites_count = 8;
+  string author_id = 9;
+}
+
 message ListArticlesResponse {
-  repeated Article articles = 1;
+  repeated ArticleSummary articles = 1;
 }
 
 message TagListResponse {

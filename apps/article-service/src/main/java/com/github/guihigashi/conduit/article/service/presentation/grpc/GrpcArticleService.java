@@ -42,7 +42,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
 
         try {
             articleRepository.findBySlug(request.getSlug())
-                    .map(ArticleGrpcMapper::mapToGrpc)
+                    .map(ArticleGrpcMapper::toProto)
                     .ifPresentOrElse(
                             article -> {
                                 var response = ArticleResponse.newBuilder()
@@ -83,7 +83,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             var response = ListArticlesResponse.newBuilder()
                     .addAllArticles(
                             articles.stream()
-                                    .map(ArticleGrpcMapper::mapToGrpc)
+                                    .map(ArticleGrpcMapper::toSummaryProto)
                                     .toList()
                     )
                     .build();
@@ -111,7 +111,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             );
 
             var response = ArticleResponse.newBuilder()
-                    .setArticle(ArticleGrpcMapper.mapToGrpc(article))
+                    .setArticle(ArticleGrpcMapper.toProto(article))
                     .build();
 
             responseObserver.onNext(response);

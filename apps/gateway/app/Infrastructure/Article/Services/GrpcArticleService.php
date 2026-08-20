@@ -6,6 +6,7 @@ use App\Domain\Article\Contracts\ArticleServiceInterface;
 use Generated\Grpc\Article\Article;
 use Generated\Grpc\Article\ArticleResponse;
 use Generated\Grpc\Article\ArticleServiceClient;
+use Generated\Grpc\Article\ArticleSummary;
 use Generated\Grpc\Article\CreateArticleRequest;
 use Generated\Grpc\Article\GetArticleRequest;
 use Generated\Grpc\Article\ListArticlesRequest;
@@ -70,7 +71,7 @@ class GrpcArticleService implements ArticleServiceInterface
             throw new \RuntimeException('gRPC Error: '.$status->details);
         }
 
-        return array_map([$this, 'mapArticleResponse'], iterator_to_array($response->getArticles()));
+        return array_map([$this, 'mapArticleSummaryResponse'], iterator_to_array($response->getArticles()));
     }
 
     public function createArticle(array $payload, string $authorId): array
@@ -114,6 +115,21 @@ class GrpcArticleService implements ArticleServiceInterface
             'title' => $article->getTitle(),
             'description' => $article->getDescription(),
             'body' => $article->getBody(),
+            'tagList' => iterator_to_array($article->getTagList()),
+            'createdAt' => $article->getCreatedAt(),
+            'updatedAt' => $article->getUpdatedAt(),
+            'favorited' => $article->getFavorited(),
+            'favoritesCount' => $article->getFavoritesCount(),
+            'authorId' => $article->getAuthorId(),
+        ];
+    }
+
+    private function mapArticleSummaryResponse(ArticleSummary $article): array
+    {
+        return [
+            'slug' => $article->getSlug(),
+            'title' => $article->getTitle(),
+            'description' => $article->getDescription(),
             'tagList' => iterator_to_array($article->getTagList()),
             'createdAt' => $article->getCreatedAt(),
             'updatedAt' => $article->getUpdatedAt(),
