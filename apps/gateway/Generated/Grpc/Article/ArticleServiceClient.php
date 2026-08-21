@@ -17,20 +17,6 @@ class ArticleServiceClient extends \Grpc\BaseStub {
     }
 
     /**
-     * @param \Generated\Grpc\Article\GetArticleRequest $argument input argument
-     * @param array $metadata metadata
-     * @param array $options call options
-     * @return \Grpc\UnaryCall
-     */
-    public function GetArticle(\Generated\Grpc\Article\GetArticleRequest $argument,
-      $metadata = [], $options = []) {
-        return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/GetArticle',
-        $argument,
-        ['\Generated\Grpc\Article\ArticleResponse', 'decode'],
-        $metadata, $options);
-    }
-
-    /**
      * @param \Generated\Grpc\Article\ListArticlesRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
@@ -41,6 +27,20 @@ class ArticleServiceClient extends \Grpc\BaseStub {
         return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/ListArticles',
         $argument,
         ['\Generated\Grpc\Article\ListArticlesResponse', 'decode'],
+        $metadata, $options);
+    }
+
+    /**
+     * @param \Generated\Grpc\Article\GetArticleRequest $argument input argument
+     * @param array $metadata metadata
+     * @param array $options call options
+     * @return \Grpc\UnaryCall
+     */
+    public function GetArticle(\Generated\Grpc\Article\GetArticleRequest $argument,
+      $metadata = [], $options = []) {
+        return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/GetArticle',
+        $argument,
+        ['\Generated\Grpc\Article\ArticleResponse', 'decode'],
         $metadata, $options);
     }
 
@@ -59,16 +59,16 @@ class ArticleServiceClient extends \Grpc\BaseStub {
     }
 
     /**
-     * @param \Google\Protobuf\GPBEmpty $argument input argument
+     * @param \Generated\Grpc\Article\UpdateArticleRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
      * @return \Grpc\UnaryCall
      */
-    public function GetTags(\Google\Protobuf\GPBEmpty $argument,
+    public function UpdateArticle(\Generated\Grpc\Article\UpdateArticleRequest $argument,
       $metadata = [], $options = []) {
-        return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/GetTags',
+        return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/UpdateArticle',
         $argument,
-        ['\Generated\Grpc\Article\TagListResponse', 'decode'],
+        ['\Generated\Grpc\Article\ArticleResponse', 'decode'],
         $metadata, $options);
     }
 
@@ -97,6 +97,20 @@ class ArticleServiceClient extends \Grpc\BaseStub {
         return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/UnfavoriteArticle',
         $argument,
         ['\Generated\Grpc\Article\ArticleResponse', 'decode'],
+        $metadata, $options);
+    }
+
+    /**
+     * @param \Google\Protobuf\GPBEmpty $argument input argument
+     * @param array $metadata metadata
+     * @param array $options call options
+     * @return \Grpc\UnaryCall
+     */
+    public function GetTags(\Google\Protobuf\GPBEmpty $argument,
+      $metadata = [], $options = []) {
+        return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/GetTags',
+        $argument,
+        ['\Generated\Grpc\Article\TagListResponse', 'decode'],
         $metadata, $options);
     }
 

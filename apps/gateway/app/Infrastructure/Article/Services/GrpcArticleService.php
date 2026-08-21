@@ -12,6 +12,8 @@ use Generated\Grpc\Article\GetArticleRequest;
 use Generated\Grpc\Article\ListArticlesRequest;
 use Generated\Grpc\Article\ListArticlesResponse;
 use Generated\Grpc\Article\TagListResponse;
+use Generated\Grpc\Article\TagListUpdatePayload;
+use Generated\Grpc\Article\UpdateArticleRequest;
 use Google\Protobuf\GPBEmpty;
 use Grpc\ChannelCredentials;
 
@@ -88,6 +90,40 @@ class GrpcArticleService implements ArticleServiceInterface
 
         /** @var ArticleResponse $response */
         [$response, $status] = $this->client->CreateArticle($request)->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
+
+        return $this->mapArticleResponse($response->getArticle());
+    }
+
+    public function updateArticle(string $slug, array $payload, string $authorId): array
+    {
+        $request = (new UpdateArticleRequest)
+            ->setSlug($slug)
+            ->setAuthorId($authorId);
+
+        if (! empty($payload['title'])) {
+            $request->setTitle($payload['title']);
+        }
+
+        if (! empty($payload['description'])) {
+            $request->setDescription($payload['description']);
+        }
+
+        if (! empty($payload['body'])) {
+            $request->setBody($payload['body']);
+        }
+
+        if (isset($payload['tagList'])) {
+            $tagListPayload = (new TagListUpdatePayload)
+                ->setTags($payload['tagList']);
+            $request->setTagList($tagListPayload);
+        }
+
+        /** @var ArticleResponse $response */
+        [$response, $status] = $this->client->UpdateArticle($request)->wait();
 
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException('gRPC Error: '.$status->details);

@@ -5,6 +5,7 @@ namespace App\Presentation\Http\Controllers;
 use App\Application\Article\UseCases\CreateArticle;
 use App\Application\Article\UseCases\GetArticle;
 use App\Application\Article\UseCases\ListArticles;
+use App\Application\Article\UseCases\UpdateArticle;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -12,6 +13,7 @@ readonly class ArticleController
 {
     public function __construct(
         private CreateArticle $createArticleUseCase,
+        private UpdateArticle $updateArticleUseCase,
         private GetArticle $getArticleUseCase,
         private ListArticles $listArticlesUseCase,
     ) {}
@@ -63,5 +65,24 @@ readonly class ArticleController
         return response()->json([
             'article' => $article,
         ], 201);
+    }
+
+    public function update(Request $request, string $slug): JsonResponse
+    {
+        $authorId = $request->attributes->get('auth_user_id');
+
+        $payload = $request->validate([
+            'article.title' => 'sometimes|string',
+            'article.description' => 'sometimes|string',
+            'article.body' => 'sometimes|string',
+            'article.tagList' => 'sometimes|array',
+            'article.tagList.*' => 'string',
+        ])['article'];
+
+        $article = $this->updateArticleUseCase->execute($slug, $payload, $authorId);
+
+        return response()->json([
+            'article' => $article,
+        ]);
     }
 }

@@ -3,6 +3,7 @@ package com.github.guihigashi.conduit.article.service.presentation.grpc;
 import com.github.guihigashi.conduit.article.grpc.*;
 import com.github.guihigashi.conduit.article.service.application.CreateArticleUseCase;
 import com.github.guihigashi.conduit.article.service.application.GetTagsUseCase;
+import com.github.guihigashi.conduit.article.service.application.UpdateArticleUseCase;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.google.protobuf.Empty;
 import io.grpc.Status;
@@ -20,16 +21,52 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     private static final Logger log = LoggerFactory.getLogger(GrpcArticleService.class);
 
     private final CreateArticleUseCase createArticleUseCase;
+    private final UpdateArticleUseCase updateArticleUseCase;
     private final GetTagsUseCase getTagsUseCase;
     private final ArticleRepository articleRepository;
 
     public GrpcArticleService(
             CreateArticleUseCase createArticleUseCase,
+            UpdateArticleUseCase updateArticleUseCase,
             GetTagsUseCase getTagsUseCase,
             ArticleRepository articleRepository) {
         this.createArticleUseCase = createArticleUseCase;
+        this.updateArticleUseCase = updateArticleUseCase;
         this.getTagsUseCase = getTagsUseCase;
         this.articleRepository = articleRepository;
+    }
+
+    @Override
+    public void listArticles(ListArticlesRequest request, StreamObserver<ListArticlesResponse> responseObserver) {
+        try {
+            int limit = request.getLimit() > 0 ? request.getLimit() : 20;
+            int offset = Math.max(request.getOffset(), 0);
+
+            List<com.github.guihigashi.conduit.article.service.domain.Article> articles = articleRepository.findAllArticles(
+                    request.hasTag() ? request.getTag() : null,
+                    request.hasAuthorId() ? UUID.fromString(request.getAuthorId()) : null,
+                    request.hasFavoritedById() ? UUID.fromString(request.getFavoritedById()) : null,
+                    limit,
+                    offset
+            );
+
+            ListArticlesResponse response = ListArticlesResponse.newBuilder()
+                    .addAllArticles(
+                            articles.stream()
+                                    .map(ArticleGrpcMapper::toSummaryProto)
+                                    .toList()
+                    )
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            log.error("Error processing ListArticles request", e);
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("An internal error occurred while listing articles: " + e.getMessage())
+                    .withCause(e)
+                    .asRuntimeException());
+        }
     }
 
     @Override
@@ -68,39 +105,6 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     }
 
     @Override
-    public void listArticles(ListArticlesRequest request, StreamObserver<ListArticlesResponse> responseObserver) {
-        try {
-            int limit = request.getLimit() > 0 ? request.getLimit() : 20;
-            int offset = Math.max(request.getOffset(), 0);
-
-            List<com.github.guihigashi.conduit.article.service.domain.Article> articles = articleRepository.findAllArticles(
-                    request.hasTag() ? request.getTag() : null,
-                    request.hasAuthorId() ? UUID.fromString(request.getAuthorId()) : null,
-                    request.hasFavoritedById() ? UUID.fromString(request.getFavoritedById()) : null,
-                    limit,
-                    offset
-            );
-
-            ListArticlesResponse response = ListArticlesResponse.newBuilder()
-                    .addAllArticles(
-                            articles.stream()
-                                    .map(ArticleGrpcMapper::toSummaryProto)
-                                    .toList()
-                    )
-                    .build();
-
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
-        } catch (Exception e) {
-            log.error("Error processing ListArticles request", e);
-            responseObserver.onError(Status.INTERNAL
-                    .withDescription("An internal error occurred while listing articles: " + e.getMessage())
-                    .withCause(e)
-                    .asRuntimeException());
-        }
-    }
-
-    @Override
     public void createArticle(CreateArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
         try {
             var article = createArticleUseCase.execute(
@@ -122,6 +126,39 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }
+    }
+
+    @Override
+    public void updateArticle(UpdateArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
+        try {
+            var updatedArticle = updateArticleUseCase.execute(
+                    request.getSlug(),
+                    request.hasTitle() ? request.getTitle() : null,
+                    request.hasDescription() ? request.getDescription() : null,
+                    request.hasBody() ? request.getBody() : null,
+                    request.hasTagList() ? request.getTagList().getTagsList() : null,
+                    UUID.fromString(request.getAuthorId())
+            );
+
+            var response = ArticleResponse.newBuilder()
+                    .setArticle(ArticleGrpcMapper.toProto(updatedArticle))
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void favoriteArticle(FavoriteArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
+        super.favoriteArticle(request, responseObserver);
+    }
+
+    @Override
+    public void unfavoriteArticle(UnfavoriteArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
+        super.unfavoriteArticle(request, responseObserver);
     }
 
     @Override

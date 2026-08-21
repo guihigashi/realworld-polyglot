@@ -20,6 +20,7 @@ Route::middleware([JwtAuthenticationMiddleware::class])->group(function () {
     Route::delete('/profiles/{username}/follow', [ProfileController::class, 'unfollow']);
 
     Route::post('/articles', [ArticleController::class, 'store']);
+    Route::put('/articles/{slug}', [ArticleController::class, 'update']);
 });
 
 Route::middleware([OptionalJwtAuthenticationMiddleware::class])->group(function () {

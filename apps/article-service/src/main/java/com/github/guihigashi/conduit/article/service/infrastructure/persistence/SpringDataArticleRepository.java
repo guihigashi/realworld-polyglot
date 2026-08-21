@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface SpringDataArticleRepository extends JpaRepository<ArticleEntity, UUID>, JpaSpecificationExecutor<ArticleEntity> {
-    @EntityGraph(attributePaths = {"tags", "favoritedByUsers"})
+    @EntityGraph(attributePaths = {"tagList", "favoritedBy"})
     Optional<ArticleEntity> findBySlug(String slug);
 
     void deleteBySlug(String slug);

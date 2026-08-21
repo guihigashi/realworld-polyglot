@@ -5,6 +5,7 @@ import com.github.guihigashi.conduit.article.service.domain.Article;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,8 +18,8 @@ public class CreateArticleUseCase {
     }
 
     public Article execute(String title, String description, String body, List<String> tagList, UUID authorId) {
-        var slug = title.toLowerCase().replaceAll("[^a-z0-9\\-]", "-").replaceAll("-+", "-");
-        var now = OffsetDateTime.now();
+        var slug = Article.generateSlug(title);
+        var now = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
 
         var article = new Article(
                 UUID.randomUUID(),

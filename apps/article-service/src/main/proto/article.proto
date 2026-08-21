@@ -11,17 +11,13 @@ option php_namespace = "Generated\\Grpc\\Article";
 option php_metadata_namespace = "Generated\\Grpc\\Article\\Metadata";
 
 service ArticleService {
-  rpc GetArticle (GetArticleRequest) returns (ArticleResponse);
   rpc ListArticles (ListArticlesRequest) returns (ListArticlesResponse);
+  rpc GetArticle (GetArticleRequest) returns (ArticleResponse);
   rpc CreateArticle (CreateArticleRequest) returns (ArticleResponse);
-  rpc GetTags (google.protobuf.Empty) returns (TagListResponse);
+  rpc UpdateArticle (UpdateArticleRequest) returns (ArticleResponse);
   rpc FavoriteArticle (FavoriteArticleRequest) returns (ArticleResponse);
   rpc UnfavoriteArticle (UnfavoriteArticleRequest) returns (ArticleResponse);
-}
-
-message GetArticleRequest {
-  string slug = 1;
-  string requestor_id = 2; // For calculating 'favorited' status
+  rpc GetTags (google.protobuf.Empty) returns (TagListResponse);
 }
 
 message ListArticlesRequest {
@@ -33,12 +29,25 @@ message ListArticlesRequest {
   optional string requestor_id = 6;
 }
 
-message CreateArticleRequest {
-  string title = 1;
-  string description = 2;
-  string body = 3;
+message ArticleSummary {
+  string slug = 1;
+  string title = 2;
+  string description = 3;
   repeated string tag_list = 4;
-  string author_id = 5;
+  string created_at = 5;
+  string updated_at = 6;
+  bool favorited = 7;
+  int32 favorites_count = 8;
+  string author_id = 9;
+}
+
+message ListArticlesResponse {
+  repeated ArticleSummary articles = 1;
+}
+
+message GetArticleRequest {
+  string slug = 1;
+  string requestor_id = 2; // For calculating 'favorited' status
 }
 
 message Article {
@@ -58,24 +67,25 @@ message ArticleResponse {
   Article article = 1;
 }
 
-message ArticleSummary {
-  string slug = 1;
-  string title = 2;
-  string description = 3;
+message CreateArticleRequest {
+  string title = 1;
+  string description = 2;
+  string body = 3;
   repeated string tag_list = 4;
-  string created_at = 5;
-  string updated_at = 6;
-  bool favorited = 7;
-  int32 favorites_count = 8;
-  string author_id = 9;
+  string author_id = 5;
 }
 
-message ListArticlesResponse {
-  repeated ArticleSummary articles = 1;
-}
-
-message TagListResponse {
+message TagListUpdatePayload {
   repeated string tags = 1;
+}
+
+message UpdateArticleRequest {
+  string slug = 1;
+  optional string title = 2;
+  optional string description = 3;
+  optional string body = 4;
+  optional TagListUpdatePayload tag_list = 5;
+  string author_id = 6;
 }
 
 message FavoriteArticleRequest {
@@ -86,4 +96,8 @@ message FavoriteArticleRequest {
 message UnfavoriteArticleRequest {
   string slug = 1;
   string requestor_id = 2;
+}
+
+message TagListResponse {
+  repeated string tags = 1;
 }

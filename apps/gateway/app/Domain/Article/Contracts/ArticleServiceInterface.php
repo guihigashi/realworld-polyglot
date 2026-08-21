@@ -10,5 +10,7 @@ interface ArticleServiceInterface
 
     public function createArticle(array $payload, string $authorId): array;
 
+    public function updateArticle(string $slug, array $payload, string $authorId): array;
+
     public function getTags(): array;
 }
