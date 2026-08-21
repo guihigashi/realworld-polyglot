@@ -31,13 +31,9 @@ class UpdateArticleRequest extends \Google\Protobuf\Internal\Message
      */
     protected $body = null;
     /**
-     * Generated from protobuf field <code>optional .com.github.guihigashi.conduit.article.TagListUpdatePayload tag_list = 5;</code>
+     * Generated from protobuf field <code>optional .com.github.guihigashi.conduit.article.TagListMessage tag_list = 5;</code>
      */
     protected $tag_list = null;
-    /**
-     * Generated from protobuf field <code>string author_id = 6;</code>
-     */
-    protected $author_id = '';
 
     /**
      * Constructor.
@@ -49,8 +45,7 @@ class UpdateArticleRequest extends \Google\Protobuf\Internal\Message
      *     @type string $title
      *     @type string $description
      *     @type string $body
-     *     @type \Generated\Grpc\Article\TagListUpdatePayload $tag_list
-     *     @type string $author_id
+     *     @type \Generated\Grpc\Article\TagListMessage $tag_list
      * }
      */
     public function __construct($data = NULL) {
@@ -177,8 +172,8 @@ class UpdateArticleRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>optional .com.github.guihigashi.conduit.article.TagListUpdatePayload tag_list = 5;</code>
-     * @return \Generated\Grpc\Article\TagListUpdatePayload|null
+     * Generated from protobuf field <code>optional .com.github.guihigashi.conduit.article.TagListMessage tag_list = 5;</code>
+     * @return \Generated\Grpc\Article\TagListMessage|null
      */
     public function getTagList()
     {
@@ -196,35 +191,13 @@ class UpdateArticleRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>optional .com.github.guihigashi.conduit.article.TagListUpdatePayload tag_list = 5;</code>
-     * @param \Generated\Grpc\Article\TagListUpdatePayload $var
+     * Generated from protobuf field <code>optional .com.github.guihigashi.conduit.article.TagListMessage tag_list = 5;</code>
+     * @param \Generated\Grpc\Article\TagListMessage $var
      * @return $this
      */
-    public function setTagList(\Generated\Grpc\Article\TagListUpdatePayload|null $var)
+    public function setTagList(\Generated\Grpc\Article\TagListMessage|null $var)
     {
         $this->tag_list = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>string author_id = 6;</code>
-     * @return string
-     */
-    public function getAuthorId()
-    {
-        return $this->author_id;
-    }
-
-    /**
-     * Generated from protobuf field <code>string author_id = 6;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setAuthorId(string $var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->author_id = $var;
 
         return $this;
     }

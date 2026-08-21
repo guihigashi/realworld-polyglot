@@ -12,13 +12,13 @@ option php_metadata_namespace = "Generated\\Grpc\\Article\\Metadata";
 
 service ArticleService {
   rpc ListArticles (ListArticlesRequest) returns (ListArticlesResponse);
-  rpc GetArticle (GetArticleRequest) returns (ArticleResponse);
+  rpc GetArticle (SlugMessage) returns (ArticleResponse);
   rpc CreateArticle (CreateArticleRequest) returns (ArticleResponse);
   rpc UpdateArticle (UpdateArticleRequest) returns (ArticleResponse);
-  rpc DeleteArticle (GetArticleRequest) returns (google.protobuf.Empty);
-  rpc FavoriteArticle (FavoriteArticleRequest) returns (ArticleResponse);
-  rpc UnfavoriteArticle (UnfavoriteArticleRequest) returns (ArticleResponse);
-  rpc GetTags (google.protobuf.Empty) returns (TagListResponse);
+  rpc DeleteArticle (SlugMessage) returns (google.protobuf.Empty);
+  rpc FavoriteArticle (SlugMessage) returns (ArticleResponse);
+  rpc UnfavoriteArticle (SlugMessage) returns (ArticleResponse);
+  rpc GetTags (google.protobuf.Empty) returns (TagListMessage);
 }
 
 message ListArticlesRequest {
@@ -27,7 +27,6 @@ message ListArticlesRequest {
   optional string favorited_by_id = 3;
   int32 limit = 4;
   int32 offset = 5;
-  optional string requestor_id = 6;
 }
 
 message ArticleSummary {
@@ -46,9 +45,8 @@ message ListArticlesResponse {
   repeated ArticleSummary articles = 1;
 }
 
-message GetArticleRequest {
+message SlugMessage {
   string slug = 1;
-  string requestor_id = 2; // For calculating 'favorited' status
 }
 
 message Article {
@@ -73,10 +71,9 @@ message CreateArticleRequest {
   string description = 2;
   string body = 3;
   repeated string tag_list = 4;
-  string author_id = 5;
 }
 
-message TagListUpdatePayload {
+message TagListMessage {
   repeated string tags = 1;
 }
 
@@ -85,20 +82,6 @@ message UpdateArticleRequest {
   optional string title = 2;
   optional string description = 3;
   optional string body = 4;
-  optional TagListUpdatePayload tag_list = 5;
-  string author_id = 6;
+  optional TagListMessage tag_list = 5;
 }
 
-message FavoriteArticleRequest {
-  string slug = 1;
-  string requestor_id = 2;
-}
-
-message UnfavoriteArticleRequest {
-  string slug = 1;
-  string requestor_id = 2;
-}
-
-message TagListResponse {
-  repeated string tags = 1;
-}

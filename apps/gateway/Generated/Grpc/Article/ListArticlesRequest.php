@@ -34,10 +34,6 @@ class ListArticlesRequest extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>int32 offset = 5;</code>
      */
     protected $offset = 0;
-    /**
-     * Generated from protobuf field <code>optional string requestor_id = 6;</code>
-     */
-    protected $requestor_id = null;
 
     /**
      * Constructor.
@@ -50,7 +46,6 @@ class ListArticlesRequest extends \Google\Protobuf\Internal\Message
      *     @type string $favorited_by_id
      *     @type int $limit
      *     @type int $offset
-     *     @type string $requestor_id
      * }
      */
     public function __construct($data = NULL) {
@@ -194,38 +189,6 @@ class ListArticlesRequest extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkInt32($var);
         $this->offset = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>optional string requestor_id = 6;</code>
-     * @return string
-     */
-    public function getRequestorId()
-    {
-        return isset($this->requestor_id) ? $this->requestor_id : '';
-    }
-
-    public function hasRequestorId()
-    {
-        return isset($this->requestor_id);
-    }
-
-    public function clearRequestorId()
-    {
-        unset($this->requestor_id);
-    }
-
-    /**
-     * Generated from protobuf field <code>optional string requestor_id = 6;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setRequestorId(string $var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->requestor_id = $var;
 
         return $this;
     }

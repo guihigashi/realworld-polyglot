@@ -9,11 +9,11 @@ use Generated\Grpc\Article\ArticleResponse;
 use Generated\Grpc\Article\ArticleServiceClient;
 use Generated\Grpc\Article\ArticleSummary;
 use Generated\Grpc\Article\CreateArticleRequest;
-use Generated\Grpc\Article\GetArticleRequest;
 use Generated\Grpc\Article\ListArticlesRequest;
 use Generated\Grpc\Article\ListArticlesResponse;
+use Generated\Grpc\Article\SlugMessage;
+use Generated\Grpc\Article\TagListMessage;
 use Generated\Grpc\Article\TagListResponse;
-use Generated\Grpc\Article\TagListUpdatePayload;
 use Generated\Grpc\Article\UpdateArticleRequest;
 use Google\Protobuf\GPBEmpty;
 use Grpc\ChannelCredentials;
@@ -27,29 +27,6 @@ class GrpcArticleService implements ArticleServiceInterface
         $this->client = new ArticleServiceClient('localhost:9092', [
             'credentials' => ChannelCredentials::createInsecure(),
         ]);
-    }
-
-    public function getArticle(string $slug, ?string $requestorId): array
-    {
-        $request = new GetArticleRequest;
-        $request->setSlug($slug);
-
-        if ($requestorId !== null) {
-            $request->setRequestorId($requestorId);
-        }
-
-        /** @var ArticleResponse $response */
-        [$response, $status] = $this->client->GetArticle($request)->wait();
-
-        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
-            throw new ResourceNotFoundException('not found');
-        }
-
-        if ($status->code !== \Grpc\STATUS_OK) {
-            throw new \RuntimeException('gRPC Error: '.$status->details);
-        }
-
-        return $this->mapArticleResponse($response->getArticle());
     }
 
     public function listArticles(?string $tag, ?string $authorId, ?string $favoritedById, int $limit, int $offset, ?string $requestorId): array
@@ -67,12 +44,9 @@ class GrpcArticleService implements ArticleServiceInterface
         if ($favoritedById !== null) {
             $request->setFavoritedById($favoritedById);
         }
-        if ($requestorId !== null) {
-            $request->setRequestorId($requestorId);
-        }
 
         /** @var ListArticlesResponse $response */
-        [$response, $status] = $this->client->ListArticles($request)->wait();
+        [$response, $status] = $this->client->ListArticles($request, $this->metadataOfRequestor($requestorId))->wait();
 
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException('gRPC Error: '.$status->details);
@@ -81,20 +55,17 @@ class GrpcArticleService implements ArticleServiceInterface
         return array_map([$this, 'mapArticleSummaryResponse'], iterator_to_array($response->getArticles()));
     }
 
-    public function createArticle(array $payload, string $authorId): array
+    public function getArticle(string $slug, ?string $requestorId): array
     {
-        $request = new CreateArticleRequest;
-        $request->setTitle($payload['title']);
-        $request->setDescription($payload['description']);
-        $request->setBody($payload['body']);
-        $request->setAuthorId($authorId);
-
-        if (! empty($payload['tagList'])) {
-            $request->setTagList($payload['tagList']);
-        }
+        $request = (new SlugMessage)
+            ->setSlug($slug);
 
         /** @var ArticleResponse $response */
-        [$response, $status] = $this->client->CreateArticle($request)->wait();
+        [$response, $status] = $this->client->GetArticle($request, $this->metadataOfRequestor($requestorId))->wait();
+
+        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
+            throw new ResourceNotFoundException('not found');
+        }
 
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException('gRPC Error: '.$status->details);
@@ -103,11 +74,32 @@ class GrpcArticleService implements ArticleServiceInterface
         return $this->mapArticleResponse($response->getArticle());
     }
 
-    public function updateArticle(string $slug, array $payload, string $authorId): array
+    public function createArticle(array $payload, string $authorId): array
+    {
+        $request = (new CreateArticleRequest)
+            ->setTitle($payload['title'])
+            ->setDescription($payload['description'])
+            ->setBody($payload['body']);
+
+        if (! empty($payload['tagList'])) {
+            $request->setTagList($payload['tagList']);
+        }
+
+        /** @var ArticleResponse $response */
+        [$response, $status] = $this->client->CreateArticle(
+            $request, $this->metadataOfRequestor($authorId))->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
+
+        return $this->mapArticleResponse($response->getArticle());
+    }
+
+    public function updateArticle(string $slug, array $payload, string $requestorId): array
     {
         $request = (new UpdateArticleRequest)
-            ->setSlug($slug)
-            ->setAuthorId($authorId);
+            ->setSlug($slug);
 
         if (! empty($payload['title'])) {
             $request->setTitle($payload['title']);
@@ -122,13 +114,14 @@ class GrpcArticleService implements ArticleServiceInterface
         }
 
         if (isset($payload['tagList'])) {
-            $tagListPayload = (new TagListUpdatePayload)
+            $tagListPayload = (new TagListMessage)
                 ->setTags($payload['tagList']);
             $request->setTagList($tagListPayload);
         }
 
         /** @var ArticleResponse $response */
-        [$response, $status] = $this->client->UpdateArticle($request)->wait();
+        [$response, $status] = $this->client->UpdateArticle(
+            $request, $this->metadataOfRequestor($requestorId))->wait();
 
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException('gRPC Error: '.$status->details);
@@ -139,11 +132,10 @@ class GrpcArticleService implements ArticleServiceInterface
 
     public function delete(string $slug, string $requestorId): void
     {
-        $request = (new GetArticleRequest)
-            ->setSlug($slug)
-            ->setRequestorId($requestorId);
+        $request = (new SlugMessage)
+            ->setSlug($slug);
 
-        [, $status] = $this->client->DeleteArticle($request)->wait();
+        [, $status] = $this->client->DeleteArticle($request, $this->metadataOfRequestor($requestorId))->wait();
 
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException('gRPC Error: '.$status->details);
@@ -191,5 +183,16 @@ class GrpcArticleService implements ArticleServiceInterface
             'favoritesCount' => $article->getFavoritesCount(),
             'authorId' => $article->getAuthorId(),
         ];
+    }
+
+    private function metadataOfRequestor(?string $requestorId): array
+    {
+        if ($requestorId !== null) {
+            return [
+                'x-requestor-id' => [$requestorId],
+            ];
+        }
+
+        return [];
     }
 }

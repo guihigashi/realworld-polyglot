@@ -16,7 +16,7 @@ import org.springframework.grpc.server.service.GrpcService;
 import java.util.List;
 import java.util.UUID;
 
-@GrpcService
+@GrpcService(interceptors = RequestorIdInterceptor.class)
 public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBase {
 
     private static final Logger log = LoggerFactory.getLogger(GrpcArticleService.class);
@@ -43,6 +43,8 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     @Override
     public void listArticles(ListArticlesRequest request, StreamObserver<ListArticlesResponse> responseObserver) {
         try {
+            String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
+
             int limit = request.getLimit() > 0 ? request.getLimit() : 20;
             int offset = Math.max(request.getOffset(), 0);
 
@@ -74,8 +76,8 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     }
 
     @Override
-    public void getArticle(GetArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
-        if (request.getSlug() == null || request.getSlug().isBlank()) {
+    public void getArticle(SlugMessage request, StreamObserver<ArticleResponse> responseObserver) {
+        if (request.getSlug().isBlank()) {
             responseObserver.onError(Status.INVALID_ARGUMENT
                     .withDescription("Article slug cannot be empty")
                     .asRuntimeException());
@@ -98,9 +100,6 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
                                     .asRuntimeException())
                     );
         } catch (Exception e) {
-            log.error("Error retrieving article - Slug: {}, Requestor: {}",
-                    request.getSlug(), request.getRequestorId(), e);
-
             responseObserver.onError(Status.INTERNAL
                     .withDescription("An internal error occurred while retrieving the article")
                     .withCause(e)
@@ -111,12 +110,18 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     @Override
     public void createArticle(CreateArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
         try {
+            String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
+            if (requestorId == null) {
+                responseObserver.onError(Status.UNAUTHENTICATED.asRuntimeException());
+                return;
+            }
+
             var article = createArticleUseCase.execute(
                     request.getTitle(),
                     request.getDescription(),
                     request.getBody(),
                     request.getTagListList(),
-                    UUID.fromString(request.getAuthorId())
+                    UUID.fromString(requestorId)
             );
 
             var response = ArticleResponse.newBuilder()
@@ -135,13 +140,19 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     @Override
     public void updateArticle(UpdateArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
         try {
+            String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
+            if (requestorId == null) {
+                responseObserver.onError(Status.UNAUTHENTICATED.asRuntimeException());
+                return;
+            }
+
             var updatedArticle = updateArticleUseCase.execute(
                     request.getSlug(),
                     request.hasTitle() ? request.getTitle() : null,
                     request.hasDescription() ? request.getDescription() : null,
                     request.hasBody() ? request.getBody() : null,
                     request.hasTagList() ? request.getTagList().getTagsList() : null,
-                    UUID.fromString(request.getAuthorId())
+                    UUID.fromString(requestorId)
             );
 
             var response = ArticleResponse.newBuilder()
@@ -156,11 +167,17 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     }
 
     @Override
-    public void deleteArticle(GetArticleRequest request, StreamObserver<Empty> responseObserver) {
+    public void deleteArticle(SlugMessage request, StreamObserver<Empty> responseObserver) {
         try {
+            String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
+            if (requestorId == null) {
+                responseObserver.onError(Status.UNAUTHENTICATED.asRuntimeException());
+                return;
+            }
+
             deleteArticleUseCase.execute(
                     request.getSlug(),
-                    UUID.fromString(request.getRequestorId())
+                    UUID.fromString(requestorId)
             );
 
             responseObserver.onNext(Empty.getDefaultInstance());
@@ -175,20 +192,20 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     }
 
     @Override
-    public void favoriteArticle(FavoriteArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
+    public void favoriteArticle(SlugMessage request, StreamObserver<ArticleResponse> responseObserver) {
         super.favoriteArticle(request, responseObserver);
     }
 
     @Override
-    public void unfavoriteArticle(UnfavoriteArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
+    public void unfavoriteArticle(SlugMessage request, StreamObserver<ArticleResponse> responseObserver) {
         super.unfavoriteArticle(request, responseObserver);
     }
 
     @Override
-    public void getTags(Empty request, StreamObserver<TagListResponse> responseObserver) {
+    public void getTags(Empty request, StreamObserver<TagListMessage> responseObserver) {
         try {
             var tags = getTagsUseCase.execute();
-            var response = TagListResponse.newBuilder()
+            var response = TagListMessage.newBuilder()
                     .addAllTags(tags)
                     .build();
 

@@ -2,10 +2,13 @@
 
 namespace App\Presentation\Http\Controllers;
 
-class TagController
+use App\Application\Article\UseCases\GetTags;
+use Illuminate\Http\JsonResponse;
+
+readonly class TagController
 {
-public function __construct(
-        private readonly GetTags $getTagsUseCase
+    public function __construct(
+        private GetTags $getTagsUseCase
     ) {}
 
     public function index(): JsonResponse

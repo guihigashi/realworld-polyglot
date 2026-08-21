@@ -31,12 +31,12 @@ class ArticleServiceClient extends \Grpc\BaseStub {
     }
 
     /**
-     * @param \Generated\Grpc\Article\GetArticleRequest $argument input argument
+     * @param \Generated\Grpc\Article\SlugMessage $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
      * @return \Grpc\UnaryCall
      */
-    public function GetArticle(\Generated\Grpc\Article\GetArticleRequest $argument,
+    public function GetArticle(\Generated\Grpc\Article\SlugMessage $argument,
       $metadata = [], $options = []) {
         return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/GetArticle',
         $argument,
@@ -73,12 +73,12 @@ class ArticleServiceClient extends \Grpc\BaseStub {
     }
 
     /**
-     * @param \Generated\Grpc\Article\GetArticleRequest $argument input argument
+     * @param \Generated\Grpc\Article\SlugMessage $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
      * @return \Grpc\UnaryCall
      */
-    public function DeleteArticle(\Generated\Grpc\Article\GetArticleRequest $argument,
+    public function DeleteArticle(\Generated\Grpc\Article\SlugMessage $argument,
       $metadata = [], $options = []) {
         return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/DeleteArticle',
         $argument,
@@ -87,12 +87,12 @@ class ArticleServiceClient extends \Grpc\BaseStub {
     }
 
     /**
-     * @param \Generated\Grpc\Article\FavoriteArticleRequest $argument input argument
+     * @param \Generated\Grpc\Article\SlugMessage $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
      * @return \Grpc\UnaryCall
      */
-    public function FavoriteArticle(\Generated\Grpc\Article\FavoriteArticleRequest $argument,
+    public function FavoriteArticle(\Generated\Grpc\Article\SlugMessage $argument,
       $metadata = [], $options = []) {
         return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/FavoriteArticle',
         $argument,
@@ -101,12 +101,12 @@ class ArticleServiceClient extends \Grpc\BaseStub {
     }
 
     /**
-     * @param \Generated\Grpc\Article\UnfavoriteArticleRequest $argument input argument
+     * @param \Generated\Grpc\Article\SlugMessage $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
      * @return \Grpc\UnaryCall
      */
-    public function UnfavoriteArticle(\Generated\Grpc\Article\UnfavoriteArticleRequest $argument,
+    public function UnfavoriteArticle(\Generated\Grpc\Article\SlugMessage $argument,
       $metadata = [], $options = []) {
         return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/UnfavoriteArticle',
         $argument,
@@ -124,7 +124,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
       $metadata = [], $options = []) {
         return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/GetTags',
         $argument,
-        ['\Generated\Grpc\Article\TagListResponse', 'decode'],
+        ['\Generated\Grpc\Article\TagListMessage', 'decode'],
         $metadata, $options);
     }
 

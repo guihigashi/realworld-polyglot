@@ -10,18 +10,14 @@ use Google\Protobuf\Internal\GPBUtil;
 use Google\Protobuf\RepeatedField;
 
 /**
- * Generated from protobuf message <code>com.github.guihigashi.conduit.article.FavoriteArticleRequest</code>
+ * Generated from protobuf message <code>com.github.guihigashi.conduit.article.SlugMessage</code>
  */
-class FavoriteArticleRequest extends \Google\Protobuf\Internal\Message
+class SlugMessage extends \Google\Protobuf\Internal\Message
 {
     /**
      * Generated from protobuf field <code>string slug = 1;</code>
      */
     protected $slug = '';
-    /**
-     * Generated from protobuf field <code>string requestor_id = 2;</code>
-     */
-    protected $requestor_id = '';
 
     /**
      * Constructor.
@@ -30,7 +26,6 @@ class FavoriteArticleRequest extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $slug
-     *     @type string $requestor_id
      * }
      */
     public function __construct($data = NULL) {
@@ -56,28 +51,6 @@ class FavoriteArticleRequest extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, true);
         $this->slug = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>string requestor_id = 2;</code>
-     * @return string
-     */
-    public function getRequestorId()
-    {
-        return $this->requestor_id;
-    }
-
-    /**
-     * Generated from protobuf field <code>string requestor_id = 2;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setRequestorId(string $var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->requestor_id = $var;
 
         return $this;
     }

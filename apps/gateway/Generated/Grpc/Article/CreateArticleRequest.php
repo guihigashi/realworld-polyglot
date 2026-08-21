@@ -30,10 +30,6 @@ class CreateArticleRequest extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string tag_list = 4;</code>
      */
     private $tag_list;
-    /**
-     * Generated from protobuf field <code>string author_id = 5;</code>
-     */
-    protected $author_id = '';
 
     /**
      * Constructor.
@@ -45,7 +41,6 @@ class CreateArticleRequest extends \Google\Protobuf\Internal\Message
      *     @type string $description
      *     @type string $body
      *     @type string[] $tag_list
-     *     @type string $author_id
      * }
      */
     public function __construct($data = NULL) {
@@ -137,28 +132,6 @@ class CreateArticleRequest extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->tag_list = $arr;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>string author_id = 5;</code>
-     * @return string
-     */
-    public function getAuthorId()
-    {
-        return $this->author_id;
-    }
-
-    /**
-     * Generated from protobuf field <code>string author_id = 5;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setAuthorId(string $var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->author_id = $var;
 
         return $this;
     }

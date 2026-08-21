@@ -10,9 +10,9 @@ interface ArticleServiceInterface
 
     public function createArticle(array $payload, string $authorId): array;
 
-    public function updateArticle(string $slug, array $payload, string $authorId): array;
+    public function updateArticle(string $slug, array $payload, string $requestorId): array;
 
     public function getTags(): array;
 
-    public function delete(string $slug, string $authorId): void;
+    public function delete(string $slug, string $requestorId): void;
 }

@@ -10,9 +10,9 @@ use Google\Protobuf\Internal\GPBUtil;
 use Google\Protobuf\RepeatedField;
 
 /**
- * Generated from protobuf message <code>com.github.guihigashi.conduit.article.TagListUpdatePayload</code>
+ * Generated from protobuf message <code>com.github.guihigashi.conduit.article.TagListMessage</code>
  */
-class TagListUpdatePayload extends \Google\Protobuf\Internal\Message
+class TagListMessage extends \Google\Protobuf\Internal\Message
 {
     /**
      * Generated from protobuf field <code>repeated string tags = 1;</code>
