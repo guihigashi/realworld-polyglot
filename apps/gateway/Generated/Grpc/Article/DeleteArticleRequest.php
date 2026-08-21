@@ -10,9 +10,9 @@ use Google\Protobuf\Internal\GPBUtil;
 use Google\Protobuf\RepeatedField;
 
 /**
- * Generated from protobuf message <code>com.github.guihigashi.conduit.article.SlugMessage</code>
+ * Generated from protobuf message <code>com.github.guihigashi.conduit.article.DeleteArticleRequest</code>
  */
-class SlugMessage extends \Google\Protobuf\Internal\Message
+class DeleteArticleRequest extends \Google\Protobuf\Internal\Message
 {
     /**
      * Generated from protobuf field <code>string slug = 1;</code>

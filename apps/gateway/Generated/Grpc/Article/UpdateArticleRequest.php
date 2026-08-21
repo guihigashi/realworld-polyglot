@@ -31,7 +31,7 @@ class UpdateArticleRequest extends \Google\Protobuf\Internal\Message
      */
     protected $body = null;
     /**
-     * Generated from protobuf field <code>optional .com.github.guihigashi.conduit.article.TagListMessage tag_list = 5;</code>
+     * Generated from protobuf field <code>optional .com.github.guihigashi.conduit.article.TagList tag_list = 5;</code>
      */
     protected $tag_list = null;
 
@@ -45,7 +45,7 @@ class UpdateArticleRequest extends \Google\Protobuf\Internal\Message
      *     @type string $title
      *     @type string $description
      *     @type string $body
-     *     @type \Generated\Grpc\Article\TagListMessage $tag_list
+     *     @type \Generated\Grpc\Article\TagList $tag_list
      * }
      */
     public function __construct($data = NULL) {
@@ -172,8 +172,8 @@ class UpdateArticleRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>optional .com.github.guihigashi.conduit.article.TagListMessage tag_list = 5;</code>
-     * @return \Generated\Grpc\Article\TagListMessage|null
+     * Generated from protobuf field <code>optional .com.github.guihigashi.conduit.article.TagList tag_list = 5;</code>
+     * @return \Generated\Grpc\Article\TagList|null
      */
     public function getTagList()
     {
@@ -191,11 +191,11 @@ class UpdateArticleRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>optional .com.github.guihigashi.conduit.article.TagListMessage tag_list = 5;</code>
-     * @param \Generated\Grpc\Article\TagListMessage $var
+     * Generated from protobuf field <code>optional .com.github.guihigashi.conduit.article.TagList tag_list = 5;</code>
+     * @param \Generated\Grpc\Article\TagList $var
      * @return $this
      */
-    public function setTagList(\Generated\Grpc\Article\TagListMessage|null $var)
+    public function setTagList(\Generated\Grpc\Article\TagList|null $var)
     {
         $this->tag_list = $var;
 

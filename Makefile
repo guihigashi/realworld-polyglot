@@ -2,6 +2,7 @@ GATEWAY_DIR := ./apps/gateway
 GRPC_PHP_PLUGIN := $(shell which grpc_php_plugin)
 
 generate-php:
+	rm -rf $GATEWAY_DIR/Generated/Grpc
 	protoc \
 		--proto_path=./apps/social-graph/src/main/protobuf \
 		--proto_path=./apps/feed-aggregator/api/v1 \

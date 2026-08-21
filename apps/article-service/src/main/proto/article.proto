@@ -12,13 +12,13 @@ option php_metadata_namespace = "Generated\\Grpc\\Article\\Metadata";
 
 service ArticleService {
   rpc ListArticles (ListArticlesRequest) returns (ListArticlesResponse);
-  rpc GetArticle (SlugMessage) returns (ArticleResponse);
+  rpc GetArticle (GetArticleRequest) returns (ArticleResponse);
   rpc CreateArticle (CreateArticleRequest) returns (ArticleResponse);
   rpc UpdateArticle (UpdateArticleRequest) returns (ArticleResponse);
-  rpc DeleteArticle (SlugMessage) returns (google.protobuf.Empty);
-  rpc FavoriteArticle (SlugMessage) returns (ArticleResponse);
-  rpc UnfavoriteArticle (SlugMessage) returns (ArticleResponse);
-  rpc GetTags (google.protobuf.Empty) returns (TagListMessage);
+  rpc DeleteArticle (DeleteArticleRequest) returns (google.protobuf.Empty);
+  rpc FavoriteArticle (FavoriteArticleRequest) returns (ArticleResponse);
+  rpc UnfavoriteArticle (UnfavoriteArticleRequest) returns (ArticleResponse);
+  rpc GetTags (google.protobuf.Empty) returns (GetTagsResponse);
 }
 
 message ListArticlesRequest {
@@ -45,7 +45,7 @@ message ListArticlesResponse {
   repeated ArticleSummary articles = 1;
 }
 
-message SlugMessage {
+message GetArticleRequest {
   string slug = 1;
 }
 
@@ -73,7 +73,7 @@ message CreateArticleRequest {
   repeated string tag_list = 4;
 }
 
-message TagListMessage {
+message TagList {
   repeated string tags = 1;
 }
 
@@ -82,6 +82,21 @@ message UpdateArticleRequest {
   optional string title = 2;
   optional string description = 3;
   optional string body = 4;
-  optional TagListMessage tag_list = 5;
+  optional TagList tag_list = 5;
 }
 
+message DeleteArticleRequest {
+  string slug = 1;
+}
+
+message FavoriteArticleRequest {
+  string slug = 1;
+}
+
+message UnfavoriteArticleRequest {
+  string slug = 1;
+}
+
+message GetTagsResponse {
+  repeated string tags = 1;
+}

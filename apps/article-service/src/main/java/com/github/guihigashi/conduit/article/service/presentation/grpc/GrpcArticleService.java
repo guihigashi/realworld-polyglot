@@ -76,7 +76,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     }
 
     @Override
-    public void getArticle(SlugMessage request, StreamObserver<ArticleResponse> responseObserver) {
+    public void getArticle(GetArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
         if (request.getSlug().isBlank()) {
             responseObserver.onError(Status.INVALID_ARGUMENT
                     .withDescription("Article slug cannot be empty")
@@ -167,7 +167,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     }
 
     @Override
-    public void deleteArticle(SlugMessage request, StreamObserver<Empty> responseObserver) {
+    public void deleteArticle(DeleteArticleRequest request, StreamObserver<Empty> responseObserver) {
         try {
             String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
             if (requestorId == null) {
@@ -192,21 +192,21 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     }
 
     @Override
-    public void favoriteArticle(SlugMessage request, StreamObserver<ArticleResponse> responseObserver) {
+    public void favoriteArticle(FavoriteArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
         super.favoriteArticle(request, responseObserver);
     }
 
     @Override
-    public void unfavoriteArticle(SlugMessage request, StreamObserver<ArticleResponse> responseObserver) {
+    public void unfavoriteArticle(UnfavoriteArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
         super.unfavoriteArticle(request, responseObserver);
     }
 
     @Override
-    public void getTags(Empty request, StreamObserver<TagListMessage> responseObserver) {
+    public void getTags(Empty request, StreamObserver<GetTagsResponse> responseObserver) {
         try {
             var tags = getTagsUseCase.execute();
-            var response = TagListMessage.newBuilder()
-                    .addAllTags(tags)
+            var response = GetTagsResponse.newBuilder()
+                    .addAllTags(tags.stream().sorted().toList())
                     .build();
 
             responseObserver.onNext(response);

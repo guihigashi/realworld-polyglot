@@ -9,11 +9,12 @@ use Generated\Grpc\Article\ArticleResponse;
 use Generated\Grpc\Article\ArticleServiceClient;
 use Generated\Grpc\Article\ArticleSummary;
 use Generated\Grpc\Article\CreateArticleRequest;
+use Generated\Grpc\Article\DeleteArticleRequest;
+use Generated\Grpc\Article\GetArticleRequest;
+use Generated\Grpc\Article\GetTagsResponse;
 use Generated\Grpc\Article\ListArticlesRequest;
 use Generated\Grpc\Article\ListArticlesResponse;
-use Generated\Grpc\Article\SlugMessage;
-use Generated\Grpc\Article\TagListMessage;
-use Generated\Grpc\Article\TagListResponse;
+use Generated\Grpc\Article\TagList;
 use Generated\Grpc\Article\UpdateArticleRequest;
 use Google\Protobuf\GPBEmpty;
 use Grpc\ChannelCredentials;
@@ -57,7 +58,7 @@ class GrpcArticleService implements ArticleServiceInterface
 
     public function getArticle(string $slug, ?string $requestorId): array
     {
-        $request = (new SlugMessage)
+        $request = (new GetArticleRequest)
             ->setSlug($slug);
 
         /** @var ArticleResponse $response */
@@ -114,7 +115,7 @@ class GrpcArticleService implements ArticleServiceInterface
         }
 
         if (isset($payload['tagList'])) {
-            $tagListPayload = (new TagListMessage)
+            $tagListPayload = (new TagList)
                 ->setTags($payload['tagList']);
             $request->setTagList($tagListPayload);
         }
@@ -132,7 +133,7 @@ class GrpcArticleService implements ArticleServiceInterface
 
     public function delete(string $slug, string $requestorId): void
     {
-        $request = (new SlugMessage)
+        $request = (new DeleteArticleRequest)
             ->setSlug($slug);
 
         [, $status] = $this->client->DeleteArticle($request, $this->metadataOfRequestor($requestorId))->wait();
@@ -144,7 +145,7 @@ class GrpcArticleService implements ArticleServiceInterface
 
     public function getTags(): array
     {
-        /** @var TagListResponse $response */
+        /** @var GetTagsResponse $response */
         [$response, $status] = $this->client->GetTags(new GPBEmpty)->wait();
 
         if ($status->code !== \Grpc\STATUS_OK) {
