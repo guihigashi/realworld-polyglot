@@ -73,6 +73,20 @@ class ArticleServiceClient extends \Grpc\BaseStub {
     }
 
     /**
+     * @param \Generated\Grpc\Article\GetArticleRequest $argument input argument
+     * @param array $metadata metadata
+     * @param array $options call options
+     * @return \Grpc\UnaryCall
+     */
+    public function DeleteArticle(\Generated\Grpc\Article\GetArticleRequest $argument,
+      $metadata = [], $options = []) {
+        return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/DeleteArticle',
+        $argument,
+        ['\Google\Protobuf\GPBEmpty', 'decode'],
+        $metadata, $options);
+    }
+
+    /**
      * @param \Generated\Grpc\Article\FavoriteArticleRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options

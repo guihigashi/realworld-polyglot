@@ -15,6 +15,7 @@ service ArticleService {
   rpc GetArticle (GetArticleRequest) returns (ArticleResponse);
   rpc CreateArticle (CreateArticleRequest) returns (ArticleResponse);
   rpc UpdateArticle (UpdateArticleRequest) returns (ArticleResponse);
+  rpc DeleteArticle (GetArticleRequest) returns (google.protobuf.Empty);
   rpc FavoriteArticle (FavoriteArticleRequest) returns (ArticleResponse);
   rpc UnfavoriteArticle (UnfavoriteArticleRequest) returns (ArticleResponse);
   rpc GetTags (google.protobuf.Empty) returns (TagListResponse);

@@ -13,4 +13,6 @@ interface ArticleServiceInterface
     public function updateArticle(string $slug, array $payload, string $authorId): array;
 
     public function getTags(): array;
+
+    public function delete(string $slug, string $authorId): void;
 }

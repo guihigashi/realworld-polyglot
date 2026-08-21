@@ -2,6 +2,7 @@ package com.github.guihigashi.conduit.article.service.presentation.grpc;
 
 import com.github.guihigashi.conduit.article.grpc.*;
 import com.github.guihigashi.conduit.article.service.application.CreateArticleUseCase;
+import com.github.guihigashi.conduit.article.service.application.DeleteArticleUseCase;
 import com.github.guihigashi.conduit.article.service.application.GetTagsUseCase;
 import com.github.guihigashi.conduit.article.service.application.UpdateArticleUseCase;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
@@ -22,16 +23,19 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
 
     private final CreateArticleUseCase createArticleUseCase;
     private final UpdateArticleUseCase updateArticleUseCase;
+    private final DeleteArticleUseCase deleteArticleUseCase;
     private final GetTagsUseCase getTagsUseCase;
     private final ArticleRepository articleRepository;
 
     public GrpcArticleService(
             CreateArticleUseCase createArticleUseCase,
             UpdateArticleUseCase updateArticleUseCase,
+            DeleteArticleUseCase deleteArticleUseCase,
             GetTagsUseCase getTagsUseCase,
             ArticleRepository articleRepository) {
         this.createArticleUseCase = createArticleUseCase;
         this.updateArticleUseCase = updateArticleUseCase;
+        this.deleteArticleUseCase = deleteArticleUseCase;
         this.getTagsUseCase = getTagsUseCase;
         this.articleRepository = articleRepository;
     }
@@ -146,6 +150,25 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void deleteArticle(GetArticleRequest request, StreamObserver<Empty> responseObserver) {
+        try {
+            deleteArticleUseCase.execute(
+                    request.getSlug(),
+                    UUID.fromString(request.getRequestorId())
+            );
+
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (SecurityException e) {
+            responseObserver.onError(Status.PERMISSION_DENIED.withDescription(e.getMessage()).asRuntimeException());
+        } catch (IllegalArgumentException e) {
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }

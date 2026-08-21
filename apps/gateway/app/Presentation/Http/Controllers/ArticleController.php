@@ -3,9 +3,11 @@
 namespace App\Presentation\Http\Controllers;
 
 use App\Application\Article\UseCases\CreateArticle;
+use App\Application\Article\UseCases\DeleteArticle;
 use App\Application\Article\UseCases\GetArticle;
 use App\Application\Article\UseCases\ListArticles;
 use App\Application\Article\UseCases\UpdateArticle;
+use App\Domain\Exceptions\ResourceNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -16,6 +18,7 @@ readonly class ArticleController
         private UpdateArticle $updateArticleUseCase,
         private GetArticle $getArticleUseCase,
         private ListArticles $listArticlesUseCase,
+        private DeleteArticle $deleteArticleUseCase,
     ) {}
 
     public function index(Request $request)
@@ -40,12 +43,19 @@ readonly class ArticleController
     public function show(Request $request, string $slug): JsonResponse
     {
         $requestorId = $request->attributes->get('auth_user_id');
+        try {
+            $article = $this->getArticleUseCase->execute($slug, $requestorId);
 
-        $article = $this->getArticleUseCase->execute($slug, $requestorId);
-
-        return response()->json([
-            'article' => $article,
-        ]);
+            return response()->json([
+                'article' => $article,
+            ]);
+        } catch (ResourceNotFoundException $e) {
+            return response()->json([
+                'errors' => [
+                    'article' => [$e->getMessage()],
+                ],
+            ], 404);
+        }
     }
 
     public function store(Request $request): JsonResponse
@@ -84,5 +94,14 @@ readonly class ArticleController
         return response()->json([
             'article' => $article,
         ]);
+    }
+
+    public function destroy(Request $request, string $slug)
+    {
+        $authorId = $request->attributes->get('auth_user_id');
+
+        $this->deleteArticleUseCase->execute($slug, $authorId);
+
+        return response(null, 204);
     }
 }

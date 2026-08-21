@@ -3,6 +3,7 @@
 namespace App\Infrastructure\Article\Services;
 
 use App\Domain\Article\Contracts\ArticleServiceInterface;
+use App\Domain\Exceptions\ResourceNotFoundException;
 use Generated\Grpc\Article\Article;
 use Generated\Grpc\Article\ArticleResponse;
 use Generated\Grpc\Article\ArticleServiceClient;
@@ -39,6 +40,10 @@ class GrpcArticleService implements ArticleServiceInterface
 
         /** @var ArticleResponse $response */
         [$response, $status] = $this->client->GetArticle($request)->wait();
+
+        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
+            throw new ResourceNotFoundException('not found');
+        }
 
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException('gRPC Error: '.$status->details);
@@ -130,6 +135,19 @@ class GrpcArticleService implements ArticleServiceInterface
         }
 
         return $this->mapArticleResponse($response->getArticle());
+    }
+
+    public function delete(string $slug, string $requestorId): void
+    {
+        $request = (new GetArticleRequest)
+            ->setSlug($slug)
+            ->setRequestorId($requestorId);
+
+        [, $status] = $this->client->DeleteArticle($request)->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
     }
 
     public function getTags(): array
