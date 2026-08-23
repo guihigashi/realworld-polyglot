@@ -15,4 +15,6 @@ interface ArticleServiceInterface
     public function getTags(): array;
 
     public function delete(string $slug, string $requestorId): void;
+
+    public function addComment(string $slug, string $body, string $authorId): array;
 }

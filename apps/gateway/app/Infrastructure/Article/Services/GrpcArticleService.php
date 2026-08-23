@@ -4,10 +4,13 @@ namespace App\Infrastructure\Article\Services;
 
 use App\Domain\Article\Contracts\ArticleServiceInterface;
 use App\Domain\Exceptions\ResourceNotFoundException;
+use Generated\Grpc\Article\AddCommentRequest;
+use Generated\Grpc\Article\AddCommentResponse;
 use Generated\Grpc\Article\Article;
 use Generated\Grpc\Article\ArticleResponse;
 use Generated\Grpc\Article\ArticleServiceClient;
 use Generated\Grpc\Article\ArticleSummary;
+use Generated\Grpc\Article\Comment;
 use Generated\Grpc\Article\CreateArticleRequest;
 use Generated\Grpc\Article\DeleteArticleRequest;
 use Generated\Grpc\Article\GetArticleRequest;
@@ -143,6 +146,22 @@ class GrpcArticleService implements ArticleServiceInterface
         }
     }
 
+    public function addComment(string $slug, string $body, string $authorId): array
+    {
+        $request = (new AddCommentRequest)
+            ->setSlug($slug)
+            ->setBody($body);
+
+        /** @var AddCommentResponse $response */
+        [$response, $status] = $this->client->AddComment($request, $this->metadataOfRequestor($authorId))->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
+
+        return $this->mapCommentResponse($response->getComment());
+    }
+
     public function getTags(): array
     {
         /** @var GetTagsResponse $response */
@@ -183,6 +202,17 @@ class GrpcArticleService implements ArticleServiceInterface
             'favorited' => $article->getFavorited(),
             'favoritesCount' => $article->getFavoritesCount(),
             'authorId' => $article->getAuthorId(),
+        ];
+    }
+
+    private function mapCommentResponse(Comment $comment): array
+    {
+        return [
+            'id' => $comment->getId(),
+            'createdAt' => $comment->getCreatedAt(),
+            'updatedAt' => $comment->getUpdatedAt(),
+            'body' => $comment->getBody(),
+            'authorId' => $comment->getAuthorId(),
         ];
     }
 

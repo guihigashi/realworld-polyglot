@@ -1,10 +1,7 @@
 package com.github.guihigashi.conduit.article.service.presentation.grpc;
 
 import com.github.guihigashi.conduit.article.grpc.*;
-import com.github.guihigashi.conduit.article.service.application.CreateArticleUseCase;
-import com.github.guihigashi.conduit.article.service.application.DeleteArticleUseCase;
-import com.github.guihigashi.conduit.article.service.application.GetTagsUseCase;
-import com.github.guihigashi.conduit.article.service.application.UpdateArticleUseCase;
+import com.github.guihigashi.conduit.article.service.application.*;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.google.protobuf.Empty;
 import io.grpc.Status;
@@ -26,18 +23,21 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     private final DeleteArticleUseCase deleteArticleUseCase;
     private final GetTagsUseCase getTagsUseCase;
     private final ArticleRepository articleRepository;
+    private final AddCommentUseCase addCommentUseCase;
 
     public GrpcArticleService(
             CreateArticleUseCase createArticleUseCase,
             UpdateArticleUseCase updateArticleUseCase,
             DeleteArticleUseCase deleteArticleUseCase,
             GetTagsUseCase getTagsUseCase,
-            ArticleRepository articleRepository) {
+            ArticleRepository articleRepository,
+            AddCommentUseCase addCommentUseCase) {
         this.createArticleUseCase = createArticleUseCase;
         this.updateArticleUseCase = updateArticleUseCase;
         this.deleteArticleUseCase = deleteArticleUseCase;
         this.getTagsUseCase = getTagsUseCase;
         this.articleRepository = articleRepository;
+        this.addCommentUseCase = addCommentUseCase;
     }
 
     @Override
@@ -186,6 +186,26 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             responseObserver.onError(Status.PERMISSION_DENIED.withDescription(e.getMessage()).asRuntimeException());
         } catch (IllegalArgumentException e) {
             responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void addComment(AddCommentRequest request, StreamObserver<AddCommentResponse> responseObserver) {
+        try {
+            String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
+            if (requestorId == null) {
+                responseObserver.onError(Status.UNAUTHENTICATED.asRuntimeException());
+                return;
+            }
+
+            var comment = addCommentUseCase.execute(request.getSlug(), request.getBody(), UUID.fromString(requestorId));
+
+            responseObserver.onNext(AddCommentResponse.newBuilder()
+                    .setComment(CommentGrpcMapper.toProto(comment))
+                    .build());
+            responseObserver.onCompleted();
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }

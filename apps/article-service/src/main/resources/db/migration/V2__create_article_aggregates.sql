@@ -13,7 +13,7 @@ CREATE TABLE article_tags
 
 CREATE TABLE comments
 (
-    id         UUID PRIMARY KEY         DEFAULT gen_random_uuid(),
+    id         BIGSERIAL PRIMARY KEY,
     body       TEXT NOT NULL,
     article_id UUID NOT NULL REFERENCES articles (id) ON DELETE CASCADE,
     author_id  UUID NOT NULL,

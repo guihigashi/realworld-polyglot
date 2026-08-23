@@ -3,6 +3,7 @@
 use App\Presentation\Http\Controllers\ArticleController;
 use App\Presentation\Http\Controllers\Auth\AuthController;
 use App\Presentation\Http\Controllers\Auth\UserController;
+use App\Presentation\Http\Controllers\CommentController;
 use App\Presentation\Http\Controllers\ProfileController;
 use App\Presentation\Http\Controllers\TagController;
 use App\Presentation\Http\Middleware\JwtAuthenticationMiddleware;
@@ -22,6 +23,7 @@ Route::middleware([JwtAuthenticationMiddleware::class])->group(function () {
     Route::post('/articles', [ArticleController::class, 'store']);
     Route::put('/articles/{slug}', [ArticleController::class, 'update']);
     Route::delete('/articles/{slug}', [ArticleController::class, 'destroy']);
+    Route::post('/articles/{slug}/comments', [CommentController::class, 'store']);
 });
 
 Route::middleware([OptionalJwtAuthenticationMiddleware::class])->group(function () {
