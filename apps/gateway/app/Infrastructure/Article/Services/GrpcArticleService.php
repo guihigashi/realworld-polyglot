@@ -14,6 +14,8 @@ use Generated\Grpc\Article\Comment;
 use Generated\Grpc\Article\CreateArticleRequest;
 use Generated\Grpc\Article\DeleteArticleRequest;
 use Generated\Grpc\Article\GetArticleRequest;
+use Generated\Grpc\Article\GetCommentsRequest;
+use Generated\Grpc\Article\GetCommentsResponse;
 use Generated\Grpc\Article\GetTagsResponse;
 use Generated\Grpc\Article\ListArticlesRequest;
 use Generated\Grpc\Article\ListArticlesResponse;
@@ -160,6 +162,24 @@ class GrpcArticleService implements ArticleServiceInterface
         }
 
         return $this->mapCommentResponse($response->getComment());
+    }
+
+    public function getComments(string $slug, ?string $requestorId): array
+    {
+        $request = (new GetCommentsRequest)
+            ->setSlug($slug);
+
+        /** @var GetCommentsResponse $response */
+        [$response, $status] = $this->client->GetComments(
+            $request, $this->metadataOfRequestor($requestorId))->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
+
+        return array_map(function (Comment $comment) {
+            return $this->mapCommentResponse($comment);
+        }, iterator_to_array($response->getComments()));
     }
 
     public function getTags(): array

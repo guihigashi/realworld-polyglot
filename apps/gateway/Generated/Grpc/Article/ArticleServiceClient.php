@@ -101,6 +101,20 @@ class ArticleServiceClient extends \Grpc\BaseStub {
     }
 
     /**
+     * @param \Generated\Grpc\Article\GetCommentsRequest $argument input argument
+     * @param array $metadata metadata
+     * @param array $options call options
+     * @return \Grpc\UnaryCall
+     */
+    public function GetComments(\Generated\Grpc\Article\GetCommentsRequest $argument,
+      $metadata = [], $options = []) {
+        return $this->_simpleRequest('/com.github.guihigashi.conduit.article.ArticleService/GetComments',
+        $argument,
+        ['\Generated\Grpc\Article\GetCommentsResponse', 'decode'],
+        $metadata, $options);
+    }
+
+    /**
      * @param \Generated\Grpc\Article\FavoriteArticleRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options

@@ -31,5 +31,7 @@ Route::middleware([OptionalJwtAuthenticationMiddleware::class])->group(function 
 
     Route::get('/articles', [ArticleController::class, 'index']);
     Route::get('/articles/{slug}', [ArticleController::class, 'show']);
+    Route::get('/articles/{slug}/comments', [CommentController::class, 'index']);
+
     Route::get('/tags', [TagController::class, 'index']);
 });

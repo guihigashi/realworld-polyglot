@@ -24,6 +24,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     private final GetTagsUseCase getTagsUseCase;
     private final ArticleRepository articleRepository;
     private final AddCommentUseCase addCommentUseCase;
+    private final GetCommentsUseCase getCommentsUseCase;
 
     public GrpcArticleService(
             CreateArticleUseCase createArticleUseCase,
@@ -31,13 +32,15 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             DeleteArticleUseCase deleteArticleUseCase,
             GetTagsUseCase getTagsUseCase,
             ArticleRepository articleRepository,
-            AddCommentUseCase addCommentUseCase) {
+            AddCommentUseCase addCommentUseCase,
+            GetCommentsUseCase getCommentsUseCase) {
         this.createArticleUseCase = createArticleUseCase;
         this.updateArticleUseCase = updateArticleUseCase;
         this.deleteArticleUseCase = deleteArticleUseCase;
         this.getTagsUseCase = getTagsUseCase;
         this.articleRepository = articleRepository;
         this.addCommentUseCase = addCommentUseCase;
+        this.getCommentsUseCase = getCommentsUseCase;
     }
 
     @Override
@@ -205,6 +208,22 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             responseObserver.onNext(AddCommentResponse.newBuilder()
                     .setComment(CommentGrpcMapper.toProto(comment))
                     .build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void getComments(GetCommentsRequest request, StreamObserver<GetCommentsResponse> responseObserver) {
+        String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
+
+        try {
+            var comments = getCommentsUseCase.execute(request.getSlug());
+            var response = GetCommentsResponse.newBuilder()
+                    .addAllComments(comments.stream().map(CommentGrpcMapper::toProto).toList())
+                    .build();
+            responseObserver.onNext(response);
             responseObserver.onCompleted();
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());

@@ -4,6 +4,8 @@ import com.github.guihigashi.conduit.article.service.application.port.CommentRep
 import com.github.guihigashi.conduit.article.service.domain.Comment;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class JpaCommentRepositoryAdapter implements CommentRepository {
     private final SpringDataArticleRepository articleRepository;
@@ -22,19 +24,36 @@ public class JpaCommentRepositoryAdapter implements CommentRepository {
         ArticleEntity article = articleRepository.findBySlug(articleSlug)
                 .orElseThrow(() -> new IllegalArgumentException("Article not found"));
 
-        CommentEntity ce = new CommentEntity();
-        ce.setArticle(article);
-        ce.setAuthorId(comment.authorId());
-        ce.setBody(comment.body());
-        ce.setCreatedAt(comment.createdAt());
-        ce.setUpdatedAt(comment.updatedAt());
+        CommentEntity commentEntity = new CommentEntity();
+        commentEntity.setArticle(article);
+        commentEntity.setAuthorId(comment.authorId());
+        commentEntity.setBody(comment.body());
+        commentEntity.setCreatedAt(comment.createdAt());
+        commentEntity.setUpdatedAt(comment.updatedAt());
 
-        CommentEntity sce = commentRepository.save(ce);
+        CommentEntity savedCommentEntity = commentRepository.save(commentEntity);
 
         return new Comment(
-                sce.getId(),
-                sce.getCreatedAt(), sce.getUpdatedAt(), sce.getBody(),
-                sce.getAuthorId()
+                savedCommentEntity.getId(),
+                savedCommentEntity.getCreatedAt(),
+                savedCommentEntity.getUpdatedAt(),
+                savedCommentEntity.getBody(),
+                savedCommentEntity.getAuthorId()
         );
+    }
+
+    @Override
+    public List<Comment> findByArticleSlug(String slug) {
+        var commentEntities = commentRepository.findByArticleSlug(slug);
+
+        return commentEntities.stream()
+                .map(ce -> new Comment(
+                        ce.getId(),
+                        ce.getCreatedAt(),
+                        ce.getUpdatedAt(),
+                        ce.getBody(),
+                        ce.getAuthorId()
+                ))
+                .toList();
     }
 }

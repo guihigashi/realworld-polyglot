@@ -3,13 +3,26 @@
 namespace App\Presentation\Http\Controllers;
 
 use App\Application\Article\UseCases\AddComment;
+use App\Application\Article\UseCases\GetComments;
 use Illuminate\Http\Request;
 
 readonly class CommentController
 {
     public function __construct(
         private AddComment $addCommentUseCase,
+        private GetComments $getCommentsUseCase,
     ) {}
+
+    public function index(Request $request, string $slug)
+    {
+        $requestorId = $request->attributes->get('auth_user_id');
+
+        $comments = $this->getCommentsUseCase->execute($slug, $requestorId);
+
+        return response()->json([
+            'comments' => $comments,
+        ]);
+    }
 
     public function store(Request $request, string $slug)
     {
