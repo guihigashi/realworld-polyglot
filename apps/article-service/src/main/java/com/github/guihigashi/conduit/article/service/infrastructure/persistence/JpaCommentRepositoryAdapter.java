@@ -56,4 +56,23 @@ public class JpaCommentRepositoryAdapter implements CommentRepository {
                 ))
                 .toList();
     }
+
+    @Override
+    public Comment findById(Long id) {
+        var comment = commentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
+
+        return new Comment(
+                comment.getId(),
+                comment.getCreatedAt(),
+                comment.getUpdatedAt(),
+                comment.getBody(),
+                comment.getAuthorId()
+        );
+    }
+
+    @Override
+    public void delete(String articleSlug, Long commentId) {
+        commentRepository.deleteById(commentId);
+    }
 }

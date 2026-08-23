@@ -13,6 +13,7 @@ use Generated\Grpc\Article\ArticleSummary;
 use Generated\Grpc\Article\Comment;
 use Generated\Grpc\Article\CreateArticleRequest;
 use Generated\Grpc\Article\DeleteArticleRequest;
+use Generated\Grpc\Article\DeleteCommentRequest;
 use Generated\Grpc\Article\GetArticleRequest;
 use Generated\Grpc\Article\GetCommentsRequest;
 use Generated\Grpc\Article\GetCommentsResponse;
@@ -180,6 +181,20 @@ class GrpcArticleService implements ArticleServiceInterface
         return array_map(function (Comment $comment) {
             return $this->mapCommentResponse($comment);
         }, iterator_to_array($response->getComments()));
+    }
+
+    public function deleteComment(string $slug, int $id, string $requestorId): void
+    {
+        $request = (new DeleteCommentRequest)
+            ->setSlug($slug)
+            ->setId($id);
+
+        [,$status] = $this->client->DeleteComment(
+            $request, $this->metadataOfRequestor($requestorId))->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
     }
 
     public function getTags(): array

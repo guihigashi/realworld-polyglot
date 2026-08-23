@@ -25,6 +25,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     private final ArticleRepository articleRepository;
     private final AddCommentUseCase addCommentUseCase;
     private final GetCommentsUseCase getCommentsUseCase;
+    private final DeleteCommentUseCase deleteCommentUseCase;
 
     public GrpcArticleService(
             CreateArticleUseCase createArticleUseCase,
@@ -33,7 +34,8 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             GetTagsUseCase getTagsUseCase,
             ArticleRepository articleRepository,
             AddCommentUseCase addCommentUseCase,
-            GetCommentsUseCase getCommentsUseCase) {
+            GetCommentsUseCase getCommentsUseCase,
+            DeleteCommentUseCase deleteCommentUseCase) {
         this.createArticleUseCase = createArticleUseCase;
         this.updateArticleUseCase = updateArticleUseCase;
         this.deleteArticleUseCase = deleteArticleUseCase;
@@ -41,6 +43,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
         this.articleRepository = articleRepository;
         this.addCommentUseCase = addCommentUseCase;
         this.getCommentsUseCase = getCommentsUseCase;
+        this.deleteCommentUseCase = deleteCommentUseCase;
     }
 
     @Override
@@ -224,6 +227,23 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
                     .addAllComments(comments.stream().map(CommentGrpcMapper::toProto).toList())
                     .build();
             responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void deleteComment(DeleteCommentRequest request, StreamObserver<Empty> responseObserver) {
+        try {
+            String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
+            if (requestorId == null) {
+                responseObserver.onError(Status.UNAUTHENTICATED.asRuntimeException());
+                return;
+            }
+
+            deleteCommentUseCase.execute(request.getSlug(), request.getId(), UUID.fromString(requestorId));
+            responseObserver.onNext(Empty.newBuilder().build());
             responseObserver.onCompleted();
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());

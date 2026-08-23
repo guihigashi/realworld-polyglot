@@ -24,6 +24,7 @@ Route::middleware([JwtAuthenticationMiddleware::class])->group(function () {
     Route::put('/articles/{slug}', [ArticleController::class, 'update']);
     Route::delete('/articles/{slug}', [ArticleController::class, 'destroy']);
     Route::post('/articles/{slug}/comments', [CommentController::class, 'store']);
+    Route::delete('/articles/{slug}/comments/{id}', [CommentController::class, 'destroy']);
 });
 
 Route::middleware([OptionalJwtAuthenticationMiddleware::class])->group(function () {

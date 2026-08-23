@@ -18,6 +18,7 @@ service ArticleService {
   rpc DeleteArticle (DeleteArticleRequest) returns (google.protobuf.Empty);
   rpc AddComment (AddCommentRequest) returns (AddCommentResponse);
   rpc GetComments (GetCommentsRequest) returns (GetCommentsResponse);
+  rpc DeleteComment (DeleteCommentRequest) returns (google.protobuf.Empty);
   rpc FavoriteArticle (FavoriteArticleRequest) returns (ArticleResponse);
   rpc UnfavoriteArticle (UnfavoriteArticleRequest) returns (ArticleResponse);
   rpc GetTags (google.protobuf.Empty) returns (GetTagsResponse);
@@ -114,6 +115,11 @@ message GetCommentsRequest {
 
 message GetCommentsResponse {
   repeated Comment comments = 1;
+}
+
+message DeleteCommentRequest {
+  string slug = 1;
+  int64 id = 2;
 }
 
 message FavoriteArticleRequest {

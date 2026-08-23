@@ -8,4 +8,8 @@ public interface CommentRepository {
     Comment save(String articleSlug, Comment comment);
 
     List<Comment> findByArticleSlug(String slug);
+
+    Comment findById(Long id);
+
+    void delete(String articleSlug, Long commentId);
 }

@@ -19,4 +19,6 @@ interface ArticleServiceInterface
     public function addComment(string $slug, string $body, string $authorId): array;
 
     public function getComments(string $slug, string $requestorId): array;
+
+    public function deleteComment(string $slug, int $id, string $requestorId): void;
 }
