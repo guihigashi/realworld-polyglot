@@ -3,6 +3,7 @@
 namespace App\Infrastructure\Article\Services;
 
 use App\Application\Exceptions\ArticleNotFoundException;
+use App\Application\Exceptions\ForbiddenException;
 use App\Domain\Article\Contracts\ArticleServiceInterface;
 use Generated\Grpc\Article\AddCommentRequest;
 use Generated\Grpc\Article\AddCommentResponse;
@@ -136,6 +137,10 @@ class GrpcArticleService implements ArticleServiceInterface
             throw new ArticleNotFoundException;
         }
 
+        if ($status->code === \Grpc\STATUS_PERMISSION_DENIED) {
+            throw new ForbiddenException('article');
+        }
+
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException('gRPC Error: '.$status->details);
         }
@@ -152,6 +157,10 @@ class GrpcArticleService implements ArticleServiceInterface
 
         if ($status->code === \Grpc\STATUS_NOT_FOUND) {
             throw new ArticleNotFoundException;
+        }
+
+        if ($status->code === \Grpc\STATUS_PERMISSION_DENIED) {
+            throw new ForbiddenException('article');
         }
 
         if ($status->code !== \Grpc\STATUS_OK) {
@@ -201,6 +210,10 @@ class GrpcArticleService implements ArticleServiceInterface
 
         [, $status] = $this->client->DeleteComment(
             $request, $this->metadataOfRequestor($requestorId))->wait();
+
+        if ($status->code === \Grpc\STATUS_PERMISSION_DENIED) {
+            throw new ForbiddenException('comment');
+        }
 
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException('gRPC Error: '.$status->details);

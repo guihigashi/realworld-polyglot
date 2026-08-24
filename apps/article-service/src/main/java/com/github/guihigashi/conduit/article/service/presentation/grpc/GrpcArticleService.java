@@ -251,6 +251,8 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             deleteCommentUseCase.execute(request.getSlug(), request.getId(), UUID.fromString(requestorId));
             responseObserver.onNext(Empty.newBuilder().build());
             responseObserver.onCompleted();
+        } catch (SecurityException e) {
+            responseObserver.onError(Status.PERMISSION_DENIED.withDescription(e.getMessage()).asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }

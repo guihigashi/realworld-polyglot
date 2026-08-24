@@ -1,6 +1,7 @@
 <?php
 
 use App\Application\Exceptions\ArticleNotFoundException;
+use App\Application\Exceptions\ForbiddenException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -27,6 +28,18 @@ return Application::configure(basePath: dirname(__DIR__))
                         'article' => ['not found'],
                     ],
                 ], 404);
+            }
+
+            return null;
+        });
+
+        $exceptions->render(function (ForbiddenException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'errors' => [
+                        $e->entity => ['forbidden'],
+                    ],
+                ], 403);
             }
 
             return null;
