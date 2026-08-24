@@ -3,6 +3,7 @@ package com.github.guihigashi.conduit.article.service.application.port;
 import com.github.guihigashi.conduit.article.service.application.exception.ArticleNotFoundException;
 import com.github.guihigashi.conduit.article.service.application.exception.DuplicateSlugException;
 import com.github.guihigashi.conduit.article.service.domain.Article;
+import com.github.guihigashi.conduit.article.service.domain.PaginatedArticles;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,12 +14,13 @@ public interface ArticleRepository {
 
     Optional<Article> findBySlug(String slug, UUID requestorId);
 
-    List<Article> findAllArticles(
+    PaginatedArticles listArticles(
             String tag,
             UUID authorId,
             UUID favoritedById,
             int limit,
-            int offset
+            int offset,
+            UUID requestorId
     );
 
     void deleteBySlug(String slug);

@@ -25,7 +25,7 @@ readonly class ArticleController
     {
         $requestorId = $request->attributes->get('auth_user_id');
 
-        $articles = $this->listArticlesUseCase->execute(
+        $paginatedArticles = $this->listArticlesUseCase->execute(
             tag: $request->query('tag'),
             author: $request->query('author'),
             favoritedBy: $request->query('favorited'),
@@ -34,10 +34,7 @@ readonly class ArticleController
             requestorId: $requestorId
         );
 
-        return response()->json([
-            'articles' => $articles,
-            'articlesCount' => count($articles),
-        ]);
+        return response()->json($paginatedArticles);
     }
 
     public function show(Request $request, string $slug): JsonResponse

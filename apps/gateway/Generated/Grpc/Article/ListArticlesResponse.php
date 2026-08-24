@@ -18,6 +18,10 @@ class ListArticlesResponse extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated .com.github.guihigashi.conduit.article.ArticleSummary articles = 1;</code>
      */
     private $articles;
+    /**
+     * Generated from protobuf field <code>int32 total_count = 2;</code>
+     */
+    protected $total_count = 0;
 
     /**
      * Constructor.
@@ -26,6 +30,7 @@ class ListArticlesResponse extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type \Generated\Grpc\Article\ArticleSummary[] $articles
+     *     @type int $total_count
      * }
      */
     public function __construct($data = NULL) {
@@ -51,6 +56,28 @@ class ListArticlesResponse extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Generated\Grpc\Article\ArticleSummary::class);
         $this->articles = $arr;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>int32 total_count = 2;</code>
+     * @return int
+     */
+    public function getTotalCount()
+    {
+        return $this->total_count;
+    }
+
+    /**
+     * Generated from protobuf field <code>int32 total_count = 2;</code>
+     * @param int $var
+     * @return $this
+     */
+    public function setTotalCount(int $var)
+    {
+        GPBUtil::checkInt32($var);
+        $this->total_count = $var;
 
         return $this;
     }

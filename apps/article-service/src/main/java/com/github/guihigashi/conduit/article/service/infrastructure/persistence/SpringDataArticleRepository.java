@@ -21,6 +21,21 @@ public interface SpringDataArticleRepository extends JpaRepository<ArticleEntity
     List<String> findAllDistinctTags();
 
     @Query("""
+            select count (distinct a.id)
+            from ArticleEntity a
+            left join a.tagList t
+            left join a.favoritedBy f
+            where (:tag IS NULL OR t.name = :tag)
+              AND (:authorId IS NULL OR a.authorId = :authorId)
+              AND (:favoritedById IS NULL OR f = :favoritedById)
+            """)
+    int countArticlesSummaries(
+            @Param("tag") String tag,
+            @Param("authorId") UUID authorId,
+            @Param("favoritedById") UUID favoritedById
+    );
+
+    @Query("""
                 SELECT DISTINCT new com.github.guihigashi.conduit.article.service.infrastructure.persistence.ArticleSummaryProjection(
                     a.id, a.slug, a.title, a.description, a.createdAt, a.updatedAt, a.authorId
                 )

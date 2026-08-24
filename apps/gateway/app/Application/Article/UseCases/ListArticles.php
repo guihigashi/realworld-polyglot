@@ -22,7 +22,7 @@ readonly class ListArticles
     ): array {
         [$authorId, $favoritedById] = $this->resolveIds($author, $favoritedBy);
 
-        $articles = $this->articleService->listArticles(
+        $paginatedArticles = $this->articleService->listArticles(
             $tag,
             $authorId,
             $favoritedById,
@@ -31,9 +31,9 @@ readonly class ListArticles
             $requestorId
         );
 
-        $withAuthors = $this->resolveAuthors($articles, $requestorId);
+        $paginatedArticles['articles'] = $this->resolveAuthors($paginatedArticles['articles'], $requestorId);
 
-        return $withAuthors;
+        return $paginatedArticles;
     }
 
     private function resolveIds(?string $author, ?string $favoritedBy): array

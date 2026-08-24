@@ -62,7 +62,10 @@ class GrpcArticleService implements ArticleServiceInterface
             throw new \RuntimeException('gRPC Error: '.$status->details);
         }
 
-        return array_map([$this, 'mapArticleSummaryResponse'], iterator_to_array($response->getArticles()));
+        return [
+            'articles' => array_map([$this, 'mapArticleSummaryResponse'], iterator_to_array($response->getArticles())),
+            'articlesCount' => $response->getTotalCount(),
+        ];
     }
 
     public function getArticle(string $slug, ?string $requestorId): array

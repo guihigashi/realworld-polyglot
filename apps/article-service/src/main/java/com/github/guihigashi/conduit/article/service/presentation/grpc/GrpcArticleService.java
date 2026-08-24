@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.grpc.server.service.GrpcService;
 
-import java.util.List;
 import java.util.UUID;
 
 @GrpcService(interceptors = RequestorIdInterceptor.class)
@@ -19,6 +18,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
 
     private static final Logger log = LoggerFactory.getLogger(GrpcArticleService.class);
 
+    private final ListArticlesUseCase listArticlesUseCase;
     private final GetArticleUseCase getArticleUseCase;
     private final CreateArticleUseCase createArticleUseCase;
     private final UpdateArticleUseCase updateArticleUseCase;
@@ -32,6 +32,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     private final UnfavoriteArticleUseCase unfavoriteArticleUseCase;
 
     public GrpcArticleService(
+            ListArticlesUseCase listArticlesUseCase,
             GetArticleUseCase getArticleUseCase,
             CreateArticleUseCase createArticleUseCase,
             UpdateArticleUseCase updateArticleUseCase,
@@ -43,6 +44,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             DeleteCommentUseCase deleteCommentUseCase,
             FavoriteArticleUseCase favoriteArticleUseCase,
             UnfavoriteArticleUseCase unfavoriteArticleUseCase) {
+        this.listArticlesUseCase = listArticlesUseCase;
         this.getArticleUseCase = getArticleUseCase;
         this.createArticleUseCase = createArticleUseCase;
         this.updateArticleUseCase = updateArticleUseCase;
@@ -64,30 +66,28 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             int limit = request.getLimit() > 0 ? request.getLimit() : 20;
             int offset = Math.max(request.getOffset(), 0);
 
-            List<com.github.guihigashi.conduit.article.service.domain.Article> articles = articleRepository.findAllArticles(
+            var paginatedArticles = listArticlesUseCase.execute(
                     request.hasTag() ? request.getTag() : null,
                     request.hasAuthorId() ? UUID.fromString(request.getAuthorId()) : null,
                     request.hasFavoritedById() ? UUID.fromString(request.getFavoritedById()) : null,
                     limit,
-                    offset
+                    offset,
+                    parseUuidOrNull(requestorId)
             );
 
             ListArticlesResponse response = ListArticlesResponse.newBuilder()
                     .addAllArticles(
-                            articles.stream()
+                            paginatedArticles.articles().stream()
                                     .map(ArticleGrpcMapper::toSummaryProto)
                                     .toList()
                     )
+                    .setTotalCount(paginatedArticles.articlesCount())
                     .build();
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         } catch (Exception e) {
-            log.error("Error processing ListArticles request", e);
-            responseObserver.onError(Status.INTERNAL
-                    .withDescription("An internal error occurred while listing articles: " + e.getMessage())
-                    .withCause(e)
-                    .asRuntimeException());
+            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }
     }
 

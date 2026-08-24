@@ -4,6 +4,7 @@ import com.github.guihigashi.conduit.article.service.application.exception.Artic
 import com.github.guihigashi.conduit.article.service.application.exception.DuplicateSlugException;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.github.guihigashi.conduit.article.service.domain.Article;
+import com.github.guihigashi.conduit.article.service.domain.PaginatedArticles;
 import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
@@ -78,16 +79,18 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
     }
 
     @Override
-    public List<Article> findAllArticles(String tag, UUID authorId, UUID favoritedById, int limit, int offset) {
+    public PaginatedArticles listArticles(String tag, UUID authorId, UUID favoritedById, int limit, int offset, UUID requestorId) {
+        int totalCount = articleRepository.countArticlesSummaries(tag, authorId, favoritedById);
+
+        if (totalCount == 0) {
+            return new PaginatedArticles(Collections.emptyList(), 0);
+        }
+
         Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         List<ArticleSummaryProjection> projections = articleRepository.findArticleSummaries(
                 tag, authorId, favoritedById, pageable
         );
-
-        if (projections.isEmpty()) {
-            return Collections.emptyList();
-        }
 
         List<UUID> articleIds = projections.stream().map(ArticleSummaryProjection::id).toList();
 
@@ -104,14 +107,16 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
                 ));
 
         // 3. Map safely across the Use Case boundary
-        return projections.stream()
-                .map(projection -> mapToDomain(
-                        projection,
-                        tagsByArticle.getOrDefault(projection.id(), Collections.emptyList()),
-                        favoritesByArticle.getOrDefault(projection.id(), Collections.emptySet()),
-                        null // currentUserId if contextually available
-                ))
-                .toList();
+        return new PaginatedArticles(
+                projections.stream()
+                        .map(projection -> mapToDomain(
+                                projection,
+                                tagsByArticle.getOrDefault(projection.id(), Collections.emptyList()),
+                                favoritesByArticle.getOrDefault(projection.id(), Collections.emptySet()),
+                                requestorId
+                        ))
+                        .toList(),
+                totalCount);
     }
 
     @Override
@@ -169,8 +174,8 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
         );
     }
 
-    private Article mapToDomain(ArticleSummaryProjection projection, List<String> tags, Set<UUID> favoritedBy, String currentUserId) {
-        boolean isFavorited = currentUserId != null && favoritedBy.contains(UUID.fromString(currentUserId));
+    private Article mapToDomain(ArticleSummaryProjection projection, List<String> tags, Set<UUID> favoritedBy, UUID currentUserId) {
+        boolean isFavorited = currentUserId != null && favoritedBy.contains(currentUserId);
 
         return new Article(
                 projection.id(),

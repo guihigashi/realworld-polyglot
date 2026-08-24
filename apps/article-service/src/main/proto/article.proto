@@ -46,6 +46,7 @@ message ArticleSummary {
 
 message ListArticlesResponse {
   repeated ArticleSummary articles = 1;
+  int32 total_count = 2;
 }
 
 message GetArticleRequest {
