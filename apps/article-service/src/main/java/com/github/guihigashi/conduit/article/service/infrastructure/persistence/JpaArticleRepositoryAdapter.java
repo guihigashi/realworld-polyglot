@@ -1,8 +1,11 @@
 package com.github.guihigashi.conduit.article.service.infrastructure.persistence;
 
+import com.github.guihigashi.conduit.article.service.application.exception.ArticleNotFoundException;
+import com.github.guihigashi.conduit.article.service.application.exception.DuplicateSlugException;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.github.guihigashi.conduit.article.service.domain.Article;
 import jakarta.transaction.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -59,8 +62,13 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
         entity.setCreatedAt(article.createdAt());
         entity.setUpdatedAt(article.updatedAt());
 
-        var saved = articleRepository.save(entity);
-        return mapToDomain(saved, article.authorId());
+        try {
+            var saved = articleRepository.saveAndFlush(entity);
+
+            return mapToDomain(saved, article.authorId());
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateSlugException("The slug " + article.slug() + " is already in use", e.getCause());
+        }
     }
 
     @Override
@@ -109,7 +117,6 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
     @Override
     public void deleteBySlug(String slug) {
         articleRepository.deleteBySlug(slug);
-
     }
 
     @Override
@@ -121,7 +128,7 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
     @Transactional
     public Article favoriteArticle(String slug, UUID requestorId) {
         ArticleEntity entity = articleRepository.findBySlug(slug)
-                .orElseThrow(() -> new RuntimeException("Article not found"));
+                .orElseThrow(() -> new ArticleNotFoundException(slug));
 
         entity.addFavorite(requestorId);
 
@@ -133,7 +140,7 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
     @Transactional
     public Article unfavoriteArticle(String slug, UUID requestorId) {
         ArticleEntity entity = articleRepository.findBySlug(slug)
-                .orElseThrow(() -> new RuntimeException("Article not found"));
+                .orElseThrow(() -> new ArticleNotFoundException(slug));
 
         entity.removeFavorite(requestorId);
 

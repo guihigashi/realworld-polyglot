@@ -26,8 +26,6 @@ public class AddCommentUseCase {
                 authorId
         );
 
-        var savedComment = commentRepository.save(slug, comment);
-
-        return savedComment;
+        return commentRepository.save(slug, comment);
     }
 }

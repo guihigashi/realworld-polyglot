@@ -1,5 +1,6 @@
 package com.github.guihigashi.conduit.article.service.infrastructure.persistence;
 
+import com.github.guihigashi.conduit.article.service.application.exception.ArticleNotFoundException;
 import com.github.guihigashi.conduit.article.service.application.port.CommentRepository;
 import com.github.guihigashi.conduit.article.service.domain.Comment;
 import org.springframework.stereotype.Repository;
@@ -22,7 +23,7 @@ public class JpaCommentRepositoryAdapter implements CommentRepository {
     @Override
     public Comment save(String articleSlug, Comment comment) {
         ArticleEntity article = articleRepository.findBySlug(articleSlug)
-                .orElseThrow(() -> new IllegalArgumentException("Article not found"));
+                .orElseThrow(() -> new ArticleNotFoundException(articleSlug));
 
         CommentEntity commentEntity = new CommentEntity();
         commentEntity.setArticle(article);

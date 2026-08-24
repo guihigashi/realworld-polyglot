@@ -1,5 +1,6 @@
 package com.github.guihigashi.conduit.article.service.application;
 
+import com.github.guihigashi.conduit.article.service.application.exception.DuplicateSlugException;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.github.guihigashi.conduit.article.service.domain.Article;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,8 @@ import java.util.UUID;
 
 @Service
 public class CreateArticleUseCase {
+    private static final int MAX_ATTEMPTS = 5;
+
     private final ArticleRepository repository;
 
     public CreateArticleUseCase(ArticleRepository repository) {
@@ -23,7 +26,7 @@ public class CreateArticleUseCase {
 
         var article = new Article(
                 UUID.randomUUID(),
-                slug,
+                null,
                 title,
                 description,
                 body,
@@ -34,6 +37,18 @@ public class CreateArticleUseCase {
                 0,
                 authorId);
 
-        return repository.save(article);
+        for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+            try {
+                return repository.save(article);
+            } catch (DuplicateSlugException e) {
+                if (attempt == MAX_ATTEMPTS - 1) {
+                    throw new IllegalStateException("Failed to generate a unique slug", e);
+                }
+
+                article = article.withNewSlugSuffix();
+            }
+        }
+
+        throw new IllegalStateException("Unexpected error while creating article");
     }
 }

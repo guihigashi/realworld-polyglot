@@ -2,6 +2,7 @@ package com.github.guihigashi.conduit.article.service.presentation.grpc;
 
 import com.github.guihigashi.conduit.article.grpc.*;
 import com.github.guihigashi.conduit.article.service.application.*;
+import com.github.guihigashi.conduit.article.service.application.exception.ArticleNotFoundException;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.google.protobuf.Empty;
 import io.grpc.Status;
@@ -95,7 +96,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
         String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
 
         try {
-            var article = getArticleUseCase.execute(request.getSlug(), UUID.fromString(requestorId));
+            var article = getArticleUseCase.execute(request.getSlug(), parseUuidOrNull(requestorId));
 
             var response = ArticleResponse.newBuilder()
                     .setArticle(ArticleGrpcMapper.toProto(article))
@@ -104,10 +105,8 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             responseObserver.onNext(response);
             responseObserver.onCompleted();
 
-        } catch (IllegalArgumentException e) {
-            responseObserver.onError(Status.NOT_FOUND
-                    .withDescription("Article not found")
-                    .asRuntimeException());
+        } catch (ArticleNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }
@@ -167,6 +166,10 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        } catch (ArticleNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
+        } catch (SecurityException e) {
+            responseObserver.onError(Status.PERMISSION_DENIED.withDescription(e.getMessage()).asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }
@@ -188,10 +191,10 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
 
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
+        } catch (ArticleNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
         } catch (SecurityException e) {
             responseObserver.onError(Status.PERMISSION_DENIED.withDescription(e.getMessage()).asRuntimeException());
-        } catch (IllegalArgumentException e) {
-            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }
@@ -212,6 +215,9 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
                     .setComment(CommentGrpcMapper.toProto(comment))
                     .build());
             responseObserver.onCompleted();
+
+        } catch (ArticleNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }
@@ -267,6 +273,8 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        } catch (ArticleNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }
@@ -289,6 +297,8 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        } catch (ArticleNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }
@@ -307,5 +317,13 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }
+    }
+
+    private UUID parseUuidOrNull(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            return null;
+        }
+
+        return UUID.fromString(id);
     }
 }

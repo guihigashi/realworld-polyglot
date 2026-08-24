@@ -18,9 +18,12 @@ public record Article(
         UUID authorId
 ) {
     public Article {
-        if (slug == null || slug.isBlank()) throw new IllegalArgumentException("Slug cannot be empty");
         if (title == null || title.isBlank()) throw new IllegalArgumentException("Title cannot be empty");
         if (authorId == null) throw new IllegalArgumentException("AuthorId cannot be empty");
+
+        if (slug == null || slug.isBlank()) {
+            slug = generateSlug(title);
+        }
     }
 
     public Article withUpdates(
@@ -31,7 +34,7 @@ public record Article(
             OffsetDateTime updatedAt
     ) {
         String updatedTitle = newTitle != null ? newTitle : this.title;
-        String updatedSlug = newTitle != null ? generateSlug(newTitle) : this.slug;
+        String updatedSlug = newTitle != null && !newTitle.equals(this.title) ? null : this.slug;
         String updatedDescription = newDescription != null ? newDescription : this.description;
         String updatedBody = newBody != null ? newBody : this.body;
 
@@ -52,11 +55,32 @@ public record Article(
         );
     }
 
+    public Article withNewSlugSuffix() {
+        String updatedSlug = generateSlug(title);
+
+        return new Article(
+                id,
+                updatedSlug,
+                title,
+                description,
+                body,
+                tagList,
+                createdAt,
+                updatedAt,
+                favorited,
+                favoritesCount,
+                authorId
+        );
+    }
+
     public static String generateSlug(String title) {
+        String suffix = UUID.randomUUID().toString().substring(0, 8);
+
         return title.toLowerCase()
                 .replaceAll("[^a-z0-9\\-]", "-")
                 .replaceAll("-+", "-")
-                .replaceAll("-$", "");
+                .replaceAll("-$", "")
+                + "-" + suffix;
     }
 
 }

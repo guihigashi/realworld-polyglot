@@ -1,5 +1,6 @@
 package com.github.guihigashi.conduit.article.service.application;
 
+import com.github.guihigashi.conduit.article.service.application.exception.ArticleNotFoundException;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.github.guihigashi.conduit.article.service.domain.Article;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class DeleteArticleUseCase {
     @Transactional
     public void execute(String slug, UUID authorId) {
         Article article = articleRepository.findBySlug(slug, authorId)
-                .orElseThrow(() -> new IllegalArgumentException("Article not found: slug=" + slug));
+                .orElseThrow(() -> new ArticleNotFoundException(slug));
 
         if (!Objects.equals(article.authorId(), authorId)) {
             throw new SecurityException("User is not the author of the article");

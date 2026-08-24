@@ -1,5 +1,6 @@
 package com.github.guihigashi.conduit.article.service.application;
 
+import com.github.guihigashi.conduit.article.service.application.exception.ArticleNotFoundException;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.github.guihigashi.conduit.article.service.domain.Article;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,6 @@ public class GetArticleUseCase {
 
     public Article execute(String slug, UUID requestorId) {
         return articleRepository.findBySlug(slug, requestorId)
-                .orElseThrow(() -> new IllegalArgumentException("Article not found: slug=" + slug));
+                .orElseThrow(() -> new ArticleNotFoundException(slug));
     }
 }
