@@ -7,9 +7,9 @@ use App\Application\Article\UseCases\DeleteArticle;
 use App\Application\Article\UseCases\GetArticle;
 use App\Application\Article\UseCases\ListArticles;
 use App\Application\Article\UseCases\UpdateArticle;
-use App\Domain\Exceptions\ResourceNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 readonly class ArticleController
 {
@@ -43,32 +43,31 @@ readonly class ArticleController
     public function show(Request $request, string $slug): JsonResponse
     {
         $requestorId = $request->attributes->get('auth_user_id');
-        try {
-            $article = $this->getArticleUseCase->execute($slug, $requestorId);
 
-            return response()->json([
-                'article' => $article,
-            ]);
-        } catch (ResourceNotFoundException $e) {
-            return response()->json([
-                'errors' => [
-                    'article' => [$e->getMessage()],
-                ],
-            ], 404);
-        }
+        $article = $this->getArticleUseCase->execute($slug, $requestorId);
+
+        return response()->json([
+            'article' => $article,
+        ]);
     }
 
     public function store(Request $request): JsonResponse
     {
         $authorId = $request->attributes->get('auth_user_id');
 
-        $payload = $request->validate([
-            'article.title' => 'required|string',
-            'article.description' => 'required|string',
-            'article.body' => 'required|string',
-            'article.tagList' => 'nullable|array',
-            'article.tagList.*' => 'string',
-        ])['article'];
+        $articleInput = $request->input('article', []);
+
+        $payload = Validator::make($articleInput, [
+            'title' => 'required|string',
+            'description' => 'required|string',
+            'body' => 'required|string',
+            'tagList' => 'nullable|array',
+            'tagList.*' => 'string',
+        ], [
+            'title.required' => "can't be blank",
+            'description.required' => "can't be blank",
+            'body.required' => "can't be blank",
+        ])->validate();
 
         $article = $this->createArticleUseCase->execute($payload, $authorId);
 

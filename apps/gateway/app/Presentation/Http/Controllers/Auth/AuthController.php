@@ -8,11 +8,11 @@ use App\Presentation\Http\Requests\LoginUserRequest;
 use App\Presentation\Http\Requests\RegisterUserRequest;
 use Illuminate\Http\JsonResponse;
 
-class AuthController
+readonly class AuthController
 {
     public function __construct(
-        private readonly LoginUser $loginUser,
-        private readonly RegisterUser $registerUser
+        private LoginUser    $loginUser,
+        private RegisterUser $registerUser
     ) {}
 
     public function login(LoginUserRequest $request): JsonResponse
@@ -32,9 +32,9 @@ class AuthController
         } catch (\Exception $e) {
             return response()->json([
                 'errors' => [
-                    'email or password' => ['is invalid'],
+                    'credentials' => ['invalid'],
                 ],
-            ], 422);
+            ], 401);
         }
     }
 

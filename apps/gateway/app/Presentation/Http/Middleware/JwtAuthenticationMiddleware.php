@@ -12,7 +12,7 @@ class JwtAuthenticationMiddleware extends AbstractJwtMiddleware
         [$payload, $errorMessage] = $this->resolvePayload($request);
 
         if ($payload === null) {
-            return response()->json(['message' => $errorMessage], 401);
+            return response()->json(['errors' => $errorMessage], 401);
         }
 
         $request->attributes->set('auth_user_id', $payload->sub);

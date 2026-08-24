@@ -6,6 +6,7 @@ use App\Application\Article\UseCases\AddComment;
 use App\Application\Article\UseCases\DeleteComment;
 use App\Application\Article\UseCases\GetComments;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 readonly class CommentController
 {
@@ -30,9 +31,13 @@ readonly class CommentController
     {
         $requestorId = $request->attributes->get('auth_user_id');
 
-        $payload = $request->validate([
-            'comment.body' => 'required|string',
-        ])['comment'];
+        $inputComment = $request->input('comment', []);
+
+        $payload = Validator::make($inputComment, [
+            'body' => 'required|string',
+        ], [
+            'body.required' => "can't be blank",
+        ])->validate();
 
         $comment = $this->addCommentUseCase->execute($slug, $payload, $requestorId);
 

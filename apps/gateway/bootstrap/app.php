@@ -1,5 +1,6 @@
 <?php
 
+use App\Application\Exceptions\ArticleNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,4 +19,16 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        $exceptions->render(function (ArticleNotFoundException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'errors' => [
+                        'article' => ['not found'],
+                    ],
+                ], 404);
+            }
+
+            return null;
+        });
     })->create();

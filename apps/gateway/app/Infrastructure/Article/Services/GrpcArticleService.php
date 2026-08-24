@@ -2,8 +2,8 @@
 
 namespace App\Infrastructure\Article\Services;
 
+use App\Application\Exceptions\ArticleNotFoundException;
 use App\Domain\Article\Contracts\ArticleServiceInterface;
-use App\Domain\Exceptions\ResourceNotFoundException;
 use Generated\Grpc\Article\AddCommentRequest;
 use Generated\Grpc\Article\AddCommentResponse;
 use Generated\Grpc\Article\Article;
@@ -73,7 +73,7 @@ class GrpcArticleService implements ArticleServiceInterface
         [$response, $status] = $this->client->GetArticle($request, $this->metadataOfRequestor($requestorId))->wait();
 
         if ($status->code === \Grpc\STATUS_NOT_FOUND) {
-            throw new ResourceNotFoundException('not found');
+            throw new ArticleNotFoundException('not found');
         }
 
         if ($status->code !== \Grpc\STATUS_OK) {
@@ -132,6 +132,10 @@ class GrpcArticleService implements ArticleServiceInterface
         [$response, $status] = $this->client->UpdateArticle(
             $request, $this->metadataOfRequestor($requestorId))->wait();
 
+        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
+            throw new ArticleNotFoundException;
+        }
+
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException('gRPC Error: '.$status->details);
         }
@@ -145,6 +149,10 @@ class GrpcArticleService implements ArticleServiceInterface
             ->setSlug($slug);
 
         [, $status] = $this->client->DeleteArticle($request, $this->metadataOfRequestor($requestorId))->wait();
+
+        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
+            throw new ArticleNotFoundException;
+        }
 
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException('gRPC Error: '.$status->details);
@@ -208,6 +216,10 @@ class GrpcArticleService implements ArticleServiceInterface
         [$response, $status] = $this->client->FavoriteArticle(
             $request, $this->metadataOfRequestor($requestorId))->wait();
 
+        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
+            throw new ArticleNotFoundException;
+        }
+
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException('gRPC Error: '.$status->details);
         }
@@ -223,6 +235,10 @@ class GrpcArticleService implements ArticleServiceInterface
         /** @var ArticleResponse $response */
         [$response, $status] = $this->client->UnfavoriteArticle(
             $request, $this->metadataOfRequestor($requestorId))->wait();
+
+        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
+            throw new ArticleNotFoundException;
+        }
 
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException('gRPC Error: '.$status->details);

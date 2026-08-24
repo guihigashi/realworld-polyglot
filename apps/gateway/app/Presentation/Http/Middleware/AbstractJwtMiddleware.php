@@ -19,7 +19,9 @@ abstract class AbstractJwtMiddleware
         $header = $request->header('Authorization');
 
         if (! $header) {
-            return [null, 'Unauthorized'];
+            return [null, [
+                'token' => ['is missing'],
+            ]];
         }
 
         if (! preg_match('/^(Token|Bearer)\s+(.*)$/i', $header, $matches)) {

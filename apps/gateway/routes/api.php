@@ -4,8 +4,8 @@ use App\Presentation\Http\Controllers\ArticleController;
 use App\Presentation\Http\Controllers\Auth\AuthController;
 use App\Presentation\Http\Controllers\Auth\UserController;
 use App\Presentation\Http\Controllers\CommentController;
-use App\Presentation\Http\Controllers\ProfileController;
 use App\Presentation\Http\Controllers\FavoriteController;
+use App\Presentation\Http\Controllers\ProfileController;
 use App\Presentation\Http\Controllers\TagController;
 use App\Presentation\Http\Middleware\JwtAuthenticationMiddleware;
 use App\Presentation\Http\Middleware\OptionalJwtAuthenticationMiddleware;
@@ -20,6 +20,10 @@ Route::middleware([JwtAuthenticationMiddleware::class])->group(function () {
 
     Route::post('/profiles/{username}/follow', [ProfileController::class, 'follow']);
     Route::delete('/profiles/{username}/follow', [ProfileController::class, 'unfollow']);
+
+    Route::get('/articles/feed', function () {
+        return response(null, 200);
+    });
 
     Route::post('/articles', [ArticleController::class, 'store']);
     Route::put('/articles/{slug}', [ArticleController::class, 'update']);
