@@ -1,5 +1,6 @@
 package com.github.guihigashi.conduit.social
 
+import com.github.guihigashi.conduit.social.domain.exceptions.ProfileNotFoundException
 import com.github.guihigashi.conduit.social.grpc.social_graph.*
 import com.github.guihigashi.conduit.social.infrastructure.repository.ProfileRepository
 import io.grpc.{Status, StatusException}
@@ -18,9 +19,11 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository) extends 
         )
       _ <- profileRepository
         .follow(followerId, request.targetUsername)
-        .mapError(e =>
-          StatusException(Status.INVALID_ARGUMENT.withDescription(s"Failed to follow user: ${e.getMessage}"))
-        )
+        .mapError {
+          case e: ProfileNotFoundException =>
+            StatusException(Status.NOT_FOUND.withDescription(s"Failed to follow user: ${e.getMessage}"))
+          case e => StatusException(Status.INVALID_ARGUMENT.withDescription(s"Failed to follow user: ${e.getMessage}"))
+        }
     yield ProfileResponse(
       username = request.targetUsername,
       bio = None,
@@ -37,9 +40,12 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository) extends 
         )
       _ <- profileRepository
         .unfollow(followerId, request.targetUsername)
-        .mapError(e =>
-          StatusException(Status.INVALID_ARGUMENT.withDescription(s"Failed to unfollow user: ${e.getMessage}"))
-        )
+        .mapError {
+          case e: ProfileNotFoundException =>
+            StatusException(Status.NOT_FOUND.withDescription(s"Failed to follow user: ${e.getMessage}"))
+          case e =>
+            StatusException(Status.INVALID_ARGUMENT.withDescription(s"Failed to unfollow user: ${e.getMessage}"))
+        }
     yield ProfileResponse(
       username = request.targetUsername,
       bio = None,
@@ -50,9 +56,11 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository) extends 
     for
       profile <- profileRepository
         .getProfile(request.targetUsername)
-        .mapError(e =>
-          StatusException(Status.INTERNAL.withDescription(s"Database error: ${e.getMessage}"))
-        )
+        .mapError {
+          case e: NoSuchElementException => StatusException(Status.NOT_FOUND.withDescription(e.getMessage))
+          case e                         => StatusException(Status.INTERNAL.withDescription(e.getMessage))
+        }
+        .debug
     yield ProfileResponse(
       username = profile._1,
       bio = profile._2,

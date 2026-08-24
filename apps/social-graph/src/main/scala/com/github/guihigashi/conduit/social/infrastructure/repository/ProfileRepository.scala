@@ -1,10 +1,11 @@
 package com.github.guihigashi.conduit.social.infrastructure.repository
 
 import cats.syntax.all.*
+import com.github.guihigashi.conduit.social.domain.exceptions.ProfileNotFoundException
 import com.github.guihigashi.conduit.social.infrastructure.db.SkunkPool
 import skunk.*
 import skunk.codec.all.*
-import skunk.data.Arr
+import skunk.data.{Arr, Completion}
 import skunk.implicits.*
 import zio.*
 
@@ -48,10 +49,9 @@ object ProfileRepository:
         override def getProfile(username: String): Task[(String, Option[String], Option[String])] =
           pool
             .use {
-              _.execute(selectQuery)(username)
-                .map(_.headOption)
-                .map(_.getOrElse(throw new NoSuchElementException(s"Profile not found for username: $username")))
+              _.execute(selectQuery)(username).map(_.headOption)
             }
+            .someOrFail(new NoSuchElementException(s"Profile not found for username: $username"))
             .debug
 
         private val selectProfilesByIds: Query[Arr[UUID], (UUID, (String, Option[String], Option[String]))] =
@@ -70,18 +70,17 @@ object ProfileRepository:
 
         private val followCommand: Command[(UUID, String)] =
           sql"""insert into follows (follower_id, followed_id)
-               |
                |select $uuid, user_id
                |from profiles
-               |where username = $varchar
-               |on conflict (follower_id, followed_id) do nothing""".stripMargin.command
+               |where username = $varchar""".stripMargin.command
 
         override def follow(followerId: UUID, followeeUsername: String): Task[Unit] =
           pool
-            .use {
-              _.execute(followCommand)(followerId, followeeUsername).unit
+            .use(_.execute(followCommand)(followerId, followeeUsername))
+            .flatMap {
+              case Completion.Insert(count) if count > 0 => ZIO.unit
+              case _                                     => ZIO.fail(ProfileNotFoundException(followeeUsername))
             }
-            .debug
 
         private val unfollowCommand: Command[(UUID, String)] =
           sql"""delete
@@ -91,10 +90,11 @@ object ProfileRepository:
 
         override def unfollow(followerId: UUID, followeeUsername: String): Task[Unit] =
           pool
-            .use {
-              _.execute(unfollowCommand)(followerId, followeeUsername).unit
+            .use(_.execute(unfollowCommand)(followerId, followeeUsername))
+            .flatMap {
+              case Completion.Delete(count) if count > 0 => ZIO.unit
+              case _                                     => ZIO.fail(ProfileNotFoundException(followeeUsername))
             }
-            .debug
 
         private val selectIdsByUsernames: Query[Arr[String], (String, UUID)] =
           sql"""select username, user_id

@@ -2,6 +2,7 @@
 
 namespace App\Infrastructure\Profile\Services;
 
+use App\Application\Exceptions\ProfileNotFoundException;
 use App\Domain\Auth\Entities\User;
 use App\Domain\Profile\Contracts\SocialGraphServiceInterface;
 use App\Domain\Profile\Entities\Profile;
@@ -56,6 +57,14 @@ class GrpcSocialGraphService implements SocialGraphServiceInterface
         /** @var ProfileResponse $response */
         [$response, $status] = $this->client->getProfile($grpcRequest)->wait();
 
+        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
+            throw new ProfileNotFoundException;
+        }
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException("Failed to get profile: $status->details");
+        }
+
         return $this->handleResponse($response, $status);
     }
 
@@ -97,6 +106,14 @@ class GrpcSocialGraphService implements SocialGraphServiceInterface
         /** @var ProfileResponse $response */
         [$response, $status] = $this->client->followUser($grpcRequest)->wait();
 
+        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
+            throw new ProfileNotFoundException;
+        }
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException("gRPC Error ({$status->code}): {$status->details}");
+        }
+
         return $this->handleResponse($response, $status);
     }
 
@@ -108,6 +125,14 @@ class GrpcSocialGraphService implements SocialGraphServiceInterface
 
         /** @var ProfileResponse $response */
         [$response, $status] = $this->client->unfollowUser($request)->wait();
+
+        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
+            throw new ProfileNotFoundException;
+        }
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException("gRPC Error ({$status->code}): {$status->details}");
+        }
 
         return $this->handleResponse($response, $status);
     }

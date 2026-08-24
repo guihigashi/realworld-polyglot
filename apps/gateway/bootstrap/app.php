@@ -2,6 +2,7 @@
 
 use App\Application\Exceptions\ArticleNotFoundException;
 use App\Application\Exceptions\ForbiddenException;
+use App\Application\Exceptions\ProfileNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -26,6 +27,18 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'errors' => [
                         'article' => ['not found'],
+                    ],
+                ], 404);
+            }
+
+            return null;
+        });
+
+        $exceptions->render(function (ProfileNotFoundException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'errors' => [
+                        'profile' => ['not found'],
                     ],
                 ], 404);
             }
