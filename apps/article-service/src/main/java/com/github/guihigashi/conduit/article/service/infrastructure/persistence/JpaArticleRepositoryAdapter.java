@@ -60,13 +60,13 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
         entity.setUpdatedAt(article.updatedAt());
 
         var saved = articleRepository.save(entity);
-        return mapToDomain(saved, article.authorId().toString());
+        return mapToDomain(saved, article.authorId());
     }
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public Optional<Article> findBySlug(String slug) {
-        return articleRepository.findBySlug(slug).map(articleEntity -> mapToDomain(articleEntity, null));
+    public Optional<Article> findBySlug(String slug, UUID requestorId) {
+        return articleRepository.findBySlug(slug).map(articleEntity -> mapToDomain(articleEntity, requestorId));
     }
 
     @Override
@@ -119,11 +119,11 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
 
     @Override
     @Transactional
-    public Article favoriteArticle(String slug, String requestorId) {
+    public Article favoriteArticle(String slug, UUID requestorId) {
         ArticleEntity entity = articleRepository.findBySlug(slug)
                 .orElseThrow(() -> new RuntimeException("Article not found"));
 
-        entity.addFavorite(UUID.fromString(requestorId));
+        entity.addFavorite(requestorId);
 
         var saved = articleRepository.save(entity);
         return mapToDomain(saved, requestorId);
@@ -131,19 +131,19 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
 
     @Override
     @Transactional
-    public Article unfavoriteArticle(String slug, String requestorId) {
+    public Article unfavoriteArticle(String slug, UUID requestorId) {
         ArticleEntity entity = articleRepository.findBySlug(slug)
                 .orElseThrow(() -> new RuntimeException("Article not found"));
 
-        entity.removeFavorite(UUID.fromString(requestorId));
+        entity.removeFavorite(requestorId);
 
         var saved = articleRepository.save(entity);
         return mapToDomain(saved, requestorId);
     }
 
-    private Article mapToDomain(ArticleEntity entity, String currentUserId) {
+    private Article mapToDomain(ArticleEntity entity, UUID currentUserId) {
         boolean isFavorited = currentUserId != null &&
-                entity.getFavoritedBy().contains(UUID.fromString(currentUserId));
+                entity.getFavoritedBy().contains(currentUserId);
 
         return new Article(
                 entity.getId(),
@@ -178,52 +178,5 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
                 favoritedBy.size(),
                 projection.authorId()
         );
-    }
-
-    private record OffsetPageRequest(long offset, int limit, Sort sort) implements Pageable {
-        @Override
-        public int getPageNumber() {
-            return (int) (offset / limit);
-        }
-
-        @Override
-        public int getPageSize() {
-            return limit;
-        }
-
-        @Override
-        public long getOffset() {
-            return offset;
-        }
-
-        @Override
-        public Sort getSort() {
-            return sort;
-        }
-
-        @Override
-        public Pageable next() {
-            return new OffsetPageRequest(offset + limit, limit, sort);
-        }
-
-        @Override
-        public Pageable previousOrFirst() {
-            return hasPrevious() ? new OffsetPageRequest(offset - limit, limit, sort) : this;
-        }
-
-        @Override
-        public Pageable first() {
-            return new OffsetPageRequest(0, limit, sort);
-        }
-
-        @Override
-        public Pageable withPage(int pageNumber) {
-            return new OffsetPageRequest((long) pageNumber * limit, limit, sort);
-        }
-
-        @Override
-        public boolean hasPrevious() {
-            return offset >= limit;
-        }
     }
 }

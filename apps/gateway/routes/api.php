@@ -5,6 +5,7 @@ use App\Presentation\Http\Controllers\Auth\AuthController;
 use App\Presentation\Http\Controllers\Auth\UserController;
 use App\Presentation\Http\Controllers\CommentController;
 use App\Presentation\Http\Controllers\ProfileController;
+use App\Presentation\Http\Controllers\FavoriteController;
 use App\Presentation\Http\Controllers\TagController;
 use App\Presentation\Http\Middleware\JwtAuthenticationMiddleware;
 use App\Presentation\Http\Middleware\OptionalJwtAuthenticationMiddleware;
@@ -25,6 +26,8 @@ Route::middleware([JwtAuthenticationMiddleware::class])->group(function () {
     Route::delete('/articles/{slug}', [ArticleController::class, 'destroy']);
     Route::post('/articles/{slug}/comments', [CommentController::class, 'store']);
     Route::delete('/articles/{slug}/comments/{id}', [CommentController::class, 'destroy']);
+    Route::post('/articles/{slug}/favorite', [FavoriteController::class, 'store']);
+    Route::delete('/articles/{slug}/favorite', [FavoriteController::class, 'destroy']);
 });
 
 Route::middleware([OptionalJwtAuthenticationMiddleware::class])->group(function () {

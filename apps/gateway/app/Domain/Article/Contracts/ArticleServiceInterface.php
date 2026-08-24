@@ -12,8 +12,6 @@ interface ArticleServiceInterface
 
     public function updateArticle(string $slug, array $payload, string $requestorId): array;
 
-    public function getTags(): array;
-
     public function delete(string $slug, string $requestorId): void;
 
     public function addComment(string $slug, string $body, string $authorId): array;
@@ -21,4 +19,10 @@ interface ArticleServiceInterface
     public function getComments(string $slug, string $requestorId): array;
 
     public function deleteComment(string $slug, int $id, string $requestorId): void;
+
+    public function favoriteArticle(string $slug, string $requestorId): array;
+
+    public function unfavoriteArticle(string $slug, string $requestorId): array;
+
+    public function getTags(): array;
 }

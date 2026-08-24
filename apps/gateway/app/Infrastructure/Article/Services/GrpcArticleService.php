@@ -14,6 +14,7 @@ use Generated\Grpc\Article\Comment;
 use Generated\Grpc\Article\CreateArticleRequest;
 use Generated\Grpc\Article\DeleteArticleRequest;
 use Generated\Grpc\Article\DeleteCommentRequest;
+use Generated\Grpc\Article\FavoriteArticleRequest;
 use Generated\Grpc\Article\GetArticleRequest;
 use Generated\Grpc\Article\GetCommentsRequest;
 use Generated\Grpc\Article\GetCommentsResponse;
@@ -21,6 +22,7 @@ use Generated\Grpc\Article\GetTagsResponse;
 use Generated\Grpc\Article\ListArticlesRequest;
 use Generated\Grpc\Article\ListArticlesResponse;
 use Generated\Grpc\Article\TagList;
+use Generated\Grpc\Article\UnfavoriteArticleRequest;
 use Generated\Grpc\Article\UpdateArticleRequest;
 use Google\Protobuf\GPBEmpty;
 use Grpc\ChannelCredentials;
@@ -189,12 +191,44 @@ class GrpcArticleService implements ArticleServiceInterface
             ->setSlug($slug)
             ->setId($id);
 
-        [,$status] = $this->client->DeleteComment(
+        [, $status] = $this->client->DeleteComment(
             $request, $this->metadataOfRequestor($requestorId))->wait();
 
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException('gRPC Error: '.$status->details);
         }
+    }
+
+    public function favoriteArticle(string $slug, string $requestorId): array
+    {
+        $request = (new FavoriteArticleRequest)
+            ->setSlug($slug);
+
+        /** @var ArticleResponse $response */
+        [$response, $status] = $this->client->FavoriteArticle(
+            $request, $this->metadataOfRequestor($requestorId))->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
+
+        return $this->mapArticleResponse($response->getArticle());
+    }
+
+    public function unfavoriteArticle(string $slug, string $requestorId): array
+    {
+        $request = (new UnfavoriteArticleRequest)
+            ->setSlug($slug);
+
+        /** @var ArticleResponse $response */
+        [$response, $status] = $this->client->UnfavoriteArticle(
+            $request, $this->metadataOfRequestor($requestorId))->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
+
+        return $this->mapArticleResponse($response->getArticle());
     }
 
     public function getTags(): array

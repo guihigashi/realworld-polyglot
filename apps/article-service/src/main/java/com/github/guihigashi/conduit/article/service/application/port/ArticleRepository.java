@@ -9,7 +9,7 @@ import java.util.UUID;
 public interface ArticleRepository {
     Article save(Article article);
 
-    Optional<Article> findBySlug(String slug);
+    Optional<Article> findBySlug(String slug, UUID requestorId);
 
     List<Article> findAllArticles(
             String tag,
@@ -23,7 +23,7 @@ public interface ArticleRepository {
 
     List<String> findAllTags();
 
-    Article favoriteArticle(String slug, String requestorId);
+    Article favoriteArticle(String slug, UUID requestorId);
 
-    Article unfavoriteArticle(String slug, String requestorId);
+    Article unfavoriteArticle(String slug, UUID requestorId);
 }

@@ -18,6 +18,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
 
     private static final Logger log = LoggerFactory.getLogger(GrpcArticleService.class);
 
+    private final GetArticleUseCase getArticleUseCase;
     private final CreateArticleUseCase createArticleUseCase;
     private final UpdateArticleUseCase updateArticleUseCase;
     private final DeleteArticleUseCase deleteArticleUseCase;
@@ -26,8 +27,11 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     private final AddCommentUseCase addCommentUseCase;
     private final GetCommentsUseCase getCommentsUseCase;
     private final DeleteCommentUseCase deleteCommentUseCase;
+    private final FavoriteArticleUseCase favoriteArticleUseCase;
+    private final UnfavoriteArticleUseCase unfavoriteArticleUseCase;
 
     public GrpcArticleService(
+            GetArticleUseCase getArticleUseCase,
             CreateArticleUseCase createArticleUseCase,
             UpdateArticleUseCase updateArticleUseCase,
             DeleteArticleUseCase deleteArticleUseCase,
@@ -35,7 +39,10 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             ArticleRepository articleRepository,
             AddCommentUseCase addCommentUseCase,
             GetCommentsUseCase getCommentsUseCase,
-            DeleteCommentUseCase deleteCommentUseCase) {
+            DeleteCommentUseCase deleteCommentUseCase,
+            FavoriteArticleUseCase favoriteArticleUseCase,
+            UnfavoriteArticleUseCase unfavoriteArticleUseCase) {
+        this.getArticleUseCase = getArticleUseCase;
         this.createArticleUseCase = createArticleUseCase;
         this.updateArticleUseCase = updateArticleUseCase;
         this.deleteArticleUseCase = deleteArticleUseCase;
@@ -44,6 +51,8 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
         this.addCommentUseCase = addCommentUseCase;
         this.getCommentsUseCase = getCommentsUseCase;
         this.deleteCommentUseCase = deleteCommentUseCase;
+        this.favoriteArticleUseCase = favoriteArticleUseCase;
+        this.unfavoriteArticleUseCase = unfavoriteArticleUseCase;
     }
 
     @Override
@@ -83,33 +92,24 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
 
     @Override
     public void getArticle(GetArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
-        if (request.getSlug().isBlank()) {
-            responseObserver.onError(Status.INVALID_ARGUMENT
-                    .withDescription("Article slug cannot be empty")
-                    .asRuntimeException());
-            return;
-        }
+        String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
 
         try {
-            articleRepository.findBySlug(request.getSlug())
-                    .map(ArticleGrpcMapper::toProto)
-                    .ifPresentOrElse(
-                            article -> {
-                                var response = ArticleResponse.newBuilder()
-                                        .setArticle(article)
-                                        .build();
-                                responseObserver.onNext(response);
-                                responseObserver.onCompleted();
-                            },
-                            () -> responseObserver.onError(Status.NOT_FOUND
-                                    .withDescription("Article not found")
-                                    .asRuntimeException())
-                    );
-        } catch (Exception e) {
-            responseObserver.onError(Status.INTERNAL
-                    .withDescription("An internal error occurred while retrieving the article")
-                    .withCause(e)
+            var article = getArticleUseCase.execute(request.getSlug(), UUID.fromString(requestorId));
+
+            var response = ArticleResponse.newBuilder()
+                    .setArticle(ArticleGrpcMapper.toProto(article))
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+
+        } catch (IllegalArgumentException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription("Article not found")
                     .asRuntimeException());
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }
     }
 
@@ -252,12 +252,46 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
 
     @Override
     public void favoriteArticle(FavoriteArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
-        super.favoriteArticle(request, responseObserver);
+        try {
+            String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
+            if (requestorId == null) {
+                responseObserver.onError(Status.UNAUTHENTICATED.asRuntimeException());
+                return;
+            }
+
+            var article = favoriteArticleUseCase.execute(request.getSlug(), UUID.fromString(requestorId));
+
+            var response = ArticleResponse.newBuilder()
+                    .setArticle(ArticleGrpcMapper.toProto(article))
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+        }
     }
 
     @Override
     public void unfavoriteArticle(UnfavoriteArticleRequest request, StreamObserver<ArticleResponse> responseObserver) {
-        super.unfavoriteArticle(request, responseObserver);
+        try {
+            String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
+            if (requestorId == null) {
+                responseObserver.onError(Status.UNAUTHENTICATED.asRuntimeException());
+                return;
+            }
+
+            var article = unfavoriteArticleUseCase.execute(request.getSlug(), UUID.fromString(requestorId));
+
+            var response = ArticleResponse.newBuilder()
+                    .setArticle(ArticleGrpcMapper.toProto(article))
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+        }
     }
 
     @Override

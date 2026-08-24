@@ -20,7 +20,7 @@ public class UpdateArticleUseCase {
     }
 
     public Article execute(String slug, String title, String description, String body, List<String> tagList, UUID authorId) {
-        Article article = articleRepository.findBySlug(slug)
+        Article article = articleRepository.findBySlug(slug, authorId)
                 .orElseThrow(() -> new IllegalArgumentException("article not found: slug=" + slug));
 
         if (!Objects.equals(article.authorId(), authorId)) {

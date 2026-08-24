@@ -19,8 +19,8 @@ public class DeleteArticleUseCase {
 
     @Transactional
     public void execute(String slug, UUID authorId) {
-        Article article = articleRepository.findBySlug(slug)
-                .orElseThrow(() -> new IllegalArgumentException("article not found: slug=" + slug));
+        Article article = articleRepository.findBySlug(slug, authorId)
+                .orElseThrow(() -> new IllegalArgumentException("Article not found: slug=" + slug));
 
         if (!Objects.equals(article.authorId(), authorId)) {
             throw new SecurityException("User is not the author of the article");
