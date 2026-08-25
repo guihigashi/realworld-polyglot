@@ -12,6 +12,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface SpringDataArticleRepository extends JpaRepository<ArticleEntity, UUID>, JpaSpecificationExecutor<ArticleEntity> {
+    boolean existsBySlug(String slug);
+
     @EntityGraph(attributePaths = {"tagList", "favoritedBy"})
     Optional<ArticleEntity> findBySlug(String slug);
 

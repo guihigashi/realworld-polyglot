@@ -1,6 +1,7 @@
 <?php
 
 use App\Application\Exceptions\ArticleNotFoundException;
+use App\Application\Exceptions\CommentNotFoundException;
 use App\Application\Exceptions\ForbiddenException;
 use App\Application\Exceptions\ProfileNotFoundException;
 use Illuminate\Foundation\Application;
@@ -39,6 +40,18 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'errors' => [
                         'profile' => ['not found'],
+                    ],
+                ], 404);
+            }
+
+            return null;
+        });
+
+        $exceptions->render(function (CommentNotFoundException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'errors' => [
+                        'comment' => ['not found'],
                     ],
                 ], 404);
             }

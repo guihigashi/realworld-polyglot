@@ -73,6 +73,11 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
     }
 
     @Override
+    public boolean existsBySlug(String slug) {
+        return articleRepository.existsBySlug(slug);
+    }
+
+    @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Optional<Article> findBySlug(String slug, UUID requestorId) {
         return articleRepository.findBySlug(slug).map(articleEntity -> mapToDomain(articleEntity, requestorId));

@@ -12,6 +12,8 @@ import java.util.UUID;
 public interface ArticleRepository {
     Article save(Article article) throws DuplicateSlugException;
 
+    boolean existsBySlug(String slug);
+
     Optional<Article> findBySlug(String slug, UUID requestorId);
 
     PaginatedArticles listArticles(

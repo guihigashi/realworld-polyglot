@@ -1,6 +1,7 @@
 package com.github.guihigashi.conduit.article.service.infrastructure.persistence;
 
 import com.github.guihigashi.conduit.article.service.application.exception.ArticleNotFoundException;
+import com.github.guihigashi.conduit.article.service.application.exception.CommentNotFoundException;
 import com.github.guihigashi.conduit.article.service.application.port.CommentRepository;
 import com.github.guihigashi.conduit.article.service.domain.Comment;
 import org.springframework.stereotype.Repository;
@@ -45,6 +46,10 @@ public class JpaCommentRepositoryAdapter implements CommentRepository {
 
     @Override
     public List<Comment> findByArticleSlug(String slug) {
+        if (!articleRepository.existsBySlug(slug)) {
+            throw new ArticleNotFoundException(slug);
+        }
+
         var commentEntities = commentRepository.findByArticleSlug(slug);
 
         return commentEntities.stream()
@@ -61,7 +66,7 @@ public class JpaCommentRepositoryAdapter implements CommentRepository {
     @Override
     public Comment findById(Long id) {
         var comment = commentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
+                .orElseThrow(() -> new CommentNotFoundException(id));
 
         return new Comment(
                 comment.getId(),

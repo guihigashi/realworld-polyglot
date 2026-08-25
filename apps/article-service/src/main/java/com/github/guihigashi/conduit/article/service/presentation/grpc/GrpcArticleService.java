@@ -3,6 +3,7 @@ package com.github.guihigashi.conduit.article.service.presentation.grpc;
 import com.github.guihigashi.conduit.article.grpc.*;
 import com.github.guihigashi.conduit.article.service.application.*;
 import com.github.guihigashi.conduit.article.service.application.exception.ArticleNotFoundException;
+import com.github.guihigashi.conduit.article.service.application.exception.CommentNotFoundException;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.google.protobuf.Empty;
 import io.grpc.Status;
@@ -234,6 +235,8 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
                     .build();
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+        } catch (ArticleNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
         }
@@ -251,6 +254,8 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             deleteCommentUseCase.execute(request.getSlug(), request.getId(), UUID.fromString(requestorId));
             responseObserver.onNext(Empty.newBuilder().build());
             responseObserver.onCompleted();
+        } catch (ArticleNotFoundException | CommentNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
         } catch (SecurityException e) {
             responseObserver.onError(Status.PERMISSION_DENIED.withDescription(e.getMessage()).asRuntimeException());
         } catch (Exception e) {
