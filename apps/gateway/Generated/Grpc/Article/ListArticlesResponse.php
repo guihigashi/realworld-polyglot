@@ -33,7 +33,8 @@ class ListArticlesResponse extends \Google\Protobuf\Internal\Message
      *     @type int $total_count
      * }
      */
-    public function __construct($data = NULL) {
+    public function __construct($data = null)
+    {
         \Generated\Grpc\Article\Metadata\Article::initOnce();
         parent::__construct($data);
     }

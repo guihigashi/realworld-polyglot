@@ -48,7 +48,8 @@ class Comment extends \Google\Protobuf\Internal\Message
      *     @type string $author_id
      * }
      */
-    public function __construct($data = NULL) {
+    public function __construct($data = null)
+    {
         \Generated\Grpc\Article\Metadata\Article::initOnce();
         parent::__construct($data);
     }

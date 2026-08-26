@@ -91,7 +91,8 @@ class Article extends \Google\Protobuf\Internal\Message
      *     @type bool $author_following
      * }
      */
-    public function __construct($data = NULL) {
+    public function __construct($data = null)
+    {
         \Generated\Grpc\Feed\Metadata\Feed::initOnce();
         parent::__construct($data);
     }

@@ -28,7 +28,8 @@ class ResolveIdsByUsernamesRequest extends \Google\Protobuf\Internal\Message
      *     @type string[] $usernames
      * }
      */
-    public function __construct($data = NULL) {
+    public function __construct($data = null)
+    {
         \Generated\Grpc\SocialGraph\Metadata\SocialGraph::initOnce();
         parent::__construct($data);
     }

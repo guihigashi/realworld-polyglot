@@ -36,7 +36,8 @@ class FollowRequest extends \Google\Protobuf\Internal\Message
      *     @type string $target_username
      * }
      */
-    public function __construct($data = NULL) {
+    public function __construct($data = null)
+    {
         \Generated\Grpc\SocialGraph\Metadata\SocialGraph::initOnce();
         parent::__construct($data);
     }

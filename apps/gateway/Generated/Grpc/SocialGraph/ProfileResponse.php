@@ -43,7 +43,8 @@ class ProfileResponse extends \Google\Protobuf\Internal\Message
      *     @type bool $following
      * }
      */
-    public function __construct($data = NULL) {
+    public function __construct($data = null)
+    {
         \Generated\Grpc\SocialGraph\Metadata\SocialGraph::initOnce();
         parent::__construct($data);
     }

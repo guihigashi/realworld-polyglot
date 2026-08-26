@@ -28,7 +28,8 @@ class ProfilesResponse extends \Google\Protobuf\Internal\Message
      *     @type array|\Google\Protobuf\Internal\MapField $profiles
      * }
      */
-    public function __construct($data = NULL) {
+    public function __construct($data = null)
+    {
         \Generated\Grpc\SocialGraph\Metadata\SocialGraph::initOnce();
         parent::__construct($data);
     }

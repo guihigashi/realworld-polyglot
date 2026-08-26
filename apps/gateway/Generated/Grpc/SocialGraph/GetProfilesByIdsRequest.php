@@ -33,7 +33,8 @@ class GetProfilesByIdsRequest extends \Google\Protobuf\Internal\Message
      *     @type string $requestor_id
      * }
      */
-    public function __construct($data = NULL) {
+    public function __construct($data = null)
+    {
         \Generated\Grpc\SocialGraph\Metadata\SocialGraph::initOnce();
         parent::__construct($data);
     }

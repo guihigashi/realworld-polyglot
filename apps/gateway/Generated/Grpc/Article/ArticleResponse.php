@@ -28,7 +28,8 @@ class ArticleResponse extends \Google\Protobuf\Internal\Message
      *     @type \Generated\Grpc\Article\Article $article
      * }
      */
-    public function __construct($data = NULL) {
+    public function __construct($data = null)
+    {
         \Generated\Grpc\Article\Metadata\Article::initOnce();
         parent::__construct($data);
     }

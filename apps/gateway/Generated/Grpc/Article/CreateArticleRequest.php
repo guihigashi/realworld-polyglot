@@ -43,7 +43,8 @@ class CreateArticleRequest extends \Google\Protobuf\Internal\Message
      *     @type string[] $tag_list
      * }
      */
-    public function __construct($data = NULL) {
+    public function __construct($data = null)
+    {
         \Generated\Grpc\Article\Metadata\Article::initOnce();
         parent::__construct($data);
     }

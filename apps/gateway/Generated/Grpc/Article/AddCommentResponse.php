@@ -28,7 +28,8 @@ class AddCommentResponse extends \Google\Protobuf\Internal\Message
      *     @type \Generated\Grpc\Article\Comment $comment
      * }
      */
-    public function __construct($data = NULL) {
+    public function __construct($data = null)
+    {
         \Generated\Grpc\Article\Metadata\Article::initOnce();
         parent::__construct($data);
     }

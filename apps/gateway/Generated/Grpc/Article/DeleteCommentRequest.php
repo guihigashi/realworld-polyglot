@@ -33,7 +33,8 @@ class DeleteCommentRequest extends \Google\Protobuf\Internal\Message
      *     @type int|string $id
      * }
      */
-    public function __construct($data = NULL) {
+    public function __construct($data = null)
+    {
         \Generated\Grpc\Article\Metadata\Article::initOnce();
         parent::__construct($data);
     }

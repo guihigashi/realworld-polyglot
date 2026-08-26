@@ -4,6 +4,8 @@ package com.github.guihigashi.conduit.article;
 
 import "google/protobuf/empty.proto";
 
+option go_package = "github.com/guihigashi/conduit/feed/internal/pbarticle;pbarticle";
+
 option java_multiple_files = true;
 option java_package = "com.github.guihigashi.conduit.article.grpc";
 

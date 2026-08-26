@@ -7,22 +7,22 @@ import (
 	"net"
 	"time"
 
-	"github.com/guihigashi/conduit/feed/internal/protov1"
+	"github.com/guihigashi/conduit/feed/internal/pbfeed"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 type feedServer struct {
-	protov1.UnimplementedFeedServiceServer
+	pbfeed.UnimplementedFeedServiceServer
 }
 
-func (s *feedServer) GetFeed(ctx context.Context, req *protov1.FeedRequest) (*protov1.FeedResponse, error) {
+func (s *feedServer) GetFeed(ctx context.Context, req *pbfeed.FeedRequest) (*pbfeed.FeedResponse, error) {
 	slog.Debug("GetFeed request received",
 		slog.String("requestor", req.GetRequestorId()),
 		slog.Int("limit", int(req.GetLimit())),
 		slog.Int("offset", int(req.GetOffset())))
 
-	article := &protov1.Article{
+	article := &pbfeed.Article{
 		Slug:            "building-a-feed-aggregator",
 		Title:           "Building a Feed Aggregator",
 		Description:     "A brief introduction to Go microservices.",
@@ -38,8 +38,8 @@ func (s *feedServer) GetFeed(ctx context.Context, req *protov1.FeedRequest) (*pr
 		AuthorFollowing: true,
 	}
 
-	return &protov1.FeedResponse{
-		Articles:      []*protov1.Article{article},
+	return &pbfeed.FeedResponse{
+		Articles:      []*pbfeed.Article{article},
 		ArticlesCount: 1,
 	}, nil
 }
@@ -53,7 +53,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	protov1.RegisterFeedServiceServer(s, &feedServer{})
+	pbfeed.RegisterFeedServiceServer(s, &feedServer{})
 
 	// Register reflection service on gRPC server for local testing tools
 	reflection.Register(s)

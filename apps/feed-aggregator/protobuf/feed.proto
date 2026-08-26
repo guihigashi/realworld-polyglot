@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package com.github.guihigashi.conduit.feed;
 
-option go_package = "github.com/guihigashi/conduit/feed/internal/protov1";
+option go_package = "github.com/guihigashi/conduit/feed/internal/pbfeed;pbfeed";
 
 option php_namespace = "Generated\\Grpc\\Feed";
 option php_metadata_namespace = "Generated\\Grpc\\Feed\\Metadata";
