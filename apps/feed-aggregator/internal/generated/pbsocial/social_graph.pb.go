@@ -541,6 +541,94 @@ func (x *ResolveIdsByUsernamesResponse) GetResolvedIds() map[string]string {
 	return nil
 }
 
+type GetFollowingRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RequestorId   string                 `protobuf:"bytes,1,opt,name=requestor_id,json=requestorId,proto3" json:"requestor_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFollowingRequest) Reset() {
+	*x = GetFollowingRequest{}
+	mi := &file_social_graph_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFollowingRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFollowingRequest) ProtoMessage() {}
+
+func (x *GetFollowingRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_social_graph_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFollowingRequest.ProtoReflect.Descriptor instead.
+func (*GetFollowingRequest) Descriptor() ([]byte, []int) {
+	return file_social_graph_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetFollowingRequest) GetRequestorId() string {
+	if x != nil {
+		return x.RequestorId
+	}
+	return ""
+}
+
+type GetFollowingResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FollowingIds  []string               `protobuf:"bytes,1,rep,name=following_ids,json=followingIds,proto3" json:"following_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFollowingResponse) Reset() {
+	*x = GetFollowingResponse{}
+	mi := &file_social_graph_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFollowingResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFollowingResponse) ProtoMessage() {}
+
+func (x *GetFollowingResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_social_graph_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFollowingResponse.ProtoReflect.Descriptor instead.
+func (*GetFollowingResponse) Descriptor() ([]byte, []int) {
+	return file_social_graph_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetFollowingResponse) GetFollowingIds() []string {
+	if x != nil {
+		return x.FollowingIds
+	}
+	return nil
+}
+
 var File_social_graph_proto protoreflect.FileDescriptor
 
 const file_social_graph_proto_rawDesc = "" +
@@ -586,7 +674,11 @@ const file_social_graph_proto_rawDesc = "" +
 	"\fresolved_ids\x18\x01 \x03(\v2T.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.ResolvedIdsEntryR\vresolvedIds\x1a>\n" +
 	"\x10ResolvedIdsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xce\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"8\n" +
+	"\x13GetFollowingRequest\x12!\n" +
+	"\frequestor_id\x18\x01 \x01(\tR\vrequestorId\";\n" +
+	"\x14GetFollowingResponse\x12#\n" +
+	"\rfollowing_ids\x18\x01 \x03(\tR\ffollowingIds2\xd6\a\n" +
 	"\x12SocialGraphService\x12x\n" +
 	"\n" +
 	"FollowUser\x123.com.github.guihigashi.conduit.social.FollowRequest\x1a5.com.github.guihigashi.conduit.social.ProfileResponse\x12|\n" +
@@ -595,7 +687,8 @@ const file_social_graph_proto_rawDesc = "" +
 	"GetProfile\x127.com.github.guihigashi.conduit.social.GetProfileRequest\x1a5.com.github.guihigashi.conduit.social.ProfileResponse\x12\x89\x01\n" +
 	"\x10GetProfilesByIds\x12=.com.github.guihigashi.conduit.social.GetProfilesByIdsRequest\x1a6.com.github.guihigashi.conduit.social.ProfilesResponse\x12\x92\x01\n" +
 	"\x17UpsertProfileProjection\x12:.com.github.guihigashi.conduit.social.UpsertProfileRequest\x1a;.com.github.guihigashi.conduit.social.UpsertProfileResponse\x12\xa0\x01\n" +
-	"\x15ResolveIdsByUsernames\x12B.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesRequest\x1aC.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponseB\xb9\x01\n" +
+	"\x15ResolveIdsByUsernames\x12B.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesRequest\x1aC.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse\x12\x85\x01\n" +
+	"\fGetFollowing\x129.com.github.guihigashi.conduit.social.GetFollowingRequest\x1a:.com.github.guihigashi.conduit.social.GetFollowingResponseB\xb9\x01\n" +
 	")com.github.guihigashi.conduit.social.grpcP\x01ZGgithub.com/guihigashi/conduit/feed/internal/generated/pbsocial;pbsocial\xca\x02\x1aGenerated\\Grpc\\SocialGraph\xe2\x02#Generated\\Grpc\\SocialGraph\\Metadatab\x06proto3"
 
 var (
@@ -610,7 +703,7 @@ func file_social_graph_proto_rawDescGZIP() []byte {
 	return file_social_graph_proto_rawDescData
 }
 
-var file_social_graph_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_social_graph_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_social_graph_proto_goTypes = []any{
 	(*FollowRequest)(nil),                 // 0: com.github.guihigashi.conduit.social.FollowRequest
 	(*UnfollowRequest)(nil),               // 1: com.github.guihigashi.conduit.social.UnfollowRequest
@@ -622,12 +715,14 @@ var file_social_graph_proto_goTypes = []any{
 	(*UpsertProfileResponse)(nil),         // 7: com.github.guihigashi.conduit.social.UpsertProfileResponse
 	(*ResolveIdsByUsernamesRequest)(nil),  // 8: com.github.guihigashi.conduit.social.ResolveIdsByUsernamesRequest
 	(*ResolveIdsByUsernamesResponse)(nil), // 9: com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse
-	nil,                                   // 10: com.github.guihigashi.conduit.social.ProfilesResponse.ProfilesEntry
-	nil,                                   // 11: com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.ResolvedIdsEntry
+	(*GetFollowingRequest)(nil),           // 10: com.github.guihigashi.conduit.social.GetFollowingRequest
+	(*GetFollowingResponse)(nil),          // 11: com.github.guihigashi.conduit.social.GetFollowingResponse
+	nil,                                   // 12: com.github.guihigashi.conduit.social.ProfilesResponse.ProfilesEntry
+	nil,                                   // 13: com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.ResolvedIdsEntry
 }
 var file_social_graph_proto_depIdxs = []int32{
-	10, // 0: com.github.guihigashi.conduit.social.ProfilesResponse.profiles:type_name -> com.github.guihigashi.conduit.social.ProfilesResponse.ProfilesEntry
-	11, // 1: com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.resolved_ids:type_name -> com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.ResolvedIdsEntry
+	12, // 0: com.github.guihigashi.conduit.social.ProfilesResponse.profiles:type_name -> com.github.guihigashi.conduit.social.ProfilesResponse.ProfilesEntry
+	13, // 1: com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.resolved_ids:type_name -> com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.ResolvedIdsEntry
 	4,  // 2: com.github.guihigashi.conduit.social.ProfilesResponse.ProfilesEntry.value:type_name -> com.github.guihigashi.conduit.social.ProfileResponse
 	0,  // 3: com.github.guihigashi.conduit.social.SocialGraphService.FollowUser:input_type -> com.github.guihigashi.conduit.social.FollowRequest
 	1,  // 4: com.github.guihigashi.conduit.social.SocialGraphService.UnfollowUser:input_type -> com.github.guihigashi.conduit.social.UnfollowRequest
@@ -635,14 +730,16 @@ var file_social_graph_proto_depIdxs = []int32{
 	3,  // 6: com.github.guihigashi.conduit.social.SocialGraphService.GetProfilesByIds:input_type -> com.github.guihigashi.conduit.social.GetProfilesByIdsRequest
 	6,  // 7: com.github.guihigashi.conduit.social.SocialGraphService.UpsertProfileProjection:input_type -> com.github.guihigashi.conduit.social.UpsertProfileRequest
 	8,  // 8: com.github.guihigashi.conduit.social.SocialGraphService.ResolveIdsByUsernames:input_type -> com.github.guihigashi.conduit.social.ResolveIdsByUsernamesRequest
-	4,  // 9: com.github.guihigashi.conduit.social.SocialGraphService.FollowUser:output_type -> com.github.guihigashi.conduit.social.ProfileResponse
-	4,  // 10: com.github.guihigashi.conduit.social.SocialGraphService.UnfollowUser:output_type -> com.github.guihigashi.conduit.social.ProfileResponse
-	4,  // 11: com.github.guihigashi.conduit.social.SocialGraphService.GetProfile:output_type -> com.github.guihigashi.conduit.social.ProfileResponse
-	5,  // 12: com.github.guihigashi.conduit.social.SocialGraphService.GetProfilesByIds:output_type -> com.github.guihigashi.conduit.social.ProfilesResponse
-	7,  // 13: com.github.guihigashi.conduit.social.SocialGraphService.UpsertProfileProjection:output_type -> com.github.guihigashi.conduit.social.UpsertProfileResponse
-	9,  // 14: com.github.guihigashi.conduit.social.SocialGraphService.ResolveIdsByUsernames:output_type -> com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse
-	9,  // [9:15] is the sub-list for method output_type
-	3,  // [3:9] is the sub-list for method input_type
+	10, // 9: com.github.guihigashi.conduit.social.SocialGraphService.GetFollowing:input_type -> com.github.guihigashi.conduit.social.GetFollowingRequest
+	4,  // 10: com.github.guihigashi.conduit.social.SocialGraphService.FollowUser:output_type -> com.github.guihigashi.conduit.social.ProfileResponse
+	4,  // 11: com.github.guihigashi.conduit.social.SocialGraphService.UnfollowUser:output_type -> com.github.guihigashi.conduit.social.ProfileResponse
+	4,  // 12: com.github.guihigashi.conduit.social.SocialGraphService.GetProfile:output_type -> com.github.guihigashi.conduit.social.ProfileResponse
+	5,  // 13: com.github.guihigashi.conduit.social.SocialGraphService.GetProfilesByIds:output_type -> com.github.guihigashi.conduit.social.ProfilesResponse
+	7,  // 14: com.github.guihigashi.conduit.social.SocialGraphService.UpsertProfileProjection:output_type -> com.github.guihigashi.conduit.social.UpsertProfileResponse
+	9,  // 15: com.github.guihigashi.conduit.social.SocialGraphService.ResolveIdsByUsernames:output_type -> com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse
+	11, // 16: com.github.guihigashi.conduit.social.SocialGraphService.GetFollowing:output_type -> com.github.guihigashi.conduit.social.GetFollowingResponse
+	10, // [10:17] is the sub-list for method output_type
+	3,  // [3:10] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name
 	3,  // [3:3] is the sub-list for extension extendee
 	0,  // [0:3] is the sub-list for field type_name
@@ -661,7 +758,7 @@ func file_social_graph_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_social_graph_proto_rawDesc), len(file_social_graph_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

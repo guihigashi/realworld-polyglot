@@ -25,6 +25,7 @@ const (
 	SocialGraphService_GetProfilesByIds_FullMethodName        = "/com.github.guihigashi.conduit.social.SocialGraphService/GetProfilesByIds"
 	SocialGraphService_UpsertProfileProjection_FullMethodName = "/com.github.guihigashi.conduit.social.SocialGraphService/UpsertProfileProjection"
 	SocialGraphService_ResolveIdsByUsernames_FullMethodName   = "/com.github.guihigashi.conduit.social.SocialGraphService/ResolveIdsByUsernames"
+	SocialGraphService_GetFollowing_FullMethodName            = "/com.github.guihigashi.conduit.social.SocialGraphService/GetFollowing"
 )
 
 // SocialGraphServiceClient is the client API for SocialGraphService service.
@@ -40,6 +41,7 @@ type SocialGraphServiceClient interface {
 	GetProfilesByIds(ctx context.Context, in *GetProfilesByIdsRequest, opts ...grpc.CallOption) (*ProfilesResponse, error)
 	UpsertProfileProjection(ctx context.Context, in *UpsertProfileRequest, opts ...grpc.CallOption) (*UpsertProfileResponse, error)
 	ResolveIdsByUsernames(ctx context.Context, in *ResolveIdsByUsernamesRequest, opts ...grpc.CallOption) (*ResolveIdsByUsernamesResponse, error)
+	GetFollowing(ctx context.Context, in *GetFollowingRequest, opts ...grpc.CallOption) (*GetFollowingResponse, error)
 }
 
 type socialGraphServiceClient struct {
@@ -110,6 +112,16 @@ func (c *socialGraphServiceClient) ResolveIdsByUsernames(ctx context.Context, in
 	return out, nil
 }
 
+func (c *socialGraphServiceClient) GetFollowing(ctx context.Context, in *GetFollowingRequest, opts ...grpc.CallOption) (*GetFollowingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFollowingResponse)
+	err := c.cc.Invoke(ctx, SocialGraphService_GetFollowing_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SocialGraphServiceServer is the server API for SocialGraphService service.
 // All implementations must embed UnimplementedSocialGraphServiceServer
 // for forward compatibility.
@@ -123,6 +135,7 @@ type SocialGraphServiceServer interface {
 	GetProfilesByIds(context.Context, *GetProfilesByIdsRequest) (*ProfilesResponse, error)
 	UpsertProfileProjection(context.Context, *UpsertProfileRequest) (*UpsertProfileResponse, error)
 	ResolveIdsByUsernames(context.Context, *ResolveIdsByUsernamesRequest) (*ResolveIdsByUsernamesResponse, error)
+	GetFollowing(context.Context, *GetFollowingRequest) (*GetFollowingResponse, error)
 	mustEmbedUnimplementedSocialGraphServiceServer()
 }
 
@@ -150,6 +163,9 @@ func (UnimplementedSocialGraphServiceServer) UpsertProfileProjection(context.Con
 }
 func (UnimplementedSocialGraphServiceServer) ResolveIdsByUsernames(context.Context, *ResolveIdsByUsernamesRequest) (*ResolveIdsByUsernamesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ResolveIdsByUsernames not implemented")
+}
+func (UnimplementedSocialGraphServiceServer) GetFollowing(context.Context, *GetFollowingRequest) (*GetFollowingResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetFollowing not implemented")
 }
 func (UnimplementedSocialGraphServiceServer) mustEmbedUnimplementedSocialGraphServiceServer() {}
 func (UnimplementedSocialGraphServiceServer) testEmbeddedByValue()                            {}
@@ -280,6 +296,24 @@ func _SocialGraphService_ResolveIdsByUsernames_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SocialGraphService_GetFollowing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialGraphServiceServer).GetFollowing(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SocialGraphService_GetFollowing_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialGraphServiceServer).GetFollowing(ctx, req.(*GetFollowingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SocialGraphService_ServiceDesc is the grpc.ServiceDesc for SocialGraphService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -310,6 +344,10 @@ var SocialGraphService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ResolveIdsByUsernames",
 			Handler:    _SocialGraphService_ResolveIdsByUsernames_Handler,
+		},
+		{
+			MethodName: "GetFollowing",
+			Handler:    _SocialGraphService_GetFollowing_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

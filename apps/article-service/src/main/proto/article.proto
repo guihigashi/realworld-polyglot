@@ -24,6 +24,7 @@ service ArticleService {
   rpc FavoriteArticle (FavoriteArticleRequest) returns (ArticleResponse);
   rpc UnfavoriteArticle (UnfavoriteArticleRequest) returns (ArticleResponse);
   rpc GetTags (google.protobuf.Empty) returns (GetTagsResponse);
+  rpc GetArticlesFeed (GetArticlesFeedRequest) returns (ListArticlesResponse);
 }
 
 message ListArticlesRequest {
@@ -135,4 +136,10 @@ message UnfavoriteArticleRequest {
 
 message GetTagsResponse {
   repeated string tags = 1;
+}
+
+message GetArticlesFeedRequest {
+  repeated string following_ids = 1;
+  int32 limit = 2;
+  int32 offset = 3;
 }

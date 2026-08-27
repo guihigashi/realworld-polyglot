@@ -30,8 +30,19 @@ func NewClient(target string) (*Client, error) {
 }
 
 func (c *Client) GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUID, error) {
-	//TODO implement me
-	panic("implement me")
+	request := &pbsocial.GetFollowingRequest{RequestorId: userId.String()}
+
+	resp, err := c.client.GetFollowing(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	var followingIds []uuid.UUID
+	for _, id := range resp.GetFollowingIds() {
+		followingIds = append(followingIds, uuid.MustParse(id))
+	}
+
+	return followingIds, nil
 }
 
 func (c *Client) GetProfilesByIds(ctx context.Context, userIds []uuid.UUID) (map[uuid.UUID]domain.Profile, error) {

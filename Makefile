@@ -7,6 +7,8 @@ PROTO_INCLUDES := \
 	--proto_path=./apps/feed-aggregator/protobuf \
 	--proto_path=./apps/article-service/src/main/proto
 
+all: generate-php generate-go
+
 generate-php:
 	@rm -rf $(GATEWAY_DIR)/Generated/Grpc
 	@mkdir -p $(GATEWAY_DIR)/Generated/Grpc

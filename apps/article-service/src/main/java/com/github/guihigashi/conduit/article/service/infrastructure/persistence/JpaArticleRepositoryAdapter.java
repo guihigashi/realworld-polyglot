@@ -158,6 +158,44 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
         return mapToDomain(saved, requestorId);
     }
 
+    @Override
+    public PaginatedArticles getArticlesFeed(List<UUID> userIds, int limit, int offset, UUID requestorId) {
+        int totalCount = articleRepository.countArticlesFeed(userIds);
+
+        if (totalCount == 0) {
+            return new PaginatedArticles(Collections.emptyList(), 0);
+        }
+
+        Pageable pageable = PageRequest.of(offset / limit, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        List<ArticleSummaryProjection> projections = articleRepository.findArticlesFeed(userIds, pageable);
+
+        List<UUID> articleIds = projections.stream().map(ArticleSummaryProjection::id).toList();
+
+        Map<UUID, List<String>> tagsByArticle = articleRepository.findTagsForArticles(articleIds).stream()
+                .collect(Collectors.groupingBy(
+                        TagForArticle::articleId,
+                        Collectors.mapping(TagForArticle::tag, Collectors.toList())
+                ));
+
+        Map<UUID, Set<UUID>> favoritesByArticle = articleRepository.findFavoritesForArticles(articleIds).stream()
+                .collect(Collectors.groupingBy(
+                        FavoriteForArticle::articleId,
+                        Collectors.mapping(FavoriteForArticle::userId, Collectors.toSet())
+                ));
+
+        return new PaginatedArticles(
+                projections.stream()
+                        .map(projection -> mapToDomain(
+                                projection,
+                                tagsByArticle.getOrDefault(projection.id(), Collections.emptyList()),
+                                favoritesByArticle.getOrDefault(projection.id(), Collections.emptySet()),
+                                requestorId
+                        ))
+                        .toList(),
+                totalCount);
+    }
+
     private Article mapToDomain(ArticleEntity entity, UUID currentUserId) {
         boolean isFavorited = currentUserId != null &&
                 entity.getFavoritedBy().contains(currentUserId);

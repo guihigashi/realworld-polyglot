@@ -112,6 +112,20 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository) extends 
         )
       }
 
+  override def getFollowing(request: GetFollowingRequest): IO[StatusException, GetFollowingResponse] =
+    for
+      userId <- ZIO
+        .attempt(UUID.fromString(request.requestorId))
+        .mapError(_ =>
+          StatusException(Status
+            .INVALID_ARGUMENT
+            .withDescription(s"Invalid requestor_id format: ${request.requestorId}"))
+        )
+      ids <- profileRepository
+        .getFollowing(userId)
+        .mapError(e => StatusException(Status.INTERNAL.withDescription(s"Database error: ${e.getMessage}")))
+    yield GetFollowingResponse(ids.map(_.toString))
+
 object SocialGraphServiceImpl:
   val live: URLayer[ProfileRepository, ZioSocialGraph.SocialGraphService] =
     ZLayer.fromFunction(SocialGraphServiceImpl.apply)

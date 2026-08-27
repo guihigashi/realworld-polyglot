@@ -38,6 +38,13 @@ public interface SpringDataArticleRepository extends JpaRepository<ArticleEntity
     );
 
     @Query("""
+            select count (distinct a.id)
+            from ArticleEntity a
+            where a.authorId in :userIds
+            """)
+    int countArticlesFeed(@Param("userIds") List<UUID> userIds);
+
+    @Query("""
                 SELECT DISTINCT new com.github.guihigashi.conduit.article.service.infrastructure.persistence.ArticleSummaryProjection(
                     a.id, a.slug, a.title, a.description, a.createdAt, a.updatedAt, a.authorId
                 )
@@ -52,6 +59,18 @@ public interface SpringDataArticleRepository extends JpaRepository<ArticleEntity
             @Param("tag") String tag,
             @Param("authorId") UUID authorId,
             @Param("favoritedById") UUID favoritedById,
+            Pageable pageable
+    );
+
+    @Query("""
+            select distinct new com.github.guihigashi.conduit.article.service.infrastructure.persistence.ArticleSummaryProjection(
+                    a.id, a.slug, a.title, a.description, a.createdAt, a.updatedAt, a.authorId
+            )
+            from ArticleEntity a
+            where a.authorId in :userIds
+            """)
+    List<ArticleSummaryProjection> findArticlesFeed(
+            @Param("userIds") List<UUID> userIds,
             Pageable pageable
     );
 

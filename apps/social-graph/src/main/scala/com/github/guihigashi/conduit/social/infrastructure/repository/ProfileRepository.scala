@@ -18,6 +18,7 @@ trait ProfileRepository:
   def follow(followerId: UUID, followeeUsername: String): Task[Unit]
   def unfollow(followerId: UUID, followeeUsername: String): Task[Unit]
   def resolveIdsByUsernames(usernames: List[String]): Task[List[(String, Option[UUID])]]
+  def getFollowing(userId: UUID): Task[List[UUID]]
 
 object ProfileRepository:
   val live =
@@ -116,5 +117,13 @@ object ProfileRepository:
                   }
               }
               .debug
+
+        private val selectFollowing: Query[UUID, UUID] =
+          sql"""select followed_id
+               |from follows
+               |where follower_id = $uuid""".stripMargin.query(uuid)
+
+        override def getFollowing(userId: UUID): Task[List[UUID]] =
+          pool.use(_.execute(selectFollowing)(userId)).debug
 
     }

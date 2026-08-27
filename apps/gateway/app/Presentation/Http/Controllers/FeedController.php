@@ -15,7 +15,11 @@ readonly class FeedController
     {
         $requestorId = $request->attributes->get('auth_user_id');
 
-        $articles = $this->getFeedUseCase->execute($requestorId, 10, 0);
+        $articles = $this->getFeedUseCase->execute(
+            $request->query('limit', 20),
+            $request->query('offset', 0),
+            $requestorId
+        );
 
         return response()->json($articles);
     }

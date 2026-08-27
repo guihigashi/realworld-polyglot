@@ -1138,6 +1138,66 @@ func (x *GetTagsResponse) GetTags() []string {
 	return nil
 }
 
+type GetArticlesFeedRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FollowingIds  []string               `protobuf:"bytes,1,rep,name=following_ids,json=followingIds,proto3" json:"following_ids,omitempty"`
+	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetArticlesFeedRequest) Reset() {
+	*x = GetArticlesFeedRequest{}
+	mi := &file_article_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetArticlesFeedRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetArticlesFeedRequest) ProtoMessage() {}
+
+func (x *GetArticlesFeedRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_article_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetArticlesFeedRequest.ProtoReflect.Descriptor instead.
+func (*GetArticlesFeedRequest) Descriptor() ([]byte, []int) {
+	return file_article_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GetArticlesFeedRequest) GetFollowingIds() []string {
+	if x != nil {
+		return x.FollowingIds
+	}
+	return nil
+}
+
+func (x *GetArticlesFeedRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *GetArticlesFeedRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
 var File_article_proto protoreflect.FileDescriptor
 
 const file_article_proto_rawDesc = "" +
@@ -1231,8 +1291,11 @@ const file_article_proto_rawDesc = "" +
 	"\x18UnfavoriteArticleRequest\x12\x12\n" +
 	"\x04slug\x18\x01 \x01(\tR\x04slug\"%\n" +
 	"\x0fGetTagsResponse\x12\x12\n" +
-	"\x04tags\x18\x01 \x03(\tR\x04tags2\xf4\n" +
-	"\n" +
+	"\x04tags\x18\x01 \x03(\tR\x04tags\"k\n" +
+	"\x16GetArticlesFeedRequest\x12#\n" +
+	"\rfollowing_ids\x18\x01 \x03(\tR\ffollowingIds\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x03 \x01(\x05R\x06offset2\x84\f\n" +
 	"\x0eArticleService\x12\x87\x01\n" +
 	"\fListArticles\x12:.com.github.guihigashi.conduit.article.ListArticlesRequest\x1a;.com.github.guihigashi.conduit.article.ListArticlesResponse\x12~\n" +
 	"\n" +
@@ -1246,7 +1309,8 @@ const file_article_proto_rawDesc = "" +
 	"\rDeleteComment\x12;.com.github.guihigashi.conduit.article.DeleteCommentRequest\x1a\x16.google.protobuf.Empty\x12\x88\x01\n" +
 	"\x0fFavoriteArticle\x12=.com.github.guihigashi.conduit.article.FavoriteArticleRequest\x1a6.com.github.guihigashi.conduit.article.ArticleResponse\x12\x8c\x01\n" +
 	"\x11UnfavoriteArticle\x12?.com.github.guihigashi.conduit.article.UnfavoriteArticleRequest\x1a6.com.github.guihigashi.conduit.article.ArticleResponse\x12Y\n" +
-	"\aGetTags\x12\x16.google.protobuf.Empty\x1a6.com.github.guihigashi.conduit.article.GetTagsResponseB\xb4\x01\n" +
+	"\aGetTags\x12\x16.google.protobuf.Empty\x1a6.com.github.guihigashi.conduit.article.GetTagsResponse\x12\x8d\x01\n" +
+	"\x0fGetArticlesFeed\x12=.com.github.guihigashi.conduit.article.GetArticlesFeedRequest\x1a;.com.github.guihigashi.conduit.article.ListArticlesResponseB\xb4\x01\n" +
 	"*com.github.guihigashi.conduit.article.grpcP\x01ZIgithub.com/guihigashi/conduit/feed/internal/generated/pbarticle;pbarticle\xca\x02\x16Generated\\Grpc\\Article\xe2\x02\x1fGenerated\\Grpc\\Article\\Metadatab\x06proto3"
 
 var (
@@ -1261,7 +1325,7 @@ func file_article_proto_rawDescGZIP() []byte {
 	return file_article_proto_rawDescData
 }
 
-var file_article_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_article_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_article_proto_goTypes = []any{
 	(*ListArticlesRequest)(nil),      // 0: com.github.guihigashi.conduit.article.ListArticlesRequest
 	(*ArticleSummary)(nil),           // 1: com.github.guihigashi.conduit.article.ArticleSummary
@@ -1282,7 +1346,8 @@ var file_article_proto_goTypes = []any{
 	(*FavoriteArticleRequest)(nil),   // 16: com.github.guihigashi.conduit.article.FavoriteArticleRequest
 	(*UnfavoriteArticleRequest)(nil), // 17: com.github.guihigashi.conduit.article.UnfavoriteArticleRequest
 	(*GetTagsResponse)(nil),          // 18: com.github.guihigashi.conduit.article.GetTagsResponse
-	(*emptypb.Empty)(nil),            // 19: google.protobuf.Empty
+	(*GetArticlesFeedRequest)(nil),   // 19: com.github.guihigashi.conduit.article.GetArticlesFeedRequest
+	(*emptypb.Empty)(nil),            // 20: google.protobuf.Empty
 }
 var file_article_proto_depIdxs = []int32{
 	1,  // 0: com.github.guihigashi.conduit.article.ListArticlesResponse.articles:type_name -> com.github.guihigashi.conduit.article.ArticleSummary
@@ -1300,20 +1365,22 @@ var file_article_proto_depIdxs = []int32{
 	15, // 12: com.github.guihigashi.conduit.article.ArticleService.DeleteComment:input_type -> com.github.guihigashi.conduit.article.DeleteCommentRequest
 	16, // 13: com.github.guihigashi.conduit.article.ArticleService.FavoriteArticle:input_type -> com.github.guihigashi.conduit.article.FavoriteArticleRequest
 	17, // 14: com.github.guihigashi.conduit.article.ArticleService.UnfavoriteArticle:input_type -> com.github.guihigashi.conduit.article.UnfavoriteArticleRequest
-	19, // 15: com.github.guihigashi.conduit.article.ArticleService.GetTags:input_type -> google.protobuf.Empty
-	2,  // 16: com.github.guihigashi.conduit.article.ArticleService.ListArticles:output_type -> com.github.guihigashi.conduit.article.ListArticlesResponse
-	5,  // 17: com.github.guihigashi.conduit.article.ArticleService.GetArticle:output_type -> com.github.guihigashi.conduit.article.ArticleResponse
-	5,  // 18: com.github.guihigashi.conduit.article.ArticleService.CreateArticle:output_type -> com.github.guihigashi.conduit.article.ArticleResponse
-	5,  // 19: com.github.guihigashi.conduit.article.ArticleService.UpdateArticle:output_type -> com.github.guihigashi.conduit.article.ArticleResponse
-	19, // 20: com.github.guihigashi.conduit.article.ArticleService.DeleteArticle:output_type -> google.protobuf.Empty
-	12, // 21: com.github.guihigashi.conduit.article.ArticleService.AddComment:output_type -> com.github.guihigashi.conduit.article.AddCommentResponse
-	14, // 22: com.github.guihigashi.conduit.article.ArticleService.GetComments:output_type -> com.github.guihigashi.conduit.article.GetCommentsResponse
-	19, // 23: com.github.guihigashi.conduit.article.ArticleService.DeleteComment:output_type -> google.protobuf.Empty
-	5,  // 24: com.github.guihigashi.conduit.article.ArticleService.FavoriteArticle:output_type -> com.github.guihigashi.conduit.article.ArticleResponse
-	5,  // 25: com.github.guihigashi.conduit.article.ArticleService.UnfavoriteArticle:output_type -> com.github.guihigashi.conduit.article.ArticleResponse
-	18, // 26: com.github.guihigashi.conduit.article.ArticleService.GetTags:output_type -> com.github.guihigashi.conduit.article.GetTagsResponse
-	16, // [16:27] is the sub-list for method output_type
-	5,  // [5:16] is the sub-list for method input_type
+	20, // 15: com.github.guihigashi.conduit.article.ArticleService.GetTags:input_type -> google.protobuf.Empty
+	19, // 16: com.github.guihigashi.conduit.article.ArticleService.GetArticlesFeed:input_type -> com.github.guihigashi.conduit.article.GetArticlesFeedRequest
+	2,  // 17: com.github.guihigashi.conduit.article.ArticleService.ListArticles:output_type -> com.github.guihigashi.conduit.article.ListArticlesResponse
+	5,  // 18: com.github.guihigashi.conduit.article.ArticleService.GetArticle:output_type -> com.github.guihigashi.conduit.article.ArticleResponse
+	5,  // 19: com.github.guihigashi.conduit.article.ArticleService.CreateArticle:output_type -> com.github.guihigashi.conduit.article.ArticleResponse
+	5,  // 20: com.github.guihigashi.conduit.article.ArticleService.UpdateArticle:output_type -> com.github.guihigashi.conduit.article.ArticleResponse
+	20, // 21: com.github.guihigashi.conduit.article.ArticleService.DeleteArticle:output_type -> google.protobuf.Empty
+	12, // 22: com.github.guihigashi.conduit.article.ArticleService.AddComment:output_type -> com.github.guihigashi.conduit.article.AddCommentResponse
+	14, // 23: com.github.guihigashi.conduit.article.ArticleService.GetComments:output_type -> com.github.guihigashi.conduit.article.GetCommentsResponse
+	20, // 24: com.github.guihigashi.conduit.article.ArticleService.DeleteComment:output_type -> google.protobuf.Empty
+	5,  // 25: com.github.guihigashi.conduit.article.ArticleService.FavoriteArticle:output_type -> com.github.guihigashi.conduit.article.ArticleResponse
+	5,  // 26: com.github.guihigashi.conduit.article.ArticleService.UnfavoriteArticle:output_type -> com.github.guihigashi.conduit.article.ArticleResponse
+	18, // 27: com.github.guihigashi.conduit.article.ArticleService.GetTags:output_type -> com.github.guihigashi.conduit.article.GetTagsResponse
+	2,  // 28: com.github.guihigashi.conduit.article.ArticleService.GetArticlesFeed:output_type -> com.github.guihigashi.conduit.article.ListArticlesResponse
+	17, // [17:29] is the sub-list for method output_type
+	5,  // [5:17] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name
@@ -1332,7 +1399,7 @@ func file_article_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_article_proto_rawDesc), len(file_article_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   19,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

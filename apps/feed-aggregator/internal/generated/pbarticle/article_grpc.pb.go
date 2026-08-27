@@ -31,6 +31,7 @@ const (
 	ArticleService_FavoriteArticle_FullMethodName   = "/com.github.guihigashi.conduit.article.ArticleService/FavoriteArticle"
 	ArticleService_UnfavoriteArticle_FullMethodName = "/com.github.guihigashi.conduit.article.ArticleService/UnfavoriteArticle"
 	ArticleService_GetTags_FullMethodName           = "/com.github.guihigashi.conduit.article.ArticleService/GetTags"
+	ArticleService_GetArticlesFeed_FullMethodName   = "/com.github.guihigashi.conduit.article.ArticleService/GetArticlesFeed"
 )
 
 // ArticleServiceClient is the client API for ArticleService service.
@@ -48,6 +49,7 @@ type ArticleServiceClient interface {
 	FavoriteArticle(ctx context.Context, in *FavoriteArticleRequest, opts ...grpc.CallOption) (*ArticleResponse, error)
 	UnfavoriteArticle(ctx context.Context, in *UnfavoriteArticleRequest, opts ...grpc.CallOption) (*ArticleResponse, error)
 	GetTags(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTagsResponse, error)
+	GetArticlesFeed(ctx context.Context, in *GetArticlesFeedRequest, opts ...grpc.CallOption) (*ListArticlesResponse, error)
 }
 
 type articleServiceClient struct {
@@ -168,6 +170,16 @@ func (c *articleServiceClient) GetTags(ctx context.Context, in *emptypb.Empty, o
 	return out, nil
 }
 
+func (c *articleServiceClient) GetArticlesFeed(ctx context.Context, in *GetArticlesFeedRequest, opts ...grpc.CallOption) (*ListArticlesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListArticlesResponse)
+	err := c.cc.Invoke(ctx, ArticleService_GetArticlesFeed_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ArticleServiceServer is the server API for ArticleService service.
 // All implementations must embed UnimplementedArticleServiceServer
 // for forward compatibility.
@@ -183,6 +195,7 @@ type ArticleServiceServer interface {
 	FavoriteArticle(context.Context, *FavoriteArticleRequest) (*ArticleResponse, error)
 	UnfavoriteArticle(context.Context, *UnfavoriteArticleRequest) (*ArticleResponse, error)
 	GetTags(context.Context, *emptypb.Empty) (*GetTagsResponse, error)
+	GetArticlesFeed(context.Context, *GetArticlesFeedRequest) (*ListArticlesResponse, error)
 	mustEmbedUnimplementedArticleServiceServer()
 }
 
@@ -225,6 +238,9 @@ func (UnimplementedArticleServiceServer) UnfavoriteArticle(context.Context, *Unf
 }
 func (UnimplementedArticleServiceServer) GetTags(context.Context, *emptypb.Empty) (*GetTagsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTags not implemented")
+}
+func (UnimplementedArticleServiceServer) GetArticlesFeed(context.Context, *GetArticlesFeedRequest) (*ListArticlesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetArticlesFeed not implemented")
 }
 func (UnimplementedArticleServiceServer) mustEmbedUnimplementedArticleServiceServer() {}
 func (UnimplementedArticleServiceServer) testEmbeddedByValue()                        {}
@@ -445,6 +461,24 @@ func _ArticleService_GetTags_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ArticleService_GetArticlesFeed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArticlesFeedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticleServiceServer).GetArticlesFeed(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ArticleService_GetArticlesFeed_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticleServiceServer).GetArticlesFeed(ctx, req.(*GetArticlesFeedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ArticleService_ServiceDesc is the grpc.ServiceDesc for ArticleService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -495,6 +529,10 @@ var ArticleService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTags",
 			Handler:    _ArticleService_GetTags_Handler,
+		},
+		{
+			MethodName: "GetArticlesFeed",
+			Handler:    _ArticleService_GetArticlesFeed_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

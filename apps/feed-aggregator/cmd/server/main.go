@@ -14,6 +14,16 @@ import (
 )
 
 func main() {
+	viper.SetConfigName("feed-aggregator")
+	viper.SetConfigType("yml")
+	viper.AddConfigPath(".")
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		slog.Error("failed to read config", slog.Any("error", err))
+		os.Exit(1)
+	}
+
 	slog.SetLogLoggerLevel(slog.LevelDebug)
 
 	articleClient, err := articleclient.NewClient(viper.GetString("article.target"))

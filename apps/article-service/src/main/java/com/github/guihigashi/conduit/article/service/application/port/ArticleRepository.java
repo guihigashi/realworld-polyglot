@@ -32,4 +32,6 @@ public interface ArticleRepository {
     Article favoriteArticle(String slug, UUID requestorId) throws ArticleNotFoundException;
 
     Article unfavoriteArticle(String slug, UUID requestorId) throws ArticleNotFoundException;
+
+    PaginatedArticles getArticlesFeed(List<UUID> userIds, int limit, int offset, UUID requestorId);
 }

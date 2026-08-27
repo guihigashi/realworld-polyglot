@@ -24,6 +24,7 @@ service SocialGraphService {
   rpc UpsertProfileProjection (UpsertProfileRequest) returns (UpsertProfileResponse);
 
   rpc ResolveIdsByUsernames (ResolveIdsByUsernamesRequest) returns (ResolveIdsByUsernamesResponse);
+  rpc GetFollowing (GetFollowingRequest) returns (GetFollowingResponse);
 }
 
 message FollowRequest {
@@ -74,4 +75,12 @@ message ResolveIdsByUsernamesRequest {
 
 message ResolveIdsByUsernamesResponse {
   map<string, string> resolved_ids = 1;
+}
+
+message GetFollowingRequest {
+  string requestor_id = 1;
+}
+
+message GetFollowingResponse {
+  repeated string following_ids = 1;
 }

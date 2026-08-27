@@ -4,7 +4,6 @@ import com.github.guihigashi.conduit.article.grpc.*;
 import com.github.guihigashi.conduit.article.service.application.*;
 import com.github.guihigashi.conduit.article.service.application.exception.ArticleNotFoundException;
 import com.github.guihigashi.conduit.article.service.application.exception.CommentNotFoundException;
-import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -25,12 +24,12 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     private final UpdateArticleUseCase updateArticleUseCase;
     private final DeleteArticleUseCase deleteArticleUseCase;
     private final GetTagsUseCase getTagsUseCase;
-    private final ArticleRepository articleRepository;
     private final AddCommentUseCase addCommentUseCase;
     private final GetCommentsUseCase getCommentsUseCase;
     private final DeleteCommentUseCase deleteCommentUseCase;
     private final FavoriteArticleUseCase favoriteArticleUseCase;
     private final UnfavoriteArticleUseCase unfavoriteArticleUseCase;
+    private final GetArticlesFeedUseCase getArticlesFeedUseCase;
 
     public GrpcArticleService(
             ListArticlesUseCase listArticlesUseCase,
@@ -39,24 +38,25 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             UpdateArticleUseCase updateArticleUseCase,
             DeleteArticleUseCase deleteArticleUseCase,
             GetTagsUseCase getTagsUseCase,
-            ArticleRepository articleRepository,
             AddCommentUseCase addCommentUseCase,
             GetCommentsUseCase getCommentsUseCase,
             DeleteCommentUseCase deleteCommentUseCase,
             FavoriteArticleUseCase favoriteArticleUseCase,
-            UnfavoriteArticleUseCase unfavoriteArticleUseCase) {
+            UnfavoriteArticleUseCase unfavoriteArticleUseCase,
+            GetArticlesFeedUseCase getArticlesFeedUseCase
+    ) {
         this.listArticlesUseCase = listArticlesUseCase;
         this.getArticleUseCase = getArticleUseCase;
         this.createArticleUseCase = createArticleUseCase;
         this.updateArticleUseCase = updateArticleUseCase;
         this.deleteArticleUseCase = deleteArticleUseCase;
         this.getTagsUseCase = getTagsUseCase;
-        this.articleRepository = articleRepository;
         this.addCommentUseCase = addCommentUseCase;
         this.getCommentsUseCase = getCommentsUseCase;
         this.deleteCommentUseCase = deleteCommentUseCase;
         this.favoriteArticleUseCase = favoriteArticleUseCase;
         this.unfavoriteArticleUseCase = unfavoriteArticleUseCase;
+        this.getArticlesFeedUseCase = getArticlesFeedUseCase;
     }
 
     @Override
@@ -317,6 +317,41 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             var tags = getTagsUseCase.execute();
             var response = GetTagsResponse.newBuilder()
                     .addAllTags(tags.stream().sorted().toList())
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void getArticlesFeed(GetArticlesFeedRequest request, StreamObserver<ListArticlesResponse> responseObserver) {
+        try {
+            String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
+            if (requestorId == null) {
+                responseObserver.onError(Status.UNAUTHENTICATED.asRuntimeException());
+                return;
+            }
+
+            int limit = request.getLimit() > 0 ? request.getLimit() : 20;
+            int offset = Math.max(request.getOffset(), 0);
+
+            var paginatedArticles = getArticlesFeedUseCase.execute(
+                    request.getFollowingIdsList().stream().map(UUID::fromString).toList(),
+                    limit,
+                    offset,
+                    UUID.fromString(requestorId)
+            );
+
+            ListArticlesResponse response = ListArticlesResponse.newBuilder()
+                    .addAllArticles(
+                            paginatedArticles.articles().stream()
+                                    .map(ArticleGrpcMapper::toSummaryProto)
+                                    .toList()
+                    )
+                    .setTotalCount(paginatedArticles.articlesCount())
                     .build();
 
             responseObserver.onNext(response);

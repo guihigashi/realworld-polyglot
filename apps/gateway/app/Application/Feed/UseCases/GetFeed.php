@@ -10,8 +10,8 @@ readonly class GetFeed
         private FeedServiceInterface $feedService
     ) {}
 
-    public function execute(string $requestorId, int $limit, int $offset): array
+    public function execute(int $limit, int $offset, string $requestorId): array
     {
-        return $this->feedService->getFeed($requestorId, $limit, $offset);
+        return $this->feedService->getFeed($limit, $offset, $requestorId);
     }
 }

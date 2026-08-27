@@ -103,4 +103,18 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
         $metadata, $options);
     }
 
+    /**
+     * @param \Generated\Grpc\SocialGraph\GetFollowingRequest $argument input argument
+     * @param array $metadata metadata
+     * @param array $options call options
+     * @return \Grpc\UnaryCall
+     */
+    public function GetFollowing(\Generated\Grpc\SocialGraph\GetFollowingRequest $argument,
+      $metadata = [], $options = []) {
+        return $this->_simpleRequest('/com.github.guihigashi.conduit.social.SocialGraphService/GetFollowing',
+        $argument,
+        ['\Generated\Grpc\SocialGraph\GetFollowingResponse', 'decode'],
+        $metadata, $options);
+    }
+
 }

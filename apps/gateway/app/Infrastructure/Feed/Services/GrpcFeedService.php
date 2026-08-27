@@ -22,7 +22,7 @@ class GrpcFeedService implements FeedServiceInterface
         ]);
     }
 
-    public function getFeed(string $requestorId, int $limit, int $offset): array
+    public function getFeed(int $limit, int $offset, string $requestorId): array
     {
         $request = (new GetFeedRequest)
             ->setLimit($limit)
