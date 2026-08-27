@@ -5,7 +5,7 @@ package com.github.guihigashi.conduit.social;
 option java_multiple_files = true;
 option java_package = "com.github.guihigashi.conduit.social.grpc";
 
-option go_package = "github.com/guihigashi/conduit/feed/internal/pbsocial;pbsocial";
+option go_package = "github.com/guihigashi/conduit/feed/internal/generated/pbsocial;pbsocial";
 
 option php_namespace = "Generated\\Grpc\\SocialGraph";
 option php_metadata_namespace = "Generated\\Grpc\\SocialGraph\\Metadata";

@@ -331,7 +331,7 @@ const file_feed_proto_rawDesc = "" +
 	"\barticles\x18\x01 \x03(\v2+.com.github.guihigashi.conduit.feed.ArticleR\barticles\x12%\n" +
 	"\x0earticles_count\x18\x02 \x01(\x05R\rarticlesCount2\x81\x01\n" +
 	"\vFeedService\x12r\n" +
-	"\aGetFeed\x122.com.github.guihigashi.conduit.feed.GetFeedRequest\x1a3.com.github.guihigashi.conduit.feed.GetFeedResponseBpZ9github.com/guihigashi/conduit/feed/internal/pbfeed;pbfeed\xca\x02\x13Generated\\Grpc\\Feed\xe2\x02\x1cGenerated\\Grpc\\Feed\\Metadatab\x06proto3"
+	"\aGetFeed\x122.com.github.guihigashi.conduit.feed.GetFeedRequest\x1a3.com.github.guihigashi.conduit.feed.GetFeedResponseBzZCgithub.com/guihigashi/conduit/feed/internal/generated/pbfeed;pbfeed\xca\x02\x13Generated\\Grpc\\Feed\xe2\x02\x1cGenerated\\Grpc\\Feed\\Metadatab\x06proto3"
 
 var (
 	file_feed_proto_rawDescOnce sync.Once

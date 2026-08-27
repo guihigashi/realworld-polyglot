@@ -1,8 +1,11 @@
 package socialclient
 
 import (
-	"github.com/guihigashi/conduit/feed/internal/pbsocial"
-	"github.com/spf13/viper"
+	"context"
+	"uuid"
+
+	"github.com/guihigashi/conduit/feed/internal/domain"
+	"github.com/guihigashi/conduit/feed/internal/generated/pbsocial"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -12,10 +15,10 @@ type Client struct {
 	client pbsocial.SocialGraphServiceClient
 }
 
-func NewClient() (*Client, error) {
-	conn, err := grpc.NewClient(viper.GetString("social.target"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewClient(target string) (*Client, error) {
+	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	client := pbsocial.NewSocialGraphServiceClient(conn)
@@ -24,4 +27,14 @@ func NewClient() (*Client, error) {
 		conn:   conn,
 		client: client,
 	}, nil
+}
+
+func (c *Client) GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUID, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *Client) GetProfilesByIds(ctx context.Context, userIds []uuid.UUID) (map[uuid.UUID]domain.Profile, error) {
+	//TODO implement me
+	panic("implement me")
 }

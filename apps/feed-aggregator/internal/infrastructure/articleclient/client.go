@@ -1,8 +1,11 @@
 package articleclient
 
 import (
-	"github.com/guihigashi/conduit/feed/internal/pbarticle"
-	"github.com/spf13/viper"
+	"context"
+	"uuid"
+
+	"github.com/guihigashi/conduit/feed/internal/domain"
+	"github.com/guihigashi/conduit/feed/internal/generated/pbarticle"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -12,10 +15,20 @@ type Client struct {
 	client pbarticle.ArticleServiceClient
 }
 
-func NewClient() (*Client, error) {
-	conn, err := grpc.NewClient(viper.GetString("article.target"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+func (c *Client) UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *Client) ListArticles(ctx context.Context, followingIds []uuid.UUID, limit, offset int) ([]domain.Article, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func NewClient(target string) (*Client, error) {
+	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	client := pbarticle.NewArticleServiceClient(conn)

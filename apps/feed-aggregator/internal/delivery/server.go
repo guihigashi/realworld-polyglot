@@ -1,7 +1,7 @@
 package delivery
 
 import (
-	"github.com/guihigashi/conduit/feed/internal/pbfeed"
+	"github.com/guihigashi/conduit/feed/internal/generated/pbfeed"
 	"github.com/guihigashi/conduit/feed/internal/usecase"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

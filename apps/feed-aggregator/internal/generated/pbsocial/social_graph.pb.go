@@ -595,8 +595,8 @@ const file_social_graph_proto_rawDesc = "" +
 	"GetProfile\x127.com.github.guihigashi.conduit.social.GetProfileRequest\x1a5.com.github.guihigashi.conduit.social.ProfileResponse\x12\x89\x01\n" +
 	"\x10GetProfilesByIds\x12=.com.github.guihigashi.conduit.social.GetProfilesByIdsRequest\x1a6.com.github.guihigashi.conduit.social.ProfilesResponse\x12\x92\x01\n" +
 	"\x17UpsertProfileProjection\x12:.com.github.guihigashi.conduit.social.UpsertProfileRequest\x1a;.com.github.guihigashi.conduit.social.UpsertProfileResponse\x12\xa0\x01\n" +
-	"\x15ResolveIdsByUsernames\x12B.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesRequest\x1aC.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponseB\xaf\x01\n" +
-	")com.github.guihigashi.conduit.social.grpcP\x01Z=github.com/guihigashi/conduit/feed/internal/pbsocial;pbsocial\xca\x02\x1aGenerated\\Grpc\\SocialGraph\xe2\x02#Generated\\Grpc\\SocialGraph\\Metadatab\x06proto3"
+	"\x15ResolveIdsByUsernames\x12B.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesRequest\x1aC.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponseB\xb9\x01\n" +
+	")com.github.guihigashi.conduit.social.grpcP\x01ZGgithub.com/guihigashi/conduit/feed/internal/generated/pbsocial;pbsocial\xca\x02\x1aGenerated\\Grpc\\SocialGraph\xe2\x02#Generated\\Grpc\\SocialGraph\\Metadatab\x06proto3"
 
 var (
 	file_social_graph_proto_rawDescOnce sync.Once

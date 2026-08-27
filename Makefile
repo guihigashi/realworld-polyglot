@@ -1,5 +1,5 @@
 GATEWAY_DIR := ./apps/gateway
-FEED_INTERNAL_DIR := ./apps/feed-aggregator/internal
+FEED_INTERNAL_DIR := ./apps/feed-aggregator/internal/generated
 GRPC_PHP_PLUGIN := $(shell which grpc_php_plugin)
 
 PROTO_INCLUDES := \

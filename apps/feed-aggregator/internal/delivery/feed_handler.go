@@ -2,9 +2,11 @@ package delivery
 
 import (
 	"context"
+	"time"
+	"uuid"
 
 	"github.com/guihigashi/conduit/feed/internal/domain"
-	"github.com/guihigashi/conduit/feed/internal/pbfeed"
+	"github.com/guihigashi/conduit/feed/internal/generated/pbfeed"
 	"github.com/guihigashi/conduit/feed/internal/usecase"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,27 +33,33 @@ func (h *FeedHandler) GetFeed(ctx context.Context, req *pbfeed.GetFeedRequest) (
 	}
 
 	for i := range feed.Articles {
-		res.Articles = append(res.Articles, mapDomainToProto(&feed.Articles[i]))
+		res.Articles = append(res.Articles, mapDomainToProto(&feed.Articles[i], feed.Profiles))
 	}
 
 	return res, nil
 }
 
-func mapDomainToProto(article *domain.Article) *pbfeed.Article {
-	return &pbfeed.Article{
-		Slug:           "",
-		Title:          "",
-		Description:    "",
-		TagList:        nil,
-		CreatedAt:      "",
-		UpdatedAt:      "",
-		Favorited:      false,
-		FavoritesCount: 0,
-		Author: &pbfeed.Author{
-			Username:  "",
-			Bio:       "",
-			Image:     "",
-			Following: false,
-		},
+func mapDomainToProto(article *domain.Article, authors map[uuid.UUID]domain.Profile) *pbfeed.Article {
+	a := &pbfeed.Article{
+		Slug:           article.Slug,
+		Title:          article.Title,
+		Description:    article.Description,
+		TagList:        article.TagList,
+		CreatedAt:      article.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:      article.UpdatedAt.Format(time.RFC3339),
+		Favorited:      article.Favorited,
+		FavoritesCount: int32(article.FavoritesCount),
 	}
+
+	authorProfile, ok := authors[article.AuthorId]
+	if ok {
+		a.Author = &pbfeed.Author{
+			Username:  authorProfile.Username,
+			Bio:       authorProfile.Bio,
+			Image:     authorProfile.Image,
+			Following: false,
+		}
+	}
+
+	return a
 }

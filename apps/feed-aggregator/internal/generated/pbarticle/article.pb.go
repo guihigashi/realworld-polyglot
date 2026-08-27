@@ -1246,8 +1246,8 @@ const file_article_proto_rawDesc = "" +
 	"\rDeleteComment\x12;.com.github.guihigashi.conduit.article.DeleteCommentRequest\x1a\x16.google.protobuf.Empty\x12\x88\x01\n" +
 	"\x0fFavoriteArticle\x12=.com.github.guihigashi.conduit.article.FavoriteArticleRequest\x1a6.com.github.guihigashi.conduit.article.ArticleResponse\x12\x8c\x01\n" +
 	"\x11UnfavoriteArticle\x12?.com.github.guihigashi.conduit.article.UnfavoriteArticleRequest\x1a6.com.github.guihigashi.conduit.article.ArticleResponse\x12Y\n" +
-	"\aGetTags\x12\x16.google.protobuf.Empty\x1a6.com.github.guihigashi.conduit.article.GetTagsResponseB\xaa\x01\n" +
-	"*com.github.guihigashi.conduit.article.grpcP\x01Z?github.com/guihigashi/conduit/feed/internal/pbarticle;pbarticle\xca\x02\x16Generated\\Grpc\\Article\xe2\x02\x1fGenerated\\Grpc\\Article\\Metadatab\x06proto3"
+	"\aGetTags\x12\x16.google.protobuf.Empty\x1a6.com.github.guihigashi.conduit.article.GetTagsResponseB\xb4\x01\n" +
+	"*com.github.guihigashi.conduit.article.grpcP\x01ZIgithub.com/guihigashi/conduit/feed/internal/generated/pbarticle;pbarticle\xca\x02\x16Generated\\Grpc\\Article\xe2\x02\x1fGenerated\\Grpc\\Article\\Metadatab\x06proto3"
 
 var (
 	file_article_proto_rawDescOnce sync.Once

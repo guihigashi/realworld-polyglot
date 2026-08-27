@@ -13,6 +13,7 @@ type Social interface {
 }
 type Articles interface {
 	ListArticles(ctx context.Context, followingIds []uuid.UUID, limit, offset int) ([]domain.Article, error)
+	UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error)
 }
 
 type GenerateFeed struct {
@@ -40,6 +41,18 @@ func (f *GenerateFeed) Execute(ctx context.Context, userId uuid.UUID, limit, off
 	profiles, err := f.Social.GetProfilesByIds(ctx, followingIds)
 	if err != nil {
 		return nil, err
+	}
+
+	userFavorited, err := f.Articles.UserFavoritedArticles(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range articles {
+		_, ok := userFavorited[articles[i].Id]
+		if ok {
+			articles[i].Favorited = true
+		}
 	}
 
 	return &Feed{
