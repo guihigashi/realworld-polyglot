@@ -8,35 +8,34 @@ option php_namespace = "Generated\\Grpc\\Feed";
 option php_metadata_namespace = "Generated\\Grpc\\Feed\\Metadata";
 
 service FeedService {
-  // Get personalized feed for a user
-  rpc GetFeed (FeedRequest) returns (FeedResponse);
+  rpc GetFeed (GetFeedRequest) returns (GetFeedResponse);
 }
 
-message FeedRequest {
-  string requestor_id = 1;
-  int32 limit = 2;
-  int32 offset = 3;
+message GetFeedRequest {
+  int32 limit = 1;
+  int32 offset = 2;
 }
 
 message Article {
   string slug = 1;
   string title = 2;
   string description = 3;
-  string body = 4;
-  repeated string tag_list = 5;
-  string created_at = 6;
-  string updated_at = 7;
-  bool favorited = 8;
-  int32 favorites_count = 9;
-
-  // Flattened author info for simplicity
-  string author_username = 10;
-  string author_bio = 11;
-  string author_image = 12;
-  bool author_following = 13;
+  repeated string tag_list = 4;
+  string created_at = 5;
+  string updated_at = 6;
+  bool favorited = 7;
+  int32 favorites_count = 8;
+  Author author = 9;
 }
 
-message FeedResponse {
+message Author {
+  string username = 1;
+  string bio = 2;
+  string image = 3;
+  bool following = 4;
+}
+
+message GetFeedResponse {
   repeated Article articles = 1;
   int32 articles_count = 2;
 }

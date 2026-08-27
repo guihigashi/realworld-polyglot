@@ -1,13 +1,12 @@
 package domain
 
-import "time"
-
-type Feed struct {
-	Articles      []Article
-	ArticlesCount int
-}
+import (
+	"time"
+	"uuid"
+)
 
 type Article struct {
+	Id             uuid.UUID
 	Slug           string
 	Title          string
 	Description    string
@@ -16,10 +15,11 @@ type Article struct {
 	UpdatedAt      time.Time
 	Favorited      bool
 	FavoritesCount int
-	Author         *Author
+	AuthorId       uuid.UUID
 }
 
-type Author struct {
+type Profile struct {
+	Id        uuid.UUID
 	Username  string
 	Bio       string
 	Image     string

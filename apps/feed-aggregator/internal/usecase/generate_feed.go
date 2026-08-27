@@ -8,10 +8,11 @@ import (
 )
 
 type Social interface {
-	GetFollowing()
+	GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUID, error)
+	GetProfilesByIds(ctx context.Context, userIds []uuid.UUID) (map[uuid.UUID]domain.Profile, error)
 }
 type Articles interface {
-	ListArticles()
+	ListArticles(ctx context.Context, followingIds []uuid.UUID, limit, offset int) ([]domain.Article, error)
 }
 
 type GenerateFeed struct {
@@ -19,6 +20,31 @@ type GenerateFeed struct {
 	Articles Articles
 }
 
-func (f *GenerateFeed) Execute(ctx context.Context, userID uuid.UUID, offset, limit int) (*domain.Feed, error) {
-	panic("implement me")
+type Feed struct {
+	Articles      []domain.Article
+	ArticlesCount int
+	Profiles      map[uuid.UUID]domain.Profile
+}
+
+func (f *GenerateFeed) Execute(ctx context.Context, userId uuid.UUID, limit, offset int) (*Feed, error) {
+	followingIds, err := f.Social.GetFollowing(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	articles, err := f.Articles.ListArticles(ctx, followingIds, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	profiles, err := f.Social.GetProfilesByIds(ctx, followingIds)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Feed{
+		Articles:      articles,
+		ArticlesCount: len(articles),
+		Profiles:      profiles,
+	}, nil
 }

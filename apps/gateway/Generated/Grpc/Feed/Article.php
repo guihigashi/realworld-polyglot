@@ -27,47 +27,29 @@ class Article extends \Google\Protobuf\Internal\Message
      */
     protected $description = '';
     /**
-     * Generated from protobuf field <code>string body = 4;</code>
-     */
-    protected $body = '';
-    /**
-     * Generated from protobuf field <code>repeated string tag_list = 5;</code>
+     * Generated from protobuf field <code>repeated string tag_list = 4;</code>
      */
     private $tag_list;
     /**
-     * Generated from protobuf field <code>string created_at = 6;</code>
+     * Generated from protobuf field <code>string created_at = 5;</code>
      */
     protected $created_at = '';
     /**
-     * Generated from protobuf field <code>string updated_at = 7;</code>
+     * Generated from protobuf field <code>string updated_at = 6;</code>
      */
     protected $updated_at = '';
     /**
-     * Generated from protobuf field <code>bool favorited = 8;</code>
+     * Generated from protobuf field <code>bool favorited = 7;</code>
      */
     protected $favorited = false;
     /**
-     * Generated from protobuf field <code>int32 favorites_count = 9;</code>
+     * Generated from protobuf field <code>int32 favorites_count = 8;</code>
      */
     protected $favorites_count = 0;
     /**
-     * Flattened author info for simplicity
-     *
-     * Generated from protobuf field <code>string author_username = 10;</code>
+     * Generated from protobuf field <code>.com.github.guihigashi.conduit.feed.Author author = 9;</code>
      */
-    protected $author_username = '';
-    /**
-     * Generated from protobuf field <code>string author_bio = 11;</code>
-     */
-    protected $author_bio = '';
-    /**
-     * Generated from protobuf field <code>string author_image = 12;</code>
-     */
-    protected $author_image = '';
-    /**
-     * Generated from protobuf field <code>bool author_following = 13;</code>
-     */
-    protected $author_following = false;
+    protected $author = null;
 
     /**
      * Constructor.
@@ -78,17 +60,12 @@ class Article extends \Google\Protobuf\Internal\Message
      *     @type string $slug
      *     @type string $title
      *     @type string $description
-     *     @type string $body
      *     @type string[] $tag_list
      *     @type string $created_at
      *     @type string $updated_at
      *     @type bool $favorited
      *     @type int $favorites_count
-     *     @type string $author_username
-     *           Flattened author info for simplicity
-     *     @type string $author_bio
-     *     @type string $author_image
-     *     @type bool $author_following
+     *     @type \Generated\Grpc\Feed\Author $author
      * }
      */
     public function __construct($data = null)
@@ -164,29 +141,7 @@ class Article extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string body = 4;</code>
-     * @return string
-     */
-    public function getBody()
-    {
-        return $this->body;
-    }
-
-    /**
-     * Generated from protobuf field <code>string body = 4;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setBody(string $var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->body = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>repeated string tag_list = 5;</code>
+     * Generated from protobuf field <code>repeated string tag_list = 4;</code>
      * @return RepeatedField<string>
      */
     public function getTagList()
@@ -195,7 +150,7 @@ class Article extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>repeated string tag_list = 5;</code>
+     * Generated from protobuf field <code>repeated string tag_list = 4;</code>
      * @param string[] $var
      * @return $this
      */
@@ -208,7 +163,7 @@ class Article extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string created_at = 6;</code>
+     * Generated from protobuf field <code>string created_at = 5;</code>
      * @return string
      */
     public function getCreatedAt()
@@ -217,7 +172,7 @@ class Article extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string created_at = 6;</code>
+     * Generated from protobuf field <code>string created_at = 5;</code>
      * @param string $var
      * @return $this
      */
@@ -230,7 +185,7 @@ class Article extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string updated_at = 7;</code>
+     * Generated from protobuf field <code>string updated_at = 6;</code>
      * @return string
      */
     public function getUpdatedAt()
@@ -239,7 +194,7 @@ class Article extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string updated_at = 7;</code>
+     * Generated from protobuf field <code>string updated_at = 6;</code>
      * @param string $var
      * @return $this
      */
@@ -252,7 +207,7 @@ class Article extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>bool favorited = 8;</code>
+     * Generated from protobuf field <code>bool favorited = 7;</code>
      * @return bool
      */
     public function getFavorited()
@@ -261,7 +216,7 @@ class Article extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>bool favorited = 8;</code>
+     * Generated from protobuf field <code>bool favorited = 7;</code>
      * @param bool $var
      * @return $this
      */
@@ -273,7 +228,7 @@ class Article extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>int32 favorites_count = 9;</code>
+     * Generated from protobuf field <code>int32 favorites_count = 8;</code>
      * @return int
      */
     public function getFavoritesCount()
@@ -282,7 +237,7 @@ class Article extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>int32 favorites_count = 9;</code>
+     * Generated from protobuf field <code>int32 favorites_count = 8;</code>
      * @param int $var
      * @return $this
      */
@@ -295,92 +250,32 @@ class Article extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Flattened author info for simplicity
-     *
-     * Generated from protobuf field <code>string author_username = 10;</code>
-     * @return string
+     * Generated from protobuf field <code>.com.github.guihigashi.conduit.feed.Author author = 9;</code>
+     * @return \Generated\Grpc\Feed\Author|null
      */
-    public function getAuthorUsername()
+    public function getAuthor()
     {
-        return $this->author_username;
+        return $this->author;
+    }
+
+    public function hasAuthor()
+    {
+        return isset($this->author);
+    }
+
+    public function clearAuthor()
+    {
+        unset($this->author);
     }
 
     /**
-     * Flattened author info for simplicity
-     *
-     * Generated from protobuf field <code>string author_username = 10;</code>
-     * @param string $var
+     * Generated from protobuf field <code>.com.github.guihigashi.conduit.feed.Author author = 9;</code>
+     * @param \Generated\Grpc\Feed\Author $var
      * @return $this
      */
-    public function setAuthorUsername(string $var)
+    public function setAuthor(\Generated\Grpc\Feed\Author|null $var)
     {
-        GPBUtil::checkString($var, true);
-        $this->author_username = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>string author_bio = 11;</code>
-     * @return string
-     */
-    public function getAuthorBio()
-    {
-        return $this->author_bio;
-    }
-
-    /**
-     * Generated from protobuf field <code>string author_bio = 11;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setAuthorBio(string $var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->author_bio = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>string author_image = 12;</code>
-     * @return string
-     */
-    public function getAuthorImage()
-    {
-        return $this->author_image;
-    }
-
-    /**
-     * Generated from protobuf field <code>string author_image = 12;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setAuthorImage(string $var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->author_image = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>bool author_following = 13;</code>
-     * @return bool
-     */
-    public function getAuthorFollowing()
-    {
-        return $this->author_following;
-    }
-
-    /**
-     * Generated from protobuf field <code>bool author_following = 13;</code>
-     * @param bool $var
-     * @return $this
-     */
-    public function setAuthorFollowing(bool $var)
-    {
-        $this->author_following = $var;
+        $this->author = $var;
 
         return $this;
     }

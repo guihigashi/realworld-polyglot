@@ -21,29 +21,28 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type FeedRequest struct {
+type GetFeedRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RequestorId   string                 `protobuf:"bytes,1,opt,name=requestor_id,json=requestorId,proto3" json:"requestor_id,omitempty"`
-	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
+	Limit         int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int32                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *FeedRequest) Reset() {
-	*x = FeedRequest{}
+func (x *GetFeedRequest) Reset() {
+	*x = GetFeedRequest{}
 	mi := &file_feed_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *FeedRequest) String() string {
+func (x *GetFeedRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*FeedRequest) ProtoMessage() {}
+func (*GetFeedRequest) ProtoMessage() {}
 
-func (x *FeedRequest) ProtoReflect() protoreflect.Message {
+func (x *GetFeedRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_feed_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -55,26 +54,19 @@ func (x *FeedRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use FeedRequest.ProtoReflect.Descriptor instead.
-func (*FeedRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetFeedRequest.ProtoReflect.Descriptor instead.
+func (*GetFeedRequest) Descriptor() ([]byte, []int) {
 	return file_feed_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *FeedRequest) GetRequestorId() string {
-	if x != nil {
-		return x.RequestorId
-	}
-	return ""
-}
-
-func (x *FeedRequest) GetLimit() int32 {
+func (x *GetFeedRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
 	return 0
 }
 
-func (x *FeedRequest) GetOffset() int32 {
+func (x *GetFeedRequest) GetOffset() int32 {
 	if x != nil {
 		return x.Offset
 	}
@@ -86,19 +78,14 @@ type Article struct {
 	Slug           string                 `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
 	Title          string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	Description    string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Body           string                 `protobuf:"bytes,4,opt,name=body,proto3" json:"body,omitempty"`
-	TagList        []string               `protobuf:"bytes,5,rep,name=tag_list,json=tagList,proto3" json:"tag_list,omitempty"`
-	CreatedAt      string                 `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt      string                 `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	Favorited      bool                   `protobuf:"varint,8,opt,name=favorited,proto3" json:"favorited,omitempty"`
-	FavoritesCount int32                  `protobuf:"varint,9,opt,name=favorites_count,json=favoritesCount,proto3" json:"favorites_count,omitempty"`
-	// Flattened author info for simplicity
-	AuthorUsername  string `protobuf:"bytes,10,opt,name=author_username,json=authorUsername,proto3" json:"author_username,omitempty"`
-	AuthorBio       string `protobuf:"bytes,11,opt,name=author_bio,json=authorBio,proto3" json:"author_bio,omitempty"`
-	AuthorImage     string `protobuf:"bytes,12,opt,name=author_image,json=authorImage,proto3" json:"author_image,omitempty"`
-	AuthorFollowing bool   `protobuf:"varint,13,opt,name=author_following,json=authorFollowing,proto3" json:"author_following,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	TagList        []string               `protobuf:"bytes,4,rep,name=tag_list,json=tagList,proto3" json:"tag_list,omitempty"`
+	CreatedAt      string                 `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      string                 `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Favorited      bool                   `protobuf:"varint,7,opt,name=favorited,proto3" json:"favorited,omitempty"`
+	FavoritesCount int32                  `protobuf:"varint,8,opt,name=favorites_count,json=favoritesCount,proto3" json:"favorites_count,omitempty"`
+	Author         *Author                `protobuf:"bytes,9,opt,name=author,proto3" json:"author,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *Article) Reset() {
@@ -152,13 +139,6 @@ func (x *Article) GetDescription() string {
 	return ""
 }
 
-func (x *Article) GetBody() string {
-	if x != nil {
-		return x.Body
-	}
-	return ""
-}
-
 func (x *Article) GetTagList() []string {
 	if x != nil {
 		return x.TagList
@@ -194,56 +174,37 @@ func (x *Article) GetFavoritesCount() int32 {
 	return 0
 }
 
-func (x *Article) GetAuthorUsername() string {
+func (x *Article) GetAuthor() *Author {
 	if x != nil {
-		return x.AuthorUsername
+		return x.Author
 	}
-	return ""
+	return nil
 }
 
-func (x *Article) GetAuthorBio() string {
-	if x != nil {
-		return x.AuthorBio
-	}
-	return ""
-}
-
-func (x *Article) GetAuthorImage() string {
-	if x != nil {
-		return x.AuthorImage
-	}
-	return ""
-}
-
-func (x *Article) GetAuthorFollowing() bool {
-	if x != nil {
-		return x.AuthorFollowing
-	}
-	return false
-}
-
-type FeedResponse struct {
+type Author struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Articles      []*Article             `protobuf:"bytes,1,rep,name=articles,proto3" json:"articles,omitempty"`
-	ArticlesCount int32                  `protobuf:"varint,2,opt,name=articles_count,json=articlesCount,proto3" json:"articles_count,omitempty"`
+	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Bio           string                 `protobuf:"bytes,2,opt,name=bio,proto3" json:"bio,omitempty"`
+	Image         string                 `protobuf:"bytes,3,opt,name=image,proto3" json:"image,omitempty"`
+	Following     bool                   `protobuf:"varint,4,opt,name=following,proto3" json:"following,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *FeedResponse) Reset() {
-	*x = FeedResponse{}
+func (x *Author) Reset() {
+	*x = Author{}
 	mi := &file_feed_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *FeedResponse) String() string {
+func (x *Author) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*FeedResponse) ProtoMessage() {}
+func (*Author) ProtoMessage() {}
 
-func (x *FeedResponse) ProtoReflect() protoreflect.Message {
+func (x *Author) ProtoReflect() protoreflect.Message {
 	mi := &file_feed_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -255,19 +216,85 @@ func (x *FeedResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use FeedResponse.ProtoReflect.Descriptor instead.
-func (*FeedResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use Author.ProtoReflect.Descriptor instead.
+func (*Author) Descriptor() ([]byte, []int) {
 	return file_feed_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *FeedResponse) GetArticles() []*Article {
+func (x *Author) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *Author) GetBio() string {
+	if x != nil {
+		return x.Bio
+	}
+	return ""
+}
+
+func (x *Author) GetImage() string {
+	if x != nil {
+		return x.Image
+	}
+	return ""
+}
+
+func (x *Author) GetFollowing() bool {
+	if x != nil {
+		return x.Following
+	}
+	return false
+}
+
+type GetFeedResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Articles      []*Article             `protobuf:"bytes,1,rep,name=articles,proto3" json:"articles,omitempty"`
+	ArticlesCount int32                  `protobuf:"varint,2,opt,name=articles_count,json=articlesCount,proto3" json:"articles_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFeedResponse) Reset() {
+	*x = GetFeedResponse{}
+	mi := &file_feed_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFeedResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFeedResponse) ProtoMessage() {}
+
+func (x *GetFeedResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_feed_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFeedResponse.ProtoReflect.Descriptor instead.
+func (*GetFeedResponse) Descriptor() ([]byte, []int) {
+	return file_feed_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetFeedResponse) GetArticles() []*Article {
 	if x != nil {
 		return x.Articles
 	}
 	return nil
 }
 
-func (x *FeedResponse) GetArticlesCount() int32 {
+func (x *GetFeedResponse) GetArticlesCount() int32 {
 	if x != nil {
 		return x.ArticlesCount
 	}
@@ -279,34 +306,32 @@ var File_feed_proto protoreflect.FileDescriptor
 const file_feed_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"feed.proto\x12\"com.github.guihigashi.conduit.feed\"^\n" +
-	"\vFeedRequest\x12!\n" +
-	"\frequestor_id\x18\x01 \x01(\tR\vrequestorId\x12\x14\n" +
-	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x03 \x01(\x05R\x06offset\"\x9f\x03\n" +
+	"feed.proto\x12\"com.github.guihigashi.conduit.feed\">\n" +
+	"\x0eGetFeedRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x05R\x06offset\"\xb9\x02\n" +
 	"\aArticle\x12\x12\n" +
 	"\x04slug\x18\x01 \x01(\tR\x04slug\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x12\n" +
-	"\x04body\x18\x04 \x01(\tR\x04body\x12\x19\n" +
-	"\btag_list\x18\x05 \x03(\tR\atagList\x12\x1d\n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x19\n" +
+	"\btag_list\x18\x04 \x03(\tR\atagList\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\tR\tcreatedAt\x12\x1d\n" +
+	"created_at\x18\x05 \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\tR\tupdatedAt\x12\x1c\n" +
-	"\tfavorited\x18\b \x01(\bR\tfavorited\x12'\n" +
-	"\x0ffavorites_count\x18\t \x01(\x05R\x0efavoritesCount\x12'\n" +
-	"\x0fauthor_username\x18\n" +
-	" \x01(\tR\x0eauthorUsername\x12\x1d\n" +
-	"\n" +
-	"author_bio\x18\v \x01(\tR\tauthorBio\x12!\n" +
-	"\fauthor_image\x18\f \x01(\tR\vauthorImage\x12)\n" +
-	"\x10author_following\x18\r \x01(\bR\x0fauthorFollowing\"~\n" +
-	"\fFeedResponse\x12G\n" +
+	"updated_at\x18\x06 \x01(\tR\tupdatedAt\x12\x1c\n" +
+	"\tfavorited\x18\a \x01(\bR\tfavorited\x12'\n" +
+	"\x0ffavorites_count\x18\b \x01(\x05R\x0efavoritesCount\x12B\n" +
+	"\x06author\x18\t \x01(\v2*.com.github.guihigashi.conduit.feed.AuthorR\x06author\"j\n" +
+	"\x06Author\x12\x1a\n" +
+	"\busername\x18\x01 \x01(\tR\busername\x12\x10\n" +
+	"\x03bio\x18\x02 \x01(\tR\x03bio\x12\x14\n" +
+	"\x05image\x18\x03 \x01(\tR\x05image\x12\x1c\n" +
+	"\tfollowing\x18\x04 \x01(\bR\tfollowing\"\x81\x01\n" +
+	"\x0fGetFeedResponse\x12G\n" +
 	"\barticles\x18\x01 \x03(\v2+.com.github.guihigashi.conduit.feed.ArticleR\barticles\x12%\n" +
-	"\x0earticles_count\x18\x02 \x01(\x05R\rarticlesCount2{\n" +
-	"\vFeedService\x12l\n" +
-	"\aGetFeed\x12/.com.github.guihigashi.conduit.feed.FeedRequest\x1a0.com.github.guihigashi.conduit.feed.FeedResponseBpZ9github.com/guihigashi/conduit/feed/internal/pbfeed;pbfeed\xca\x02\x13Generated\\Grpc\\Feed\xe2\x02\x1cGenerated\\Grpc\\Feed\\Metadatab\x06proto3"
+	"\x0earticles_count\x18\x02 \x01(\x05R\rarticlesCount2\x81\x01\n" +
+	"\vFeedService\x12r\n" +
+	"\aGetFeed\x122.com.github.guihigashi.conduit.feed.GetFeedRequest\x1a3.com.github.guihigashi.conduit.feed.GetFeedResponseBpZ9github.com/guihigashi/conduit/feed/internal/pbfeed;pbfeed\xca\x02\x13Generated\\Grpc\\Feed\xe2\x02\x1cGenerated\\Grpc\\Feed\\Metadatab\x06proto3"
 
 var (
 	file_feed_proto_rawDescOnce sync.Once
@@ -320,21 +345,23 @@ func file_feed_proto_rawDescGZIP() []byte {
 	return file_feed_proto_rawDescData
 }
 
-var file_feed_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_feed_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_feed_proto_goTypes = []any{
-	(*FeedRequest)(nil),  // 0: com.github.guihigashi.conduit.feed.FeedRequest
-	(*Article)(nil),      // 1: com.github.guihigashi.conduit.feed.Article
-	(*FeedResponse)(nil), // 2: com.github.guihigashi.conduit.feed.FeedResponse
+	(*GetFeedRequest)(nil),  // 0: com.github.guihigashi.conduit.feed.GetFeedRequest
+	(*Article)(nil),         // 1: com.github.guihigashi.conduit.feed.Article
+	(*Author)(nil),          // 2: com.github.guihigashi.conduit.feed.Author
+	(*GetFeedResponse)(nil), // 3: com.github.guihigashi.conduit.feed.GetFeedResponse
 }
 var file_feed_proto_depIdxs = []int32{
-	1, // 0: com.github.guihigashi.conduit.feed.FeedResponse.articles:type_name -> com.github.guihigashi.conduit.feed.Article
-	0, // 1: com.github.guihigashi.conduit.feed.FeedService.GetFeed:input_type -> com.github.guihigashi.conduit.feed.FeedRequest
-	2, // 2: com.github.guihigashi.conduit.feed.FeedService.GetFeed:output_type -> com.github.guihigashi.conduit.feed.FeedResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2, // 0: com.github.guihigashi.conduit.feed.Article.author:type_name -> com.github.guihigashi.conduit.feed.Author
+	1, // 1: com.github.guihigashi.conduit.feed.GetFeedResponse.articles:type_name -> com.github.guihigashi.conduit.feed.Article
+	0, // 2: com.github.guihigashi.conduit.feed.FeedService.GetFeed:input_type -> com.github.guihigashi.conduit.feed.GetFeedRequest
+	3, // 3: com.github.guihigashi.conduit.feed.FeedService.GetFeed:output_type -> com.github.guihigashi.conduit.feed.GetFeedResponse
+	3, // [3:4] is the sub-list for method output_type
+	2, // [2:3] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_feed_proto_init() }
@@ -348,7 +375,7 @@ func file_feed_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_feed_proto_rawDesc), len(file_feed_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

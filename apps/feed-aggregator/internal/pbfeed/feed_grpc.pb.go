@@ -26,8 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FeedServiceClient interface {
-	// Get personalized feed for a user
-	GetFeed(ctx context.Context, in *FeedRequest, opts ...grpc.CallOption) (*FeedResponse, error)
+	GetFeed(ctx context.Context, in *GetFeedRequest, opts ...grpc.CallOption) (*GetFeedResponse, error)
 }
 
 type feedServiceClient struct {
@@ -38,9 +37,9 @@ func NewFeedServiceClient(cc grpc.ClientConnInterface) FeedServiceClient {
 	return &feedServiceClient{cc}
 }
 
-func (c *feedServiceClient) GetFeed(ctx context.Context, in *FeedRequest, opts ...grpc.CallOption) (*FeedResponse, error) {
+func (c *feedServiceClient) GetFeed(ctx context.Context, in *GetFeedRequest, opts ...grpc.CallOption) (*GetFeedResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(FeedResponse)
+	out := new(GetFeedResponse)
 	err := c.cc.Invoke(ctx, FeedService_GetFeed_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -52,8 +51,7 @@ func (c *feedServiceClient) GetFeed(ctx context.Context, in *FeedRequest, opts .
 // All implementations must embed UnimplementedFeedServiceServer
 // for forward compatibility.
 type FeedServiceServer interface {
-	// Get personalized feed for a user
-	GetFeed(context.Context, *FeedRequest) (*FeedResponse, error)
+	GetFeed(context.Context, *GetFeedRequest) (*GetFeedResponse, error)
 	mustEmbedUnimplementedFeedServiceServer()
 }
 
@@ -64,7 +62,7 @@ type FeedServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedFeedServiceServer struct{}
 
-func (UnimplementedFeedServiceServer) GetFeed(context.Context, *FeedRequest) (*FeedResponse, error) {
+func (UnimplementedFeedServiceServer) GetFeed(context.Context, *GetFeedRequest) (*GetFeedResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetFeed not implemented")
 }
 func (UnimplementedFeedServiceServer) mustEmbedUnimplementedFeedServiceServer() {}
@@ -89,7 +87,7 @@ func RegisterFeedServiceServer(s grpc.ServiceRegistrar, srv FeedServiceServer) {
 }
 
 func _FeedService_GetFeed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FeedRequest)
+	in := new(GetFeedRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -101,7 +99,7 @@ func _FeedService_GetFeed_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: FeedService_GetFeed_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FeedServiceServer).GetFeed(ctx, req.(*FeedRequest))
+		return srv.(FeedServiceServer).GetFeed(ctx, req.(*GetFeedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

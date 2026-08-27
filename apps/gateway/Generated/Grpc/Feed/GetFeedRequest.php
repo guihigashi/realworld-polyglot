@@ -10,20 +10,16 @@ use Google\Protobuf\Internal\GPBUtil;
 use Google\Protobuf\RepeatedField;
 
 /**
- * Generated from protobuf message <code>com.github.guihigashi.conduit.feed.FeedRequest</code>
+ * Generated from protobuf message <code>com.github.guihigashi.conduit.feed.GetFeedRequest</code>
  */
-class FeedRequest extends \Google\Protobuf\Internal\Message
+class GetFeedRequest extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>string requestor_id = 1;</code>
-     */
-    protected $requestor_id = '';
-    /**
-     * Generated from protobuf field <code>int32 limit = 2;</code>
+     * Generated from protobuf field <code>int32 limit = 1;</code>
      */
     protected $limit = 0;
     /**
-     * Generated from protobuf field <code>int32 offset = 3;</code>
+     * Generated from protobuf field <code>int32 offset = 2;</code>
      */
     protected $offset = 0;
 
@@ -33,7 +29,6 @@ class FeedRequest extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string $requestor_id
      *     @type int $limit
      *     @type int $offset
      * }
@@ -45,29 +40,7 @@ class FeedRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string requestor_id = 1;</code>
-     * @return string
-     */
-    public function getRequestorId()
-    {
-        return $this->requestor_id;
-    }
-
-    /**
-     * Generated from protobuf field <code>string requestor_id = 1;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setRequestorId(string $var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->requestor_id = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>int32 limit = 2;</code>
+     * Generated from protobuf field <code>int32 limit = 1;</code>
      * @return int
      */
     public function getLimit()
@@ -76,7 +49,7 @@ class FeedRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>int32 limit = 2;</code>
+     * Generated from protobuf field <code>int32 limit = 1;</code>
      * @param int $var
      * @return $this
      */
@@ -89,7 +62,7 @@ class FeedRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>int32 offset = 3;</code>
+     * Generated from protobuf field <code>int32 offset = 2;</code>
      * @return int
      */
     public function getOffset()
@@ -98,7 +71,7 @@ class FeedRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>int32 offset = 3;</code>
+     * Generated from protobuf field <code>int32 offset = 2;</code>
      * @param int $var
      * @return $this
      */

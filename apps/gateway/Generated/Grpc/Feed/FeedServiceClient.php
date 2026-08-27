@@ -17,17 +17,16 @@ class FeedServiceClient extends \Grpc\BaseStub {
     }
 
     /**
-     * Get personalized feed for a user
-     * @param \Generated\Grpc\Feed\FeedRequest $argument input argument
+     * @param \Generated\Grpc\Feed\GetFeedRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
      * @return \Grpc\UnaryCall
      */
-    public function GetFeed(\Generated\Grpc\Feed\FeedRequest $argument,
+    public function GetFeed(\Generated\Grpc\Feed\GetFeedRequest $argument,
       $metadata = [], $options = []) {
         return $this->_simpleRequest('/com.github.guihigashi.conduit.feed.FeedService/GetFeed',
         $argument,
-        ['\Generated\Grpc\Feed\FeedResponse', 'decode'],
+        ['\Generated\Grpc\Feed\GetFeedResponse', 'decode'],
         $metadata, $options);
     }
 

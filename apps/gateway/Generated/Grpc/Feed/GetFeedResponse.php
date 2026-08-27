@@ -10,9 +10,9 @@ use Google\Protobuf\Internal\GPBUtil;
 use Google\Protobuf\RepeatedField;
 
 /**
- * Generated from protobuf message <code>com.github.guihigashi.conduit.feed.FeedResponse</code>
+ * Generated from protobuf message <code>com.github.guihigashi.conduit.feed.GetFeedResponse</code>
  */
-class FeedResponse extends \Google\Protobuf\Internal\Message
+class GetFeedResponse extends \Google\Protobuf\Internal\Message
 {
     /**
      * Generated from protobuf field <code>repeated .com.github.guihigashi.conduit.feed.Article articles = 1;</code>
