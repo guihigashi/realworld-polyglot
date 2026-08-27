@@ -6,6 +6,7 @@ use App\Application\Exceptions\ArticleNotFoundException;
 use App\Application\Exceptions\CommentNotFoundException;
 use App\Application\Exceptions\ForbiddenException;
 use App\Domain\Article\Contracts\ArticleServiceInterface;
+use App\Infrastructure\Traits\RequestorMetadata;
 use Generated\Grpc\Article\AddCommentRequest;
 use Generated\Grpc\Article\AddCommentResponse;
 use Generated\Grpc\Article\Article;
@@ -31,6 +32,8 @@ use Grpc\ChannelCredentials;
 
 class GrpcArticleService implements ArticleServiceInterface
 {
+    use RequestorMetadata;
+
     private ArticleServiceClient $client;
 
     public function __construct()
@@ -333,16 +336,5 @@ class GrpcArticleService implements ArticleServiceInterface
             'body' => $comment->getBody(),
             'authorId' => $comment->getAuthorId(),
         ];
-    }
-
-    private function metadataOfRequestor(?string $requestorId): array
-    {
-        if ($requestorId !== null) {
-            return [
-                'x-requestor-id' => [$requestorId],
-            ];
-        }
-
-        return [];
     }
 }
