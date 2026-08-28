@@ -4,6 +4,7 @@ namespace App\Infrastructure\Feed\Services;
 
 use App\Domain\Feed\Contracts\FeedServiceInterface;
 use App\Infrastructure\Traits\RequestorMetadata;
+use Generated\Grpc\Feed\Article;
 use Generated\Grpc\Feed\FeedServiceClient;
 use Generated\Grpc\Feed\GetFeedRequest;
 use Generated\Grpc\Feed\GetFeedResponse;
@@ -37,8 +38,36 @@ class GrpcFeedService implements FeedServiceInterface
         }
 
         return [
-            'articles' => iterator_to_array($response->getArticles()),
+            'articles' => array_map([$this, 'mapArticleResponse'], iterator_to_array($response->getArticles())),
             'articlesCount' => $response->getArticlesCount(),
         ];
+    }
+
+    private function mapArticleResponse(Article $article): array
+    {
+        $articleArray = [
+            'slug' => $article->getSlug(),
+            'title' => $article->getTitle(),
+            'description' => $article->getDescription(),
+            'tagList' => iterator_to_array($article->getTagList()),
+            'createdAt' => $article->getCreatedAt(),
+            'updatedAt' => $article->getUpdatedAt(),
+            'favorited' => $article->getFavorited(),
+            'favoritesCount' => $article->getFavoritesCount(),
+            'authorId' => $article->getAuthor(),
+
+        ];
+
+        $authorProto = $article->getAuthor();
+        if ($authorProto !== null) {
+            $articleArray['author'] = [
+                'username' => $authorProto->getUsername(),
+                'bio' => $authorProto->getBio(),
+                'image' => $authorProto->getImage(),
+                'following' => $authorProto->getFollowing(),
+            ];
+        }
+
+        return $articleArray;
     }
 }

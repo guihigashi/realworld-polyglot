@@ -196,6 +196,11 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
                 totalCount);
     }
 
+    @Override
+    public List<UUID> findUserFavoritedArticlesIds(UUID userId) {
+        return articleRepository.findFavoritedArticleIdsByUserId(userId);
+    }
+
     private Article mapToDomain(ArticleEntity entity, UUID currentUserId) {
         boolean isFavorited = currentUserId != null &&
                 entity.getFavoritedBy().contains(currentUserId);

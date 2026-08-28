@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.grpc.server.service.GrpcService;
 
+import java.util.List;
 import java.util.UUID;
 
 @GrpcService(interceptors = RequestorIdInterceptor.class)
@@ -30,6 +31,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
     private final FavoriteArticleUseCase favoriteArticleUseCase;
     private final UnfavoriteArticleUseCase unfavoriteArticleUseCase;
     private final GetArticlesFeedUseCase getArticlesFeedUseCase;
+    private final UserFavoritedArticlesUseCase userFavoritedArticlesUseCase;
 
     public GrpcArticleService(
             ListArticlesUseCase listArticlesUseCase,
@@ -43,8 +45,8 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
             DeleteCommentUseCase deleteCommentUseCase,
             FavoriteArticleUseCase favoriteArticleUseCase,
             UnfavoriteArticleUseCase unfavoriteArticleUseCase,
-            GetArticlesFeedUseCase getArticlesFeedUseCase
-    ) {
+            GetArticlesFeedUseCase getArticlesFeedUseCase,
+            UserFavoritedArticlesUseCase userFavoritedArticlesUseCase) {
         this.listArticlesUseCase = listArticlesUseCase;
         this.getArticleUseCase = getArticleUseCase;
         this.createArticleUseCase = createArticleUseCase;
@@ -57,6 +59,7 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
         this.favoriteArticleUseCase = favoriteArticleUseCase;
         this.unfavoriteArticleUseCase = unfavoriteArticleUseCase;
         this.getArticlesFeedUseCase = getArticlesFeedUseCase;
+        this.userFavoritedArticlesUseCase = userFavoritedArticlesUseCase;
     }
 
     @Override
@@ -352,6 +355,32 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
                                     .toList()
                     )
                     .setTotalCount(paginatedArticles.articlesCount())
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asRuntimeException());
+        }
+    }
+
+    @Override
+    public void userFavoritedArticles(Empty request, StreamObserver<UserFavoritedArticlesResponse> responseObserver) {
+        try {
+            String requestorId = RequestorIdInterceptor.REQUESTOR_ID_CONTEXT_KEY.get();
+            if (requestorId == null) {
+                responseObserver.onError(Status.UNAUTHENTICATED.asRuntimeException());
+                return;
+            }
+
+            List<UUID> articlesIds = userFavoritedArticlesUseCase.execute(UUID.fromString(requestorId));
+
+            UserFavoritedArticlesResponse response = UserFavoritedArticlesResponse.newBuilder()
+                    .addAllArticlesIds(
+                            articlesIds.stream()
+                                    .map(UUID::toString)
+                                    .toList()
+                    )
                     .build();
 
             responseObserver.onNext(response);

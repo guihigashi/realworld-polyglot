@@ -6,6 +6,8 @@ import (
 
 	"github.com/guihigashi/conduit/feed/internal/domain"
 	"github.com/guihigashi/conduit/feed/internal/generated/pbsocial"
+	"github.com/guihigashi/conduit/feed/internal/infrastructure/grpcutil"
+	"github.com/samber/lo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -16,7 +18,10 @@ type Client struct {
 }
 
 func NewClient(target string) (*Client, error) {
-	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(target,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(grpcutil.RequestorIDClientInterceptor()),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -46,6 +51,33 @@ func (c *Client) GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUI
 }
 
 func (c *Client) GetProfilesByIds(ctx context.Context, userIds []uuid.UUID) (map[uuid.UUID]domain.Profile, error) {
-	//TODO implement me
-	panic("implement me")
+	request := &pbsocial.GetProfilesByIdsRequest{
+		UserIds: lo.Map(userIds, func(item uuid.UUID, index int) string {
+			return item.String()
+		}),
+		RequestorId: "",
+	}
+
+	response, err := c.client.GetProfilesByIds(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	profiles := response.GetProfiles()
+
+	m := make(map[uuid.UUID]domain.Profile, len(profiles))
+
+	for id, profile := range profiles {
+		idUuid := uuid.MustParse(id)
+
+		m[idUuid] = domain.Profile{
+			Id:        idUuid,
+			Username:  profile.GetUsername(),
+			Bio:       profile.GetBio(),
+			Image:     profile.GetImage(),
+			Following: profile.GetFollowing(),
+		}
+	}
+
+	return m, nil
 }

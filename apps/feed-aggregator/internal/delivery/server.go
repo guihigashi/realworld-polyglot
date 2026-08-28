@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"github.com/guihigashi/conduit/feed/internal/generated/pbfeed"
+	"github.com/guihigashi/conduit/feed/internal/infrastructure/grpcutil"
 	"github.com/guihigashi/conduit/feed/internal/usecase"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -10,7 +11,7 @@ import (
 func CreateGrpcServer(generateFeed *usecase.GenerateFeed) *grpc.Server {
 	opts := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
-			RequestorIdInterceptor(),
+			grpcutil.RequestorIdServerInterceptor(),
 		),
 	}
 

@@ -87,4 +87,7 @@ public interface SpringDataArticleRepository extends JpaRepository<ArticleEntity
             FROM ArticleEntity a JOIN a.favoritedBy f WHERE a.id IN :articleIds
             """)
     List<FavoriteForArticle> findFavoritesForArticles(@Param("articleIds") List<UUID> articleIds);
+
+    @Query("select a.id from ArticleEntity a where :userId member of a.favoritedBy")
+    List<UUID> findFavoritedArticleIdsByUserId(UUID userId);
 }

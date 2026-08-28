@@ -3,6 +3,7 @@ module github.com/guihigashi/conduit/feed
 go 1.27.0
 
 require (
+	github.com/samber/lo v1.53.0
 	github.com/spf13/viper v1.21.0
 	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.12

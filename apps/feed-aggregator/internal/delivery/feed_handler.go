@@ -5,6 +5,7 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/guihigashi/conduit/feed/internal/appctx"
 	"github.com/guihigashi/conduit/feed/internal/domain"
 	"github.com/guihigashi/conduit/feed/internal/generated/pbfeed"
 	"github.com/guihigashi/conduit/feed/internal/usecase"
@@ -18,7 +19,7 @@ type FeedHandler struct {
 }
 
 func (h *FeedHandler) GetFeed(ctx context.Context, req *pbfeed.GetFeedRequest) (*pbfeed.GetFeedResponse, error) {
-	userId, ok := RequestorIdFromContext(ctx)
+	userId, ok := appctx.RequestorIdFromContext(ctx)
 	if !ok {
 		return nil, status.Error(codes.Unauthenticated, "u")
 	}
@@ -51,13 +52,12 @@ func mapDomainToProto(article *domain.Article, authors map[uuid.UUID]domain.Prof
 		FavoritesCount: int32(article.FavoritesCount),
 	}
 
-	authorProfile, ok := authors[article.AuthorId]
-	if ok {
+	if authorProfile, ok := authors[article.AuthorId]; ok {
 		a.Author = &pbfeed.Author{
 			Username:  authorProfile.Username,
 			Bio:       authorProfile.Bio,
 			Image:     authorProfile.Image,
-			Following: false,
+			Following: true,
 		}
 	}
 

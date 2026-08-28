@@ -7,9 +7,10 @@ import (
 
 	"github.com/guihigashi/conduit/feed/internal/domain"
 	"github.com/guihigashi/conduit/feed/internal/generated/pbarticle"
+	"github.com/guihigashi/conduit/feed/internal/infrastructure/grpcutil"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Client struct {
@@ -17,12 +18,41 @@ type Client struct {
 	client pbarticle.ArticleServiceClient
 }
 
-func (c *Client) UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error) {
-	//TODO implement me
-	panic("implement me")
+func NewClient(target string) (*Client, error) {
+	conn, err := grpc.NewClient(target,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(grpcutil.RequestorIDClientInterceptor()),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	client := pbarticle.NewArticleServiceClient(conn)
+
+	return &Client{
+		conn:   conn,
+		client: client,
+	}, nil
 }
 
-func (c *Client) ListArticles(ctx context.Context, followingIds []uuid.UUID, limit, offset int, requestorId uuid.UUID) ([]domain.Article, int, error) {
+func (c *Client) UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error) {
+	response, err := c.client.UserFavoritedArticles(ctx, &emptypb.Empty{})
+	if err != nil {
+		return nil, err
+	}
+
+	ids := response.GetArticlesIds()
+
+	m := make(map[uuid.UUID]struct{}, len(ids))
+	for _, id := range ids {
+		idUuid := uuid.MustParse(id)
+		m[idUuid] = struct{}{}
+	}
+
+	return m, nil
+}
+
+func (c *Client) ListArticles(ctx context.Context, followingIds []uuid.UUID, limit, offset int) ([]domain.Article, int, error) {
 	var followingIdsInString []string
 	for i := range followingIds {
 		followingIdsInString = append(followingIdsInString, followingIds[i].String())
@@ -34,9 +64,7 @@ func (c *Client) ListArticles(ctx context.Context, followingIds []uuid.UUID, lim
 		Offset:       int32(offset),
 	}
 
-	mdCtx := metadata.AppendToOutgoingContext(ctx, "x-requestor-id", requestorId.String())
-
-	res, err := c.client.GetArticlesFeed(mdCtx, request)
+	res, err := c.client.GetArticlesFeed(ctx, request)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -70,18 +98,4 @@ func mapToDomain(as *pbarticle.ArticleSummary) domain.Article {
 		FavoritesCount: int(as.FavoritesCount),
 		AuthorId:       uuid.MustParse(as.AuthorId),
 	}
-}
-
-func NewClient(target string) (*Client, error) {
-	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return nil, err
-	}
-
-	client := pbarticle.NewArticleServiceClient(conn)
-
-	return &Client{
-		conn:   conn,
-		client: client,
-	}, nil
 }

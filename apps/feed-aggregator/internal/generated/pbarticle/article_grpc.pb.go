@@ -20,18 +20,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ArticleService_ListArticles_FullMethodName      = "/com.github.guihigashi.conduit.article.ArticleService/ListArticles"
-	ArticleService_GetArticle_FullMethodName        = "/com.github.guihigashi.conduit.article.ArticleService/GetArticle"
-	ArticleService_CreateArticle_FullMethodName     = "/com.github.guihigashi.conduit.article.ArticleService/CreateArticle"
-	ArticleService_UpdateArticle_FullMethodName     = "/com.github.guihigashi.conduit.article.ArticleService/UpdateArticle"
-	ArticleService_DeleteArticle_FullMethodName     = "/com.github.guihigashi.conduit.article.ArticleService/DeleteArticle"
-	ArticleService_AddComment_FullMethodName        = "/com.github.guihigashi.conduit.article.ArticleService/AddComment"
-	ArticleService_GetComments_FullMethodName       = "/com.github.guihigashi.conduit.article.ArticleService/GetComments"
-	ArticleService_DeleteComment_FullMethodName     = "/com.github.guihigashi.conduit.article.ArticleService/DeleteComment"
-	ArticleService_FavoriteArticle_FullMethodName   = "/com.github.guihigashi.conduit.article.ArticleService/FavoriteArticle"
-	ArticleService_UnfavoriteArticle_FullMethodName = "/com.github.guihigashi.conduit.article.ArticleService/UnfavoriteArticle"
-	ArticleService_GetTags_FullMethodName           = "/com.github.guihigashi.conduit.article.ArticleService/GetTags"
-	ArticleService_GetArticlesFeed_FullMethodName   = "/com.github.guihigashi.conduit.article.ArticleService/GetArticlesFeed"
+	ArticleService_ListArticles_FullMethodName          = "/com.github.guihigashi.conduit.article.ArticleService/ListArticles"
+	ArticleService_GetArticle_FullMethodName            = "/com.github.guihigashi.conduit.article.ArticleService/GetArticle"
+	ArticleService_CreateArticle_FullMethodName         = "/com.github.guihigashi.conduit.article.ArticleService/CreateArticle"
+	ArticleService_UpdateArticle_FullMethodName         = "/com.github.guihigashi.conduit.article.ArticleService/UpdateArticle"
+	ArticleService_DeleteArticle_FullMethodName         = "/com.github.guihigashi.conduit.article.ArticleService/DeleteArticle"
+	ArticleService_AddComment_FullMethodName            = "/com.github.guihigashi.conduit.article.ArticleService/AddComment"
+	ArticleService_GetComments_FullMethodName           = "/com.github.guihigashi.conduit.article.ArticleService/GetComments"
+	ArticleService_DeleteComment_FullMethodName         = "/com.github.guihigashi.conduit.article.ArticleService/DeleteComment"
+	ArticleService_FavoriteArticle_FullMethodName       = "/com.github.guihigashi.conduit.article.ArticleService/FavoriteArticle"
+	ArticleService_UnfavoriteArticle_FullMethodName     = "/com.github.guihigashi.conduit.article.ArticleService/UnfavoriteArticle"
+	ArticleService_GetTags_FullMethodName               = "/com.github.guihigashi.conduit.article.ArticleService/GetTags"
+	ArticleService_GetArticlesFeed_FullMethodName       = "/com.github.guihigashi.conduit.article.ArticleService/GetArticlesFeed"
+	ArticleService_UserFavoritedArticles_FullMethodName = "/com.github.guihigashi.conduit.article.ArticleService/UserFavoritedArticles"
 )
 
 // ArticleServiceClient is the client API for ArticleService service.
@@ -50,6 +51,7 @@ type ArticleServiceClient interface {
 	UnfavoriteArticle(ctx context.Context, in *UnfavoriteArticleRequest, opts ...grpc.CallOption) (*ArticleResponse, error)
 	GetTags(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTagsResponse, error)
 	GetArticlesFeed(ctx context.Context, in *GetArticlesFeedRequest, opts ...grpc.CallOption) (*ListArticlesResponse, error)
+	UserFavoritedArticles(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserFavoritedArticlesResponse, error)
 }
 
 type articleServiceClient struct {
@@ -180,6 +182,16 @@ func (c *articleServiceClient) GetArticlesFeed(ctx context.Context, in *GetArtic
 	return out, nil
 }
 
+func (c *articleServiceClient) UserFavoritedArticles(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserFavoritedArticlesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UserFavoritedArticlesResponse)
+	err := c.cc.Invoke(ctx, ArticleService_UserFavoritedArticles_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ArticleServiceServer is the server API for ArticleService service.
 // All implementations must embed UnimplementedArticleServiceServer
 // for forward compatibility.
@@ -196,6 +208,7 @@ type ArticleServiceServer interface {
 	UnfavoriteArticle(context.Context, *UnfavoriteArticleRequest) (*ArticleResponse, error)
 	GetTags(context.Context, *emptypb.Empty) (*GetTagsResponse, error)
 	GetArticlesFeed(context.Context, *GetArticlesFeedRequest) (*ListArticlesResponse, error)
+	UserFavoritedArticles(context.Context, *emptypb.Empty) (*UserFavoritedArticlesResponse, error)
 	mustEmbedUnimplementedArticleServiceServer()
 }
 
@@ -241,6 +254,9 @@ func (UnimplementedArticleServiceServer) GetTags(context.Context, *emptypb.Empty
 }
 func (UnimplementedArticleServiceServer) GetArticlesFeed(context.Context, *GetArticlesFeedRequest) (*ListArticlesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetArticlesFeed not implemented")
+}
+func (UnimplementedArticleServiceServer) UserFavoritedArticles(context.Context, *emptypb.Empty) (*UserFavoritedArticlesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UserFavoritedArticles not implemented")
 }
 func (UnimplementedArticleServiceServer) mustEmbedUnimplementedArticleServiceServer() {}
 func (UnimplementedArticleServiceServer) testEmbeddedByValue()                        {}
@@ -479,6 +495,24 @@ func _ArticleService_GetArticlesFeed_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ArticleService_UserFavoritedArticles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticleServiceServer).UserFavoritedArticles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ArticleService_UserFavoritedArticles_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticleServiceServer).UserFavoritedArticles(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ArticleService_ServiceDesc is the grpc.ServiceDesc for ArticleService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -533,6 +567,10 @@ var ArticleService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetArticlesFeed",
 			Handler:    _ArticleService_GetArticlesFeed_Handler,
+		},
+		{
+			MethodName: "UserFavoritedArticles",
+			Handler:    _ArticleService_UserFavoritedArticles_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

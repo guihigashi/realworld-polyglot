@@ -4,6 +4,8 @@ import (
 	"context"
 	"uuid"
 
+	"github.com/samber/lo"
+
 	"github.com/guihigashi/conduit/feed/internal/domain"
 )
 
@@ -12,7 +14,7 @@ type Social interface {
 	GetProfilesByIds(ctx context.Context, userIds []uuid.UUID) (map[uuid.UUID]domain.Profile, error)
 }
 type Articles interface {
-	ListArticles(ctx context.Context, followingIds []uuid.UUID, limit, offset int, requestorId uuid.UUID) ([]domain.Article, int, error)
+	ListArticles(ctx context.Context, followingIds []uuid.UUID, limit, offset int) ([]domain.Article, int, error)
 	UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error)
 }
 
@@ -41,12 +43,16 @@ func (f *GenerateFeed) Execute(ctx context.Context, userId uuid.UUID, limit, off
 		}, nil
 	}
 
-	articles, articlesCount, err := f.Articles.ListArticles(ctx, followingIds, limit, offset, userId)
+	articles, articlesCount, err := f.Articles.ListArticles(ctx, followingIds, limit, offset)
 	if err != nil {
 		return nil, err
 	}
 
-	profiles, err := f.Social.GetProfilesByIds(ctx, followingIds)
+	authorsIds := lo.UniqMap(articles, func(item domain.Article, index int) uuid.UUID {
+		return item.AuthorId
+	})
+
+	profiles, err := f.Social.GetProfilesByIds(ctx, authorsIds)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +63,7 @@ func (f *GenerateFeed) Execute(ctx context.Context, userId uuid.UUID, limit, off
 	}
 
 	for i := range articles {
-		_, ok := userFavorited[articles[i].Id]
-		if ok {
+		if _, ok := userFavorited[articles[i].Id]; ok {
 			articles[i].Favorited = true
 		}
 	}
