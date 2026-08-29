@@ -11,8 +11,8 @@ readonly class GetProfile
         private SocialGraphServiceInterface $socialGraphService
     ) {}
 
-    public function execute(?string $requestorId, string $targetUsername): Profile
+    public function execute(string $targetUsername, ?string $requestorId): Profile
     {
-        return $this->socialGraphService->getProfile($requestorId, $targetUsername);
+        return $this->socialGraphService->getProfile($targetUsername, $requestorId);
     }
 }

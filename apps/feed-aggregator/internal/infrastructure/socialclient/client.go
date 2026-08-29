@@ -10,6 +10,7 @@ import (
 	"github.com/samber/lo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Client struct {
@@ -35,9 +36,7 @@ func NewClient(target string) (*Client, error) {
 }
 
 func (c *Client) GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUID, error) {
-	request := &pbsocial.GetFollowingRequest{RequestorId: userId.String()}
-
-	resp, err := c.client.GetFollowing(ctx, request)
+	resp, err := c.client.GetFollowing(ctx, &emptypb.Empty{})
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +54,6 @@ func (c *Client) GetProfilesByIds(ctx context.Context, userIds []uuid.UUID) (map
 		UserIds: lo.Map(userIds, func(item uuid.UUID, index int) string {
 			return item.String()
 		}),
-		RequestorId: "",
 	}
 
 	response, err := c.client.GetProfilesByIds(ctx, request)

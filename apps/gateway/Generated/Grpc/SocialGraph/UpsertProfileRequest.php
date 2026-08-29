@@ -15,10 +15,6 @@ use Google\Protobuf\RepeatedField;
 class UpsertProfileRequest extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>string user_id = 1;</code>
-     */
-    protected $user_id = '';
-    /**
      * Generated from protobuf field <code>string username = 2;</code>
      */
     protected $username = '';
@@ -37,7 +33,6 @@ class UpsertProfileRequest extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string $user_id
      *     @type string $username
      *     @type string $bio
      *     @type string $image
@@ -47,28 +42,6 @@ class UpsertProfileRequest extends \Google\Protobuf\Internal\Message
     {
         \Generated\Grpc\SocialGraph\Metadata\SocialGraph::initOnce();
         parent::__construct($data);
-    }
-
-    /**
-     * Generated from protobuf field <code>string user_id = 1;</code>
-     * @return string
-     */
-    public function getUserId()
-    {
-        return $this->user_id;
-    }
-
-    /**
-     * Generated from protobuf field <code>string user_id = 1;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setUserId(string $var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->user_id = $var;
-
-        return $this;
     }
 
     /**

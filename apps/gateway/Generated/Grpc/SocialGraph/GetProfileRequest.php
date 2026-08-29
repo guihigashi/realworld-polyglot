@@ -15,11 +15,7 @@ use Google\Protobuf\RepeatedField;
 class GetProfileRequest extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>optional string requestor_id = 1;</code>
-     */
-    protected $requestor_id = null;
-    /**
-     * Generated from protobuf field <code>string target_username = 2;</code>
+     * Generated from protobuf field <code>string target_username = 1;</code>
      */
     protected $target_username = '';
 
@@ -29,7 +25,6 @@ class GetProfileRequest extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string $requestor_id
      *     @type string $target_username
      * }
      */
@@ -40,39 +35,7 @@ class GetProfileRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>optional string requestor_id = 1;</code>
-     * @return string
-     */
-    public function getRequestorId()
-    {
-        return isset($this->requestor_id) ? $this->requestor_id : '';
-    }
-
-    public function hasRequestorId()
-    {
-        return isset($this->requestor_id);
-    }
-
-    public function clearRequestorId()
-    {
-        unset($this->requestor_id);
-    }
-
-    /**
-     * Generated from protobuf field <code>optional string requestor_id = 1;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setRequestorId(string $var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->requestor_id = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>string target_username = 2;</code>
+     * Generated from protobuf field <code>string target_username = 1;</code>
      * @return string
      */
     public function getTargetUsername()
@@ -81,7 +44,7 @@ class GetProfileRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string target_username = 2;</code>
+     * Generated from protobuf field <code>string target_username = 1;</code>
      * @param string $var
      * @return $this
      */

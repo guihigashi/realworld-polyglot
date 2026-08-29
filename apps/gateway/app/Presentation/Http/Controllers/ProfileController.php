@@ -20,7 +20,7 @@ class ProfileController extends Controller
     {
         $requestorId = $request->attributes->get('auth_user_id');
 
-        $profile = $this->getProfile->execute($requestorId, $username);
+        $profile = $this->getProfile->execute($username, $requestorId);
 
         return response()->json([
             'profile' => $profile->toArray(),

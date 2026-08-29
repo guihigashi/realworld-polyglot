@@ -15,13 +15,7 @@ use Google\Protobuf\RepeatedField;
 class FollowRequest extends \Google\Protobuf\Internal\Message
 {
     /**
-     * From the PHP Gateway JWT
-     *
-     * Generated from protobuf field <code>string follower_id = 1;</code>
-     */
-    protected $follower_id = '';
-    /**
-     * Generated from protobuf field <code>string target_username = 2;</code>
+     * Generated from protobuf field <code>string target_username = 1;</code>
      */
     protected $target_username = '';
 
@@ -31,8 +25,6 @@ class FollowRequest extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string $follower_id
-     *           From the PHP Gateway JWT
      *     @type string $target_username
      * }
      */
@@ -43,33 +35,7 @@ class FollowRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * From the PHP Gateway JWT
-     *
-     * Generated from protobuf field <code>string follower_id = 1;</code>
-     * @return string
-     */
-    public function getFollowerId()
-    {
-        return $this->follower_id;
-    }
-
-    /**
-     * From the PHP Gateway JWT
-     *
-     * Generated from protobuf field <code>string follower_id = 1;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setFollowerId(string $var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->follower_id = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>string target_username = 2;</code>
+     * Generated from protobuf field <code>string target_username = 1;</code>
      * @return string
      */
     public function getTargetUsername()
@@ -78,7 +44,7 @@ class FollowRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string target_username = 2;</code>
+     * Generated from protobuf field <code>string target_username = 1;</code>
      * @param string $var
      * @return $this
      */

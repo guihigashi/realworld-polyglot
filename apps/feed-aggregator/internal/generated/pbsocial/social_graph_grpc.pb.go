@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,9 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	SocialGraphService_GetProfile_FullMethodName              = "/com.github.guihigashi.conduit.social.SocialGraphService/GetProfile"
 	SocialGraphService_FollowUser_FullMethodName              = "/com.github.guihigashi.conduit.social.SocialGraphService/FollowUser"
 	SocialGraphService_UnfollowUser_FullMethodName            = "/com.github.guihigashi.conduit.social.SocialGraphService/UnfollowUser"
-	SocialGraphService_GetProfile_FullMethodName              = "/com.github.guihigashi.conduit.social.SocialGraphService/GetProfile"
 	SocialGraphService_GetProfilesByIds_FullMethodName        = "/com.github.guihigashi.conduit.social.SocialGraphService/GetProfilesByIds"
 	SocialGraphService_UpsertProfileProjection_FullMethodName = "/com.github.guihigashi.conduit.social.SocialGraphService/UpsertProfileProjection"
 	SocialGraphService_ResolveIdsByUsernames_FullMethodName   = "/com.github.guihigashi.conduit.social.SocialGraphService/ResolveIdsByUsernames"
@@ -32,16 +33,13 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SocialGraphServiceClient interface {
-	// Follow a user
-	FollowUser(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*ProfileResponse, error)
-	// Unfollow a user
-	UnfollowUser(ctx context.Context, in *UnfollowRequest, opts ...grpc.CallOption) (*ProfileResponse, error)
-	// Get a user's profile (including if the current user follows them)
 	GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*ProfileResponse, error)
+	FollowUser(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*ProfileResponse, error)
+	UnfollowUser(ctx context.Context, in *UnfollowRequest, opts ...grpc.CallOption) (*ProfileResponse, error)
 	GetProfilesByIds(ctx context.Context, in *GetProfilesByIdsRequest, opts ...grpc.CallOption) (*ProfilesResponse, error)
 	UpsertProfileProjection(ctx context.Context, in *UpsertProfileRequest, opts ...grpc.CallOption) (*UpsertProfileResponse, error)
 	ResolveIdsByUsernames(ctx context.Context, in *ResolveIdsByUsernamesRequest, opts ...grpc.CallOption) (*ResolveIdsByUsernamesResponse, error)
-	GetFollowing(ctx context.Context, in *GetFollowingRequest, opts ...grpc.CallOption) (*GetFollowingResponse, error)
+	GetFollowing(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetFollowingResponse, error)
 }
 
 type socialGraphServiceClient struct {
@@ -50,6 +48,16 @@ type socialGraphServiceClient struct {
 
 func NewSocialGraphServiceClient(cc grpc.ClientConnInterface) SocialGraphServiceClient {
 	return &socialGraphServiceClient{cc}
+}
+
+func (c *socialGraphServiceClient) GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*ProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ProfileResponse)
+	err := c.cc.Invoke(ctx, SocialGraphService_GetProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *socialGraphServiceClient) FollowUser(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*ProfileResponse, error) {
@@ -66,16 +74,6 @@ func (c *socialGraphServiceClient) UnfollowUser(ctx context.Context, in *Unfollo
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ProfileResponse)
 	err := c.cc.Invoke(ctx, SocialGraphService_UnfollowUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *socialGraphServiceClient) GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*ProfileResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ProfileResponse)
-	err := c.cc.Invoke(ctx, SocialGraphService_GetProfile_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +110,7 @@ func (c *socialGraphServiceClient) ResolveIdsByUsernames(ctx context.Context, in
 	return out, nil
 }
 
-func (c *socialGraphServiceClient) GetFollowing(ctx context.Context, in *GetFollowingRequest, opts ...grpc.CallOption) (*GetFollowingResponse, error) {
+func (c *socialGraphServiceClient) GetFollowing(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetFollowingResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetFollowingResponse)
 	err := c.cc.Invoke(ctx, SocialGraphService_GetFollowing_FullMethodName, in, out, cOpts...)
@@ -126,16 +124,13 @@ func (c *socialGraphServiceClient) GetFollowing(ctx context.Context, in *GetFoll
 // All implementations must embed UnimplementedSocialGraphServiceServer
 // for forward compatibility.
 type SocialGraphServiceServer interface {
-	// Follow a user
-	FollowUser(context.Context, *FollowRequest) (*ProfileResponse, error)
-	// Unfollow a user
-	UnfollowUser(context.Context, *UnfollowRequest) (*ProfileResponse, error)
-	// Get a user's profile (including if the current user follows them)
 	GetProfile(context.Context, *GetProfileRequest) (*ProfileResponse, error)
+	FollowUser(context.Context, *FollowRequest) (*ProfileResponse, error)
+	UnfollowUser(context.Context, *UnfollowRequest) (*ProfileResponse, error)
 	GetProfilesByIds(context.Context, *GetProfilesByIdsRequest) (*ProfilesResponse, error)
 	UpsertProfileProjection(context.Context, *UpsertProfileRequest) (*UpsertProfileResponse, error)
 	ResolveIdsByUsernames(context.Context, *ResolveIdsByUsernamesRequest) (*ResolveIdsByUsernamesResponse, error)
-	GetFollowing(context.Context, *GetFollowingRequest) (*GetFollowingResponse, error)
+	GetFollowing(context.Context, *emptypb.Empty) (*GetFollowingResponse, error)
 	mustEmbedUnimplementedSocialGraphServiceServer()
 }
 
@@ -146,14 +141,14 @@ type SocialGraphServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSocialGraphServiceServer struct{}
 
+func (UnimplementedSocialGraphServiceServer) GetProfile(context.Context, *GetProfileRequest) (*ProfileResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetProfile not implemented")
+}
 func (UnimplementedSocialGraphServiceServer) FollowUser(context.Context, *FollowRequest) (*ProfileResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method FollowUser not implemented")
 }
 func (UnimplementedSocialGraphServiceServer) UnfollowUser(context.Context, *UnfollowRequest) (*ProfileResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UnfollowUser not implemented")
-}
-func (UnimplementedSocialGraphServiceServer) GetProfile(context.Context, *GetProfileRequest) (*ProfileResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetProfile not implemented")
 }
 func (UnimplementedSocialGraphServiceServer) GetProfilesByIds(context.Context, *GetProfilesByIdsRequest) (*ProfilesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetProfilesByIds not implemented")
@@ -164,7 +159,7 @@ func (UnimplementedSocialGraphServiceServer) UpsertProfileProjection(context.Con
 func (UnimplementedSocialGraphServiceServer) ResolveIdsByUsernames(context.Context, *ResolveIdsByUsernamesRequest) (*ResolveIdsByUsernamesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ResolveIdsByUsernames not implemented")
 }
-func (UnimplementedSocialGraphServiceServer) GetFollowing(context.Context, *GetFollowingRequest) (*GetFollowingResponse, error) {
+func (UnimplementedSocialGraphServiceServer) GetFollowing(context.Context, *emptypb.Empty) (*GetFollowingResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetFollowing not implemented")
 }
 func (UnimplementedSocialGraphServiceServer) mustEmbedUnimplementedSocialGraphServiceServer() {}
@@ -186,6 +181,24 @@ func RegisterSocialGraphServiceServer(s grpc.ServiceRegistrar, srv SocialGraphSe
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&SocialGraphService_ServiceDesc, srv)
+}
+
+func _SocialGraphService_GetProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialGraphServiceServer).GetProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SocialGraphService_GetProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialGraphServiceServer).GetProfile(ctx, req.(*GetProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _SocialGraphService_FollowUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -220,24 +233,6 @@ func _SocialGraphService_UnfollowUser_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SocialGraphServiceServer).UnfollowUser(ctx, req.(*UnfollowRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SocialGraphService_GetProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetProfileRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SocialGraphServiceServer).GetProfile(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SocialGraphService_GetProfile_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialGraphServiceServer).GetProfile(ctx, req.(*GetProfileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -297,7 +292,7 @@ func _SocialGraphService_ResolveIdsByUsernames_Handler(srv interface{}, ctx cont
 }
 
 func _SocialGraphService_GetFollowing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetFollowingRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -309,7 +304,7 @@ func _SocialGraphService_GetFollowing_Handler(srv interface{}, ctx context.Conte
 		FullMethod: SocialGraphService_GetFollowing_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialGraphServiceServer).GetFollowing(ctx, req.(*GetFollowingRequest))
+		return srv.(SocialGraphServiceServer).GetFollowing(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -322,16 +317,16 @@ var SocialGraphService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*SocialGraphServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "GetProfile",
+			Handler:    _SocialGraphService_GetProfile_Handler,
+		},
+		{
 			MethodName: "FollowUser",
 			Handler:    _SocialGraphService_FollowUser_Handler,
 		},
 		{
 			MethodName: "UnfollowUser",
 			Handler:    _SocialGraphService_UnfollowUser_Handler,
-		},
-		{
-			MethodName: "GetProfile",
-			Handler:    _SocialGraphService_GetProfile_Handler,
 		},
 		{
 			MethodName: "GetProfilesByIds",

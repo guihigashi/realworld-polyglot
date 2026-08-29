@@ -36,6 +36,7 @@ lazy val root = project
       "io.grpc"               % "grpc-netty"           % grpcJavaVersion,
       "io.grpc"               % "grpc-services"        % grpcJavaVersion,
       "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
+      "com.thesamet.scalapb" %% "scalapb-runtime"      % scalapb.compiler.Version.scalapbVersion % "protobuf"
     )
   )
 

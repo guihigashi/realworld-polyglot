@@ -1,5 +1,6 @@
 package com.github.guihigashi.conduit.social
 
+import com.github.guihigashi.conduit.social.delivery.SocialGraphServiceImpl
 import com.github.guihigashi.conduit.social.grpc.social_graph.*
 import com.github.guihigashi.conduit.social.infrastructure.db.SkunkSessionPool
 import com.github.guihigashi.conduit.social.infrastructure.repository.ProfileRepository
@@ -18,7 +19,7 @@ object Main extends ZIOAppDefault:
 
   private val serverLayer = ServerLayer.fromServiceList(
     ServerBuilder.forPort(9090).addService(ProtoReflectionServiceV1.newInstance()),
-    ServiceList.addFromEnvironment[ZioSocialGraph.SocialGraphService]
+    ServiceList.addFromEnvironment[ZioSocialGraph.RCSocialGraphService]
   )
 
   def run: ZIO[ZIOAppArgs & Scope, Any, Any] = serverLayer

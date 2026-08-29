@@ -17,7 +17,20 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
     }
 
     /**
-     * Follow a user
+     * @param \Generated\Grpc\SocialGraph\GetProfileRequest $argument input argument
+     * @param array $metadata metadata
+     * @param array $options call options
+     * @return \Grpc\UnaryCall
+     */
+    public function GetProfile(\Generated\Grpc\SocialGraph\GetProfileRequest $argument,
+      $metadata = [], $options = []) {
+        return $this->_simpleRequest('/com.github.guihigashi.conduit.social.SocialGraphService/GetProfile',
+        $argument,
+        ['\Generated\Grpc\SocialGraph\ProfileResponse', 'decode'],
+        $metadata, $options);
+    }
+
+    /**
      * @param \Generated\Grpc\SocialGraph\FollowRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
@@ -32,7 +45,6 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
     }
 
     /**
-     * Unfollow a user
      * @param \Generated\Grpc\SocialGraph\UnfollowRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
@@ -41,21 +53,6 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
     public function UnfollowUser(\Generated\Grpc\SocialGraph\UnfollowRequest $argument,
       $metadata = [], $options = []) {
         return $this->_simpleRequest('/com.github.guihigashi.conduit.social.SocialGraphService/UnfollowUser',
-        $argument,
-        ['\Generated\Grpc\SocialGraph\ProfileResponse', 'decode'],
-        $metadata, $options);
-    }
-
-    /**
-     * Get a user's profile (including if the current user follows them)
-     * @param \Generated\Grpc\SocialGraph\GetProfileRequest $argument input argument
-     * @param array $metadata metadata
-     * @param array $options call options
-     * @return \Grpc\UnaryCall
-     */
-    public function GetProfile(\Generated\Grpc\SocialGraph\GetProfileRequest $argument,
-      $metadata = [], $options = []) {
-        return $this->_simpleRequest('/com.github.guihigashi.conduit.social.SocialGraphService/GetProfile',
         $argument,
         ['\Generated\Grpc\SocialGraph\ProfileResponse', 'decode'],
         $metadata, $options);
@@ -104,12 +101,12 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
     }
 
     /**
-     * @param \Generated\Grpc\SocialGraph\GetFollowingRequest $argument input argument
+     * @param \Google\Protobuf\GPBEmpty $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
      * @return \Grpc\UnaryCall
      */
-    public function GetFollowing(\Generated\Grpc\SocialGraph\GetFollowingRequest $argument,
+    public function GetFollowing(\Google\Protobuf\GPBEmpty $argument,
       $metadata = [], $options = []) {
         return $this->_simpleRequest('/com.github.guihigashi.conduit.social.SocialGraphService/GetFollowing',
         $argument,

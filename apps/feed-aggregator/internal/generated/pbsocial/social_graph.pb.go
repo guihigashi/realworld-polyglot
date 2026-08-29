@@ -9,6 +9,7 @@ package pbsocial
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -21,121 +22,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type FollowRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	FollowerId     string                 `protobuf:"bytes,1,opt,name=follower_id,json=followerId,proto3" json:"follower_id,omitempty"` // From the PHP Gateway JWT
-	TargetUsername string                 `protobuf:"bytes,2,opt,name=target_username,json=targetUsername,proto3" json:"target_username,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *FollowRequest) Reset() {
-	*x = FollowRequest{}
-	mi := &file_social_graph_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *FollowRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*FollowRequest) ProtoMessage() {}
-
-func (x *FollowRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_social_graph_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use FollowRequest.ProtoReflect.Descriptor instead.
-func (*FollowRequest) Descriptor() ([]byte, []int) {
-	return file_social_graph_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *FollowRequest) GetFollowerId() string {
-	if x != nil {
-		return x.FollowerId
-	}
-	return ""
-}
-
-func (x *FollowRequest) GetTargetUsername() string {
-	if x != nil {
-		return x.TargetUsername
-	}
-	return ""
-}
-
-type UnfollowRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	FollowerId     string                 `protobuf:"bytes,1,opt,name=follower_id,json=followerId,proto3" json:"follower_id,omitempty"`
-	TargetUsername string                 `protobuf:"bytes,2,opt,name=target_username,json=targetUsername,proto3" json:"target_username,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *UnfollowRequest) Reset() {
-	*x = UnfollowRequest{}
-	mi := &file_social_graph_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UnfollowRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UnfollowRequest) ProtoMessage() {}
-
-func (x *UnfollowRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_social_graph_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UnfollowRequest.ProtoReflect.Descriptor instead.
-func (*UnfollowRequest) Descriptor() ([]byte, []int) {
-	return file_social_graph_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *UnfollowRequest) GetFollowerId() string {
-	if x != nil {
-		return x.FollowerId
-	}
-	return ""
-}
-
-func (x *UnfollowRequest) GetTargetUsername() string {
-	if x != nil {
-		return x.TargetUsername
-	}
-	return ""
-}
-
 type GetProfileRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	RequestorId    *string                `protobuf:"bytes,1,opt,name=requestor_id,json=requestorId,proto3,oneof" json:"requestor_id,omitempty"`
-	TargetUsername string                 `protobuf:"bytes,2,opt,name=target_username,json=targetUsername,proto3" json:"target_username,omitempty"`
+	TargetUsername string                 `protobuf:"bytes,1,opt,name=target_username,json=targetUsername,proto3" json:"target_username,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *GetProfileRequest) Reset() {
 	*x = GetProfileRequest{}
-	mi := &file_social_graph_proto_msgTypes[2]
+	mi := &file_social_graph_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -147,7 +43,7 @@ func (x *GetProfileRequest) String() string {
 func (*GetProfileRequest) ProtoMessage() {}
 
 func (x *GetProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_social_graph_proto_msgTypes[2]
+	mi := &file_social_graph_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -160,71 +56,12 @@ func (x *GetProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetProfileRequest.ProtoReflect.Descriptor instead.
 func (*GetProfileRequest) Descriptor() ([]byte, []int) {
-	return file_social_graph_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *GetProfileRequest) GetRequestorId() string {
-	if x != nil && x.RequestorId != nil {
-		return *x.RequestorId
-	}
-	return ""
+	return file_social_graph_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *GetProfileRequest) GetTargetUsername() string {
 	if x != nil {
 		return x.TargetUsername
-	}
-	return ""
-}
-
-type GetProfilesByIdsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserIds       []string               `protobuf:"bytes,1,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
-	RequestorId   string                 `protobuf:"bytes,2,opt,name=requestor_id,json=requestorId,proto3" json:"requestor_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetProfilesByIdsRequest) Reset() {
-	*x = GetProfilesByIdsRequest{}
-	mi := &file_social_graph_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetProfilesByIdsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetProfilesByIdsRequest) ProtoMessage() {}
-
-func (x *GetProfilesByIdsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_social_graph_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetProfilesByIdsRequest.ProtoReflect.Descriptor instead.
-func (*GetProfilesByIdsRequest) Descriptor() ([]byte, []int) {
-	return file_social_graph_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *GetProfilesByIdsRequest) GetUserIds() []string {
-	if x != nil {
-		return x.UserIds
-	}
-	return nil
-}
-
-func (x *GetProfilesByIdsRequest) GetRequestorId() string {
-	if x != nil {
-		return x.RequestorId
 	}
 	return ""
 }
@@ -241,7 +78,7 @@ type ProfileResponse struct {
 
 func (x *ProfileResponse) Reset() {
 	*x = ProfileResponse{}
-	mi := &file_social_graph_proto_msgTypes[4]
+	mi := &file_social_graph_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -253,7 +90,7 @@ func (x *ProfileResponse) String() string {
 func (*ProfileResponse) ProtoMessage() {}
 
 func (x *ProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_social_graph_proto_msgTypes[4]
+	mi := &file_social_graph_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -266,7 +103,7 @@ func (x *ProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProfileResponse.ProtoReflect.Descriptor instead.
 func (*ProfileResponse) Descriptor() ([]byte, []int) {
-	return file_social_graph_proto_rawDescGZIP(), []int{4}
+	return file_social_graph_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ProfileResponse) GetUsername() string {
@@ -295,6 +132,138 @@ func (x *ProfileResponse) GetFollowing() bool {
 		return x.Following
 	}
 	return false
+}
+
+type FollowRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	TargetUsername string                 `protobuf:"bytes,1,opt,name=target_username,json=targetUsername,proto3" json:"target_username,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *FollowRequest) Reset() {
+	*x = FollowRequest{}
+	mi := &file_social_graph_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FollowRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FollowRequest) ProtoMessage() {}
+
+func (x *FollowRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_social_graph_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FollowRequest.ProtoReflect.Descriptor instead.
+func (*FollowRequest) Descriptor() ([]byte, []int) {
+	return file_social_graph_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *FollowRequest) GetTargetUsername() string {
+	if x != nil {
+		return x.TargetUsername
+	}
+	return ""
+}
+
+type UnfollowRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	TargetUsername string                 `protobuf:"bytes,1,opt,name=target_username,json=targetUsername,proto3" json:"target_username,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *UnfollowRequest) Reset() {
+	*x = UnfollowRequest{}
+	mi := &file_social_graph_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnfollowRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnfollowRequest) ProtoMessage() {}
+
+func (x *UnfollowRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_social_graph_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnfollowRequest.ProtoReflect.Descriptor instead.
+func (*UnfollowRequest) Descriptor() ([]byte, []int) {
+	return file_social_graph_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UnfollowRequest) GetTargetUsername() string {
+	if x != nil {
+		return x.TargetUsername
+	}
+	return ""
+}
+
+type GetProfilesByIdsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserIds       []string               `protobuf:"bytes,1,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProfilesByIdsRequest) Reset() {
+	*x = GetProfilesByIdsRequest{}
+	mi := &file_social_graph_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProfilesByIdsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProfilesByIdsRequest) ProtoMessage() {}
+
+func (x *GetProfilesByIdsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_social_graph_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProfilesByIdsRequest.ProtoReflect.Descriptor instead.
+func (*GetProfilesByIdsRequest) Descriptor() ([]byte, []int) {
+	return file_social_graph_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetProfilesByIdsRequest) GetUserIds() []string {
+	if x != nil {
+		return x.UserIds
+	}
+	return nil
 }
 
 type ProfilesResponse struct {
@@ -343,7 +312,6 @@ func (x *ProfilesResponse) GetProfiles() map[string]*ProfileResponse {
 
 type UpsertProfileRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	Bio           string                 `protobuf:"bytes,3,opt,name=bio,proto3" json:"bio,omitempty"`
 	Image         string                 `protobuf:"bytes,4,opt,name=image,proto3" json:"image,omitempty"`
@@ -379,13 +347,6 @@ func (x *UpsertProfileRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UpsertProfileRequest.ProtoReflect.Descriptor instead.
 func (*UpsertProfileRequest) Descriptor() ([]byte, []int) {
 	return file_social_graph_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *UpsertProfileRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
 }
 
 func (x *UpsertProfileRequest) GetUsername() string {
@@ -541,50 +502,6 @@ func (x *ResolveIdsByUsernamesResponse) GetResolvedIds() map[string]string {
 	return nil
 }
 
-type GetFollowingRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RequestorId   string                 `protobuf:"bytes,1,opt,name=requestor_id,json=requestorId,proto3" json:"requestor_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetFollowingRequest) Reset() {
-	*x = GetFollowingRequest{}
-	mi := &file_social_graph_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetFollowingRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetFollowingRequest) ProtoMessage() {}
-
-func (x *GetFollowingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_social_graph_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetFollowingRequest.ProtoReflect.Descriptor instead.
-func (*GetFollowingRequest) Descriptor() ([]byte, []int) {
-	return file_social_graph_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *GetFollowingRequest) GetRequestorId() string {
-	if x != nil {
-		return x.RequestorId
-	}
-	return ""
-}
-
 type GetFollowingResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FollowingIds  []string               `protobuf:"bytes,1,rep,name=following_ids,json=followingIds,proto3" json:"following_ids,omitempty"`
@@ -594,7 +511,7 @@ type GetFollowingResponse struct {
 
 func (x *GetFollowingResponse) Reset() {
 	*x = GetFollowingResponse{}
-	mi := &file_social_graph_proto_msgTypes[11]
+	mi := &file_social_graph_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -606,7 +523,7 @@ func (x *GetFollowingResponse) String() string {
 func (*GetFollowingResponse) ProtoMessage() {}
 
 func (x *GetFollowingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_social_graph_proto_msgTypes[11]
+	mi := &file_social_graph_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -619,7 +536,7 @@ func (x *GetFollowingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFollowingResponse.ProtoReflect.Descriptor instead.
 func (*GetFollowingResponse) Descriptor() ([]byte, []int) {
-	return file_social_graph_proto_rawDescGZIP(), []int{11}
+	return file_social_graph_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetFollowingResponse) GetFollowingIds() []string {
@@ -633,36 +550,28 @@ var File_social_graph_proto protoreflect.FileDescriptor
 
 const file_social_graph_proto_rawDesc = "" +
 	"\n" +
-	"\x12social_graph.proto\x12$com.github.guihigashi.conduit.social\"Y\n" +
-	"\rFollowRequest\x12\x1f\n" +
-	"\vfollower_id\x18\x01 \x01(\tR\n" +
-	"followerId\x12'\n" +
-	"\x0ftarget_username\x18\x02 \x01(\tR\x0etargetUsername\"[\n" +
-	"\x0fUnfollowRequest\x12\x1f\n" +
-	"\vfollower_id\x18\x01 \x01(\tR\n" +
-	"followerId\x12'\n" +
-	"\x0ftarget_username\x18\x02 \x01(\tR\x0etargetUsername\"u\n" +
-	"\x11GetProfileRequest\x12&\n" +
-	"\frequestor_id\x18\x01 \x01(\tH\x00R\vrequestorId\x88\x01\x01\x12'\n" +
-	"\x0ftarget_username\x18\x02 \x01(\tR\x0etargetUsernameB\x0f\n" +
-	"\r_requestor_id\"W\n" +
-	"\x17GetProfilesByIdsRequest\x12\x19\n" +
-	"\buser_ids\x18\x01 \x03(\tR\auserIds\x12!\n" +
-	"\frequestor_id\x18\x02 \x01(\tR\vrequestorId\"\x8f\x01\n" +
+	"\x12social_graph.proto\x12$com.github.guihigashi.conduit.social\x1a\x1bgoogle/protobuf/empty.proto\"<\n" +
+	"\x11GetProfileRequest\x12'\n" +
+	"\x0ftarget_username\x18\x01 \x01(\tR\x0etargetUsername\"\x8f\x01\n" +
 	"\x0fProfileResponse\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x15\n" +
 	"\x03bio\x18\x02 \x01(\tH\x00R\x03bio\x88\x01\x01\x12\x19\n" +
 	"\x05image\x18\x03 \x01(\tH\x01R\x05image\x88\x01\x01\x12\x1c\n" +
 	"\tfollowing\x18\x04 \x01(\bR\tfollowingB\x06\n" +
 	"\x04_bioB\b\n" +
-	"\x06_image\"\xe8\x01\n" +
+	"\x06_image\"8\n" +
+	"\rFollowRequest\x12'\n" +
+	"\x0ftarget_username\x18\x01 \x01(\tR\x0etargetUsername\":\n" +
+	"\x0fUnfollowRequest\x12'\n" +
+	"\x0ftarget_username\x18\x01 \x01(\tR\x0etargetUsername\"4\n" +
+	"\x17GetProfilesByIdsRequest\x12\x19\n" +
+	"\buser_ids\x18\x01 \x03(\tR\auserIds\"\xe8\x01\n" +
 	"\x10ProfilesResponse\x12`\n" +
 	"\bprofiles\x18\x01 \x03(\v2D.com.github.guihigashi.conduit.social.ProfilesResponse.ProfilesEntryR\bprofiles\x1ar\n" +
 	"\rProfilesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12K\n" +
-	"\x05value\x18\x02 \x01(\v25.com.github.guihigashi.conduit.social.ProfileResponseR\x05value:\x028\x01\"s\n" +
-	"\x14UpsertProfileRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1a\n" +
+	"\x05value\x18\x02 \x01(\v25.com.github.guihigashi.conduit.social.ProfileResponseR\x05value:\x028\x01\"Z\n" +
+	"\x14UpsertProfileRequest\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x10\n" +
 	"\x03bio\x18\x03 \x01(\tR\x03bio\x12\x14\n" +
 	"\x05image\x18\x04 \x01(\tR\x05image\"1\n" +
@@ -674,21 +583,19 @@ const file_social_graph_proto_rawDesc = "" +
 	"\fresolved_ids\x18\x01 \x03(\v2T.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.ResolvedIdsEntryR\vresolvedIds\x1a>\n" +
 	"\x10ResolvedIdsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"8\n" +
-	"\x13GetFollowingRequest\x12!\n" +
-	"\frequestor_id\x18\x01 \x01(\tR\vrequestorId\";\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\";\n" +
 	"\x14GetFollowingResponse\x12#\n" +
-	"\rfollowing_ids\x18\x01 \x03(\tR\ffollowingIds2\xd6\a\n" +
-	"\x12SocialGraphService\x12x\n" +
+	"\rfollowing_ids\x18\x01 \x03(\tR\ffollowingIds2\xb2\a\n" +
+	"\x12SocialGraphService\x12|\n" +
+	"\n" +
+	"GetProfile\x127.com.github.guihigashi.conduit.social.GetProfileRequest\x1a5.com.github.guihigashi.conduit.social.ProfileResponse\x12x\n" +
 	"\n" +
 	"FollowUser\x123.com.github.guihigashi.conduit.social.FollowRequest\x1a5.com.github.guihigashi.conduit.social.ProfileResponse\x12|\n" +
-	"\fUnfollowUser\x125.com.github.guihigashi.conduit.social.UnfollowRequest\x1a5.com.github.guihigashi.conduit.social.ProfileResponse\x12|\n" +
-	"\n" +
-	"GetProfile\x127.com.github.guihigashi.conduit.social.GetProfileRequest\x1a5.com.github.guihigashi.conduit.social.ProfileResponse\x12\x89\x01\n" +
+	"\fUnfollowUser\x125.com.github.guihigashi.conduit.social.UnfollowRequest\x1a5.com.github.guihigashi.conduit.social.ProfileResponse\x12\x89\x01\n" +
 	"\x10GetProfilesByIds\x12=.com.github.guihigashi.conduit.social.GetProfilesByIdsRequest\x1a6.com.github.guihigashi.conduit.social.ProfilesResponse\x12\x92\x01\n" +
 	"\x17UpsertProfileProjection\x12:.com.github.guihigashi.conduit.social.UpsertProfileRequest\x1a;.com.github.guihigashi.conduit.social.UpsertProfileResponse\x12\xa0\x01\n" +
-	"\x15ResolveIdsByUsernames\x12B.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesRequest\x1aC.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse\x12\x85\x01\n" +
-	"\fGetFollowing\x129.com.github.guihigashi.conduit.social.GetFollowingRequest\x1a:.com.github.guihigashi.conduit.social.GetFollowingResponseB\xb9\x01\n" +
+	"\x15ResolveIdsByUsernames\x12B.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesRequest\x1aC.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse\x12b\n" +
+	"\fGetFollowing\x12\x16.google.protobuf.Empty\x1a:.com.github.guihigashi.conduit.social.GetFollowingResponseB\xb9\x01\n" +
 	")com.github.guihigashi.conduit.social.grpcP\x01ZGgithub.com/guihigashi/conduit/feed/internal/generated/pbsocial;pbsocial\xca\x02\x1aGenerated\\Grpc\\SocialGraph\xe2\x02#Generated\\Grpc\\SocialGraph\\Metadatab\x06proto3"
 
 var (
@@ -703,41 +610,41 @@ func file_social_graph_proto_rawDescGZIP() []byte {
 	return file_social_graph_proto_rawDescData
 }
 
-var file_social_graph_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_social_graph_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_social_graph_proto_goTypes = []any{
-	(*FollowRequest)(nil),                 // 0: com.github.guihigashi.conduit.social.FollowRequest
-	(*UnfollowRequest)(nil),               // 1: com.github.guihigashi.conduit.social.UnfollowRequest
-	(*GetProfileRequest)(nil),             // 2: com.github.guihigashi.conduit.social.GetProfileRequest
-	(*GetProfilesByIdsRequest)(nil),       // 3: com.github.guihigashi.conduit.social.GetProfilesByIdsRequest
-	(*ProfileResponse)(nil),               // 4: com.github.guihigashi.conduit.social.ProfileResponse
+	(*GetProfileRequest)(nil),             // 0: com.github.guihigashi.conduit.social.GetProfileRequest
+	(*ProfileResponse)(nil),               // 1: com.github.guihigashi.conduit.social.ProfileResponse
+	(*FollowRequest)(nil),                 // 2: com.github.guihigashi.conduit.social.FollowRequest
+	(*UnfollowRequest)(nil),               // 3: com.github.guihigashi.conduit.social.UnfollowRequest
+	(*GetProfilesByIdsRequest)(nil),       // 4: com.github.guihigashi.conduit.social.GetProfilesByIdsRequest
 	(*ProfilesResponse)(nil),              // 5: com.github.guihigashi.conduit.social.ProfilesResponse
 	(*UpsertProfileRequest)(nil),          // 6: com.github.guihigashi.conduit.social.UpsertProfileRequest
 	(*UpsertProfileResponse)(nil),         // 7: com.github.guihigashi.conduit.social.UpsertProfileResponse
 	(*ResolveIdsByUsernamesRequest)(nil),  // 8: com.github.guihigashi.conduit.social.ResolveIdsByUsernamesRequest
 	(*ResolveIdsByUsernamesResponse)(nil), // 9: com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse
-	(*GetFollowingRequest)(nil),           // 10: com.github.guihigashi.conduit.social.GetFollowingRequest
-	(*GetFollowingResponse)(nil),          // 11: com.github.guihigashi.conduit.social.GetFollowingResponse
-	nil,                                   // 12: com.github.guihigashi.conduit.social.ProfilesResponse.ProfilesEntry
-	nil,                                   // 13: com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.ResolvedIdsEntry
+	(*GetFollowingResponse)(nil),          // 10: com.github.guihigashi.conduit.social.GetFollowingResponse
+	nil,                                   // 11: com.github.guihigashi.conduit.social.ProfilesResponse.ProfilesEntry
+	nil,                                   // 12: com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.ResolvedIdsEntry
+	(*emptypb.Empty)(nil),                 // 13: google.protobuf.Empty
 }
 var file_social_graph_proto_depIdxs = []int32{
-	12, // 0: com.github.guihigashi.conduit.social.ProfilesResponse.profiles:type_name -> com.github.guihigashi.conduit.social.ProfilesResponse.ProfilesEntry
-	13, // 1: com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.resolved_ids:type_name -> com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.ResolvedIdsEntry
-	4,  // 2: com.github.guihigashi.conduit.social.ProfilesResponse.ProfilesEntry.value:type_name -> com.github.guihigashi.conduit.social.ProfileResponse
-	0,  // 3: com.github.guihigashi.conduit.social.SocialGraphService.FollowUser:input_type -> com.github.guihigashi.conduit.social.FollowRequest
-	1,  // 4: com.github.guihigashi.conduit.social.SocialGraphService.UnfollowUser:input_type -> com.github.guihigashi.conduit.social.UnfollowRequest
-	2,  // 5: com.github.guihigashi.conduit.social.SocialGraphService.GetProfile:input_type -> com.github.guihigashi.conduit.social.GetProfileRequest
-	3,  // 6: com.github.guihigashi.conduit.social.SocialGraphService.GetProfilesByIds:input_type -> com.github.guihigashi.conduit.social.GetProfilesByIdsRequest
+	11, // 0: com.github.guihigashi.conduit.social.ProfilesResponse.profiles:type_name -> com.github.guihigashi.conduit.social.ProfilesResponse.ProfilesEntry
+	12, // 1: com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.resolved_ids:type_name -> com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.ResolvedIdsEntry
+	1,  // 2: com.github.guihigashi.conduit.social.ProfilesResponse.ProfilesEntry.value:type_name -> com.github.guihigashi.conduit.social.ProfileResponse
+	0,  // 3: com.github.guihigashi.conduit.social.SocialGraphService.GetProfile:input_type -> com.github.guihigashi.conduit.social.GetProfileRequest
+	2,  // 4: com.github.guihigashi.conduit.social.SocialGraphService.FollowUser:input_type -> com.github.guihigashi.conduit.social.FollowRequest
+	3,  // 5: com.github.guihigashi.conduit.social.SocialGraphService.UnfollowUser:input_type -> com.github.guihigashi.conduit.social.UnfollowRequest
+	4,  // 6: com.github.guihigashi.conduit.social.SocialGraphService.GetProfilesByIds:input_type -> com.github.guihigashi.conduit.social.GetProfilesByIdsRequest
 	6,  // 7: com.github.guihigashi.conduit.social.SocialGraphService.UpsertProfileProjection:input_type -> com.github.guihigashi.conduit.social.UpsertProfileRequest
 	8,  // 8: com.github.guihigashi.conduit.social.SocialGraphService.ResolveIdsByUsernames:input_type -> com.github.guihigashi.conduit.social.ResolveIdsByUsernamesRequest
-	10, // 9: com.github.guihigashi.conduit.social.SocialGraphService.GetFollowing:input_type -> com.github.guihigashi.conduit.social.GetFollowingRequest
-	4,  // 10: com.github.guihigashi.conduit.social.SocialGraphService.FollowUser:output_type -> com.github.guihigashi.conduit.social.ProfileResponse
-	4,  // 11: com.github.guihigashi.conduit.social.SocialGraphService.UnfollowUser:output_type -> com.github.guihigashi.conduit.social.ProfileResponse
-	4,  // 12: com.github.guihigashi.conduit.social.SocialGraphService.GetProfile:output_type -> com.github.guihigashi.conduit.social.ProfileResponse
+	13, // 9: com.github.guihigashi.conduit.social.SocialGraphService.GetFollowing:input_type -> google.protobuf.Empty
+	1,  // 10: com.github.guihigashi.conduit.social.SocialGraphService.GetProfile:output_type -> com.github.guihigashi.conduit.social.ProfileResponse
+	1,  // 11: com.github.guihigashi.conduit.social.SocialGraphService.FollowUser:output_type -> com.github.guihigashi.conduit.social.ProfileResponse
+	1,  // 12: com.github.guihigashi.conduit.social.SocialGraphService.UnfollowUser:output_type -> com.github.guihigashi.conduit.social.ProfileResponse
 	5,  // 13: com.github.guihigashi.conduit.social.SocialGraphService.GetProfilesByIds:output_type -> com.github.guihigashi.conduit.social.ProfilesResponse
 	7,  // 14: com.github.guihigashi.conduit.social.SocialGraphService.UpsertProfileProjection:output_type -> com.github.guihigashi.conduit.social.UpsertProfileResponse
 	9,  // 15: com.github.guihigashi.conduit.social.SocialGraphService.ResolveIdsByUsernames:output_type -> com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse
-	11, // 16: com.github.guihigashi.conduit.social.SocialGraphService.GetFollowing:output_type -> com.github.guihigashi.conduit.social.GetFollowingResponse
+	10, // 16: com.github.guihigashi.conduit.social.SocialGraphService.GetFollowing:output_type -> com.github.guihigashi.conduit.social.GetFollowingResponse
 	10, // [10:17] is the sub-list for method output_type
 	3,  // [3:10] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name
@@ -750,15 +657,14 @@ func file_social_graph_proto_init() {
 	if File_social_graph_proto != nil {
 		return
 	}
-	file_social_graph_proto_msgTypes[2].OneofWrappers = []any{}
-	file_social_graph_proto_msgTypes[4].OneofWrappers = []any{}
+	file_social_graph_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_social_graph_proto_rawDesc), len(file_social_graph_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

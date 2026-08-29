@@ -18,10 +18,6 @@ class GetProfilesByIdsRequest extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string user_ids = 1;</code>
      */
     private $user_ids;
-    /**
-     * Generated from protobuf field <code>string requestor_id = 2;</code>
-     */
-    protected $requestor_id = '';
 
     /**
      * Constructor.
@@ -30,7 +26,6 @@ class GetProfilesByIdsRequest extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string[] $user_ids
-     *     @type string $requestor_id
      * }
      */
     public function __construct($data = null)
@@ -57,28 +52,6 @@ class GetProfilesByIdsRequest extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->user_ids = $arr;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>string requestor_id = 2;</code>
-     * @return string
-     */
-    public function getRequestorId()
-    {
-        return $this->requestor_id;
-    }
-
-    /**
-     * Generated from protobuf field <code>string requestor_id = 2;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setRequestorId(string $var)
-    {
-        GPBUtil::checkString($var, true);
-        $this->requestor_id = $var;
 
         return $this;
     }

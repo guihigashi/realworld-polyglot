@@ -7,18 +7,18 @@ use App\Domain\Profile\Entities\Profile;
 
 interface SocialGraphServiceInterface
 {
-    public function upsertProfileProjection(User $user): void;
+    public function getProfile(string $targetUsername, ?string $requestorId): Profile;
 
-    public function getProfile(?string $requestorId, string $targetUsername): Profile;
+    public function followUser(string $followerId, string $targetUsername): Profile;
+
+    public function unfollowUser(string $followerId, string $targetUsername): Profile;
 
     /**
      * @return array<string, Profile>
      */
     public function getProfilesByIds(array $userIds, ?string $requestorId): array;
 
-    public function followUser(string $followerId, string $targetUsername): Profile;
-
-    public function unfollowUser(string $followerId, string $targetUsername): Profile;
+    public function upsertProfileProjection(User $user): void;
 
     public function resolveIdsByUsernames(array $usernames): array;
 }

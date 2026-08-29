@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package com.github.guihigashi.conduit.social;
 
+import "google/protobuf/empty.proto";
+
 option java_multiple_files = true;
 option java_package = "com.github.guihigashi.conduit.social.grpc";
 
@@ -11,40 +13,18 @@ option php_namespace = "Generated\\Grpc\\SocialGraph";
 option php_metadata_namespace = "Generated\\Grpc\\SocialGraph\\Metadata";
 
 service SocialGraphService {
-  // Follow a user
+  rpc GetProfile (GetProfileRequest) returns (ProfileResponse);
   rpc FollowUser (FollowRequest) returns (ProfileResponse);
-
-  // Unfollow a user
   rpc UnfollowUser (UnfollowRequest) returns (ProfileResponse);
 
-  // Get a user's profile (including if the current user follows them)
-  rpc GetProfile (GetProfileRequest) returns (ProfileResponse);
   rpc GetProfilesByIds (GetProfilesByIdsRequest) returns (ProfilesResponse);
-
   rpc UpsertProfileProjection (UpsertProfileRequest) returns (UpsertProfileResponse);
-
   rpc ResolveIdsByUsernames (ResolveIdsByUsernamesRequest) returns (ResolveIdsByUsernamesResponse);
-  rpc GetFollowing (GetFollowingRequest) returns (GetFollowingResponse);
-}
-
-message FollowRequest {
-  string follower_id = 1; // From the PHP Gateway JWT
-  string target_username = 2;
-}
-
-message UnfollowRequest {
-  string follower_id = 1;
-  string target_username = 2;
+  rpc GetFollowing (google.protobuf.Empty) returns (GetFollowingResponse);
 }
 
 message GetProfileRequest {
-  optional string requestor_id = 1;
-  string target_username = 2;
-}
-
-message GetProfilesByIdsRequest {
-  repeated string user_ids = 1;
-  string requestor_id = 2;
+  string target_username = 1;
 }
 
 message ProfileResponse {
@@ -54,12 +34,23 @@ message ProfileResponse {
   bool following = 4;
 }
 
+message FollowRequest {
+  string target_username = 1;
+}
+
+message UnfollowRequest {
+  string target_username = 1;
+}
+
+message GetProfilesByIdsRequest {
+  repeated string user_ids = 1;
+}
+
 message ProfilesResponse {
   map<string, ProfileResponse> profiles = 1;
 }
 
 message UpsertProfileRequest {
-  string user_id = 1;
   string username = 2;
   string bio = 3;
   string image = 4;
@@ -75,10 +66,6 @@ message ResolveIdsByUsernamesRequest {
 
 message ResolveIdsByUsernamesResponse {
   map<string, string> resolved_ids = 1;
-}
-
-message GetFollowingRequest {
-  string requestor_id = 1;
 }
 
 message GetFollowingResponse {

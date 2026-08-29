@@ -6,6 +6,7 @@ use App\Application\Exceptions\ProfileNotFoundException;
 use App\Domain\Auth\Entities\User;
 use App\Domain\Profile\Contracts\SocialGraphServiceInterface;
 use App\Domain\Profile\Entities\Profile;
+use App\Infrastructure\Traits\RequestorMetadata;
 use Generated\Grpc\SocialGraph\FollowRequest;
 use Generated\Grpc\SocialGraph\GetProfileRequest;
 use Generated\Grpc\SocialGraph\GetProfilesByIdsRequest;
@@ -21,6 +22,8 @@ use stdClass;
 
 class GrpcSocialGraphService implements SocialGraphServiceInterface
 {
+    use RequestorMetadata;
+
     private SocialGraphServiceClient $client;
 
     public function __construct()
@@ -30,32 +33,14 @@ class GrpcSocialGraphService implements SocialGraphServiceInterface
         ]);
     }
 
-    public function upsertProfileProjection(User $user): void
-    {
-        $grpcRequest = (new UpsertProfileRequest)
-            ->setUserId($user->getId())
-            ->setUsername($user->getUsername())
-            ->setBio($user->getBio() ?? '')
-            ->setImage($user->getImage() ?? '');
-
-        [, $status] = $this->client->UpsertProfileProjection($grpcRequest)->wait();
-
-        if ($status->code !== \Grpc\STATUS_OK) {
-            throw new \RuntimeException("Failed to project profile: $status->details");
-        }
-    }
-
-    public function getProfile(?string $requestorId, string $targetUsername): Profile
+    public function getProfile(string $targetUsername, ?string $requestorId): Profile
     {
         $grpcRequest = (new GetProfileRequest)
             ->setTargetUsername($targetUsername);
 
-        if ($requestorId) {
-            $grpcRequest->setRequestorId($requestorId);
-        }
-
         /** @var ProfileResponse $response */
-        [$response, $status] = $this->client->getProfile($grpcRequest)->wait();
+        [$response, $status] = $this->client->getProfile(
+            $grpcRequest, $this->metadataOfRequestor($requestorId))->wait();
 
         if ($status->code === \Grpc\STATUS_NOT_FOUND) {
             throw new ProfileNotFoundException;
@@ -68,17 +53,69 @@ class GrpcSocialGraphService implements SocialGraphServiceInterface
         return $this->handleResponse($response, $status);
     }
 
+    public function followUser(string $followerId, string $targetUsername): Profile
+    {
+        $grpcRequest = (new FollowRequest)
+            ->setTargetUsername($targetUsername);
+
+        /** @var ProfileResponse $response */
+        [$response, $status] = $this->client->followUser(
+            $grpcRequest, $this->metadataOfRequestor($followerId))->wait();
+
+        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
+            throw new ProfileNotFoundException;
+        }
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException("gRPC Error ({$status->code}): {$status->details}");
+        }
+
+        return $this->handleResponse($response, $status);
+    }
+
+    public function unfollowUser(string $followerId, string $targetUsername): Profile
+    {
+        $request = (new UnfollowRequest)
+            ->setTargetUsername($targetUsername);
+
+        /** @var ProfileResponse $response */
+        [$response, $status] = $this->client->unfollowUser(
+            $request, $this->metadataOfRequestor($followerId))->wait();
+
+        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
+            throw new ProfileNotFoundException;
+        }
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException("gRPC Error ({$status->code}): {$status->details}");
+        }
+
+        return $this->handleResponse($response, $status);
+    }
+
+    public function upsertProfileProjection(User $user): void
+    {
+        $grpcRequest = (new UpsertProfileRequest)
+            ->setUsername($user->getUsername())
+            ->setBio($user->getBio() ?? '')
+            ->setImage($user->getImage() ?? '');
+
+        [, $status] = $this->client->UpsertProfileProjection(
+            $grpcRequest, $this->metadataOfRequestor($user->getId()))->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException("Failed to project profile: $status->details");
+        }
+    }
+
     public function getProfilesByIds(array $userIds, ?string $requestorId): array
     {
         $request = (new GetProfilesByIdsRequest)
             ->setUserIds($userIds);
 
-        if ($requestorId) {
-            $request->setRequestorId($requestorId);
-        }
-
         /** @var ProfilesResponse $response */
-        [$response, $status] = $this->client->getProfilesByIds($request)->wait();
+        [$response, $status] = $this->client->getProfilesByIds(
+            $request, $this->metadataOfRequestor($requestorId))->wait();
 
         if ($status->code !== \Grpc\STATUS_OK) {
             throw new \RuntimeException("gRPC Error ({$status->code}): {$status->details}");
@@ -95,46 +132,6 @@ class GrpcSocialGraphService implements SocialGraphServiceInterface
         }
 
         return $profiles;
-    }
-
-    public function followUser(string $followerId, string $targetUsername): Profile
-    {
-        $grpcRequest = (new FollowRequest)
-            ->setFollowerId($followerId)
-            ->setTargetUsername($targetUsername);
-
-        /** @var ProfileResponse $response */
-        [$response, $status] = $this->client->followUser($grpcRequest)->wait();
-
-        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
-            throw new ProfileNotFoundException;
-        }
-
-        if ($status->code !== \Grpc\STATUS_OK) {
-            throw new \RuntimeException("gRPC Error ({$status->code}): {$status->details}");
-        }
-
-        return $this->handleResponse($response, $status);
-    }
-
-    public function unfollowUser(string $followerId, string $targetUsername): Profile
-    {
-        $request = (new UnfollowRequest)
-            ->setFollowerId($followerId)
-            ->setTargetUsername($targetUsername);
-
-        /** @var ProfileResponse $response */
-        [$response, $status] = $this->client->unfollowUser($request)->wait();
-
-        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
-            throw new ProfileNotFoundException;
-        }
-
-        if ($status->code !== \Grpc\STATUS_OK) {
-            throw new \RuntimeException("gRPC Error ({$status->code}): {$status->details}");
-        }
-
-        return $this->handleResponse($response, $status);
     }
 
     public function resolveIdsByUsernames(array $usernames): array
