@@ -7,6 +7,8 @@ PROTO_INCLUDES := \
 	--proto_path=./apps/feed-aggregator/protobuf \
 	--proto_path=./apps/article-service/src/main/proto
 
+.PHONY: all generate-go generate-php build-images
+
 all: generate-php generate-go
 
 generate-php:
@@ -41,3 +43,7 @@ generate-go:
 		--go_out=$(FEED_INTERNAL_DIR)/pbarticle --go_opt=paths=source_relative \
 		--go-grpc_out=$(FEED_INTERNAL_DIR)/pbarticle --go-grpc_opt=paths=source_relative \
 		article.proto
+
+build-images:
+	cd ./apps/social-graph && sbt 'Docker / publishLocal'
+	podman compose build

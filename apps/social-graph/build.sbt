@@ -10,12 +10,19 @@ lazy val zioConfigVersion  = "4.0.8"
 lazy val zioLoggingVersion = "2.5.3"
 lazy val grpcJavaVersion   = "1.83.1"
 
+dockerExecCommand := Seq("podman")
+dockerBaseImage   := "docker.io/library/eclipse-temurin:25-jre-ubi10-minimal"
+dockerRepository  := Some("ghcr.io/guihigashi/realworld-polyglot")
+
 lazy val root = project
   .in(file("."))
+  .enablePlugins(JavaAppPackaging, DockerPlugin)
   .settings(
-    name         := "Social Graph",
-    organization := "com.github.guihigashi",
-    version      := "0.1.0-SNAPSHOT",
+    name                 := "Social Graph",
+    organization         := "com.github.guihigashi",
+    version              := "0.1.0-SNAPSHOT",
+    Docker / packageName := "social-graph",
+    dockerExposedPorts += 9090,
     scalaVersion := "3.8.4",
 
     libraryDependencies ++= Seq(

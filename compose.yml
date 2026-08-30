@@ -1,26 +1,6 @@
 services:
-  gateway:
-    image: localhost/identity-gateway:dev
-    build:
-      context: ./apps/gateway
-      dockerfile: Containerfile
-    ports:
-      - "8000:8000"
-    environment:
-      - DB_CONNECTION=pgsql
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_DATABASE=realworld
-      - DB_USERNAME=realworld
-      - DB_PASSWORD=secret
-    volumes:
-      - ./apps/gateway:/app:z
-    depends_on:
-      postgres:
-        condition: service_healthy
   postgres:
     image: docker.io/library/postgres:18
-    command: postgres -c log_statement=all
     ports:
       - "5432:5432"
     environment:
@@ -35,5 +15,49 @@ services:
       interval: 2s
       timeout: 5s
       retries: 10
+  gateway:
+    image: ghcr.io/guihigashi/realworld-polyglot/gateway:latest
+    command: 'php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000'
+    build:
+      context: ./apps/gateway
+      dockerfile: Containerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./dev/gateway/.env
+    volumes:
+      - ./dev/gateway/logs:/app/storage/logs:z
+    depends_on:
+      postgres:
+        condition: service_healthy
+  article-service:
+    image: ghcr.io/guihigashi/realworld-polyglot/article-service:latest
+    command: --spring.config.location=file:/app/application.yml
+    build:
+      context: ./apps/article-service
+      dockerfile: ./Containerfile
+    volumes:
+      - ./dev/article-service/application.yml:/app/application.yml:z
+    depends_on:
+      postgres:
+        condition: service_healthy
+  feed-aggregator:
+    image: ghcr.io/guihigashi/realworld-polyglot/feed-aggregator:latest
+    build:
+      context: ./apps/feed-aggregator
+      dockerfile: ./cmd/server/Containerfile
+    volumes:
+      - ./dev/feed-aggregator/feed-aggregator.yml:/app/feed-aggregator.yml:z
+    depends_on:
+      postgres:
+        condition: service_healthy
+  social-graph:
+    image: ghcr.io/guihigashi/realworld-polyglot/social-graph:0.1.0-SNAPSHOT
+    command: -Dconfig.file=/opt/docker/application.conf
+    volumes:
+      - ./dev/social-graph/application.conf:/opt/docker/application.conf:z
+    depends_on:
+      postgres:
+        condition: service_healthy
 volumes:
   postgres_data:

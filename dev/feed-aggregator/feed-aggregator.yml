@@ -1,0 +1,4 @@
+article:
+  target: article-service:9092
+social:
+  target: social-graph:9090

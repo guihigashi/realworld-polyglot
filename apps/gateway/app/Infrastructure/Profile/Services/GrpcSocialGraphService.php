@@ -28,7 +28,7 @@ class GrpcSocialGraphService implements SocialGraphServiceInterface
 
     public function __construct()
     {
-        $this->client = new SocialGraphServiceClient('localhost:9090', [
+        $this->client = new SocialGraphServiceClient(config('grpc.social-graph.target'), [
             'credentials' => ChannelCredentials::createInsecure(),
         ]);
     }

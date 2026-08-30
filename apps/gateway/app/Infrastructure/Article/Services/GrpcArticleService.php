@@ -38,7 +38,7 @@ class GrpcArticleService implements ArticleServiceInterface
 
     public function __construct()
     {
-        $this->client = new ArticleServiceClient('localhost:9092', [
+        $this->client = new ArticleServiceClient(config('grpc.article-service.target'), [
             'credentials' => ChannelCredentials::createInsecure(),
         ]);
     }

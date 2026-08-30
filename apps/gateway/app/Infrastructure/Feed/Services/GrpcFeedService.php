@@ -18,7 +18,7 @@ class GrpcFeedService implements FeedServiceInterface
 
     public function __construct()
     {
-        $this->client = new FeedServiceClient('localhost:9091', [
+        $this->client = new FeedServiceClient(config('grpc.feed-aggregator.target'), [
             'credentials' => ChannelCredentials::createInsecure(),
         ]);
     }

@@ -1,0 +1,19 @@
+FROM docker.io/library/golang:1.27 AS builder
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . ./
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/feed-aggregator ./cmd/server
+
+FROM gcr.io/distroless/static-debian13
+
+WORKDIR /app
+
+COPY --from=builder /app/feed-aggregator .
+
+EXPOSE 9091
+
+ENTRYPOINT ["/app/feed-aggregator"]

@@ -1,0 +1,17 @@
+FROM docker.io/library/gradle:jdk25-ubi10 AS builder
+
+WORKDIR /app
+
+COPY build.gradle.kts settings.gradle.kts ./
+COPY src ./src
+RUN gradle bootJar --no-daemon
+
+FROM eclipse-temurin:25-jre-ubi10-minimal
+
+WORKDIR /app
+
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+EXPOSE 9092
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
