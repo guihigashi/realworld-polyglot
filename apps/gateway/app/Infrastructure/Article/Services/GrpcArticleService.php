@@ -28,20 +28,14 @@ use Generated\Grpc\Article\TagList;
 use Generated\Grpc\Article\UnfavoriteArticleRequest;
 use Generated\Grpc\Article\UpdateArticleRequest;
 use Google\Protobuf\GPBEmpty;
-use Grpc\ChannelCredentials;
 
-class GrpcArticleService implements ArticleServiceInterface
+readonly class GrpcArticleService implements ArticleServiceInterface
 {
     use RequestorMetadata;
 
-    private ArticleServiceClient $client;
-
-    public function __construct()
-    {
-        $this->client = new ArticleServiceClient(config('grpc.article-service.target'), [
-            'credentials' => ChannelCredentials::createInsecure(),
-        ]);
-    }
+    public function __construct(
+        private ArticleServiceClient $client
+    ) {}
 
     public function listArticles(?string $tag, ?string $authorId, ?string $favoritedById, int $limit, int $offset, ?string $requestorId): array
     {

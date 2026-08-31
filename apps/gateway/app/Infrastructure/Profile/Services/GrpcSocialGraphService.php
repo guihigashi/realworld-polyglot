@@ -17,21 +17,15 @@ use Generated\Grpc\SocialGraph\ResolveIdsByUsernamesResponse;
 use Generated\Grpc\SocialGraph\SocialGraphServiceClient;
 use Generated\Grpc\SocialGraph\UnfollowRequest;
 use Generated\Grpc\SocialGraph\UpsertProfileRequest;
-use Grpc\ChannelCredentials;
 use stdClass;
 
-class GrpcSocialGraphService implements SocialGraphServiceInterface
+readonly class GrpcSocialGraphService implements SocialGraphServiceInterface
 {
     use RequestorMetadata;
 
-    private SocialGraphServiceClient $client;
-
-    public function __construct()
-    {
-        $this->client = new SocialGraphServiceClient(config('grpc.social-graph.target'), [
-            'credentials' => ChannelCredentials::createInsecure(),
-        ]);
-    }
+    public function __construct(
+        private SocialGraphServiceClient $client
+    ) {}
 
     public function getProfile(string $targetUsername, ?string $requestorId): Profile
     {

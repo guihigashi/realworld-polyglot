@@ -8,20 +8,14 @@ use Generated\Grpc\Feed\Article;
 use Generated\Grpc\Feed\FeedServiceClient;
 use Generated\Grpc\Feed\GetFeedRequest;
 use Generated\Grpc\Feed\GetFeedResponse;
-use Grpc\ChannelCredentials;
 
-class GrpcFeedService implements FeedServiceInterface
+readonly class GrpcFeedService implements FeedServiceInterface
 {
     use RequestorMetadata;
 
-    private FeedServiceClient $client;
-
-    public function __construct()
-    {
-        $this->client = new FeedServiceClient(config('grpc.feed-aggregator.target'), [
-            'credentials' => ChannelCredentials::createInsecure(),
-        ]);
-    }
+    public function __construct(
+        private FeedServiceClient $client
+    ) {}
 
     public function getFeed(int $limit, int $offset, string $requestorId): array
     {
