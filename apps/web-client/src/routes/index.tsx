@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, Link } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -34,13 +34,13 @@ function Index() {
 
             <div className="article-preview">
               <div className="article-meta">
-                <a href="/profile/eric-simons">
-                  <img src="http://i.imgur.com/Qr71crq.jpg" />
-                </a>
+                <Link to="/profile/$username" params={{ username: "eric-simmons" }}>
+                  <img src="https://i.imgur.com/Qr71crq.jpg" />
+                </Link>
                 <div className="info">
-                  <a href="/profile/eric-simons" className="author">
+                  <Link to="/profile/$username" params={{ username: "eric-simmons" }} className="author">
                     Eric Simons
-                  </a>
+                  </Link>
                   <span className="date">January 20th</span>
                 </div>
                 <button className="btn btn-outline-primary btn-sm pull-xs-right">

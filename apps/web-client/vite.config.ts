@@ -10,7 +10,7 @@ export default defineConfig({
       target: "react",
       autoCodeSplitting: true,
       quoteStyle: "double",
-      routeTreeFileHeader: ["/* eslint-disable */", "// @ts-nocheck", "// noinspection JSUnusedGlobalSymbols"],
+      routeTreeFileHeader: ["/* oxlint-disable */", "// @ts-nocheck", "// noinspection JSUnusedGlobalSymbols"],
     }),
     react(),
     babel({ presets: [reactCompilerPreset()] }),
