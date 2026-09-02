@@ -25,3 +25,18 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+gateway.iml
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Ignore Yarn state and cache
+.yarn/install-state.gz
+.yarn/build-state.yml
+.yarn/unplugged/
+.yarn/cache/
