@@ -16,7 +16,7 @@ authListenerMiddleware.startListening({
     const auth = (api.getState() as RootState).auth
 
     if (auth.status === "authenticated") {
-      localStorage.setItem(JWT_TOKEN_KEY, auth.user.user.token)
+      localStorage.setItem(JWT_TOKEN_KEY, auth.user.token)
     } else {
       localStorage.removeItem(JWT_TOKEN_KEY)
     }

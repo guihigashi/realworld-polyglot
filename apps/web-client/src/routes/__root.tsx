@@ -46,12 +46,12 @@ function RootLayout() {
                   className="nav-link"
                   to="/profile/$username"
                   params={{
-                    username: auth.user.user.username,
+                    username: auth.user.username,
                   }}
                   activeProps={{ className: "active" }}
                 >
                   <img src="" className="user-pic" />
-                  {auth.user.user.username}
+                  {auth.user.username}
                 </Link>
               </li>
             </ul>

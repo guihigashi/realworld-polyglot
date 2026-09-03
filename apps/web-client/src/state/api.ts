@@ -9,7 +9,7 @@ export const api = createApi({
       const auth = (api1.getState() as RootState).auth
 
       if (auth.status === "authenticated") {
-        headers.set("authorization", `Token ${auth.user.user.token}`)
+        headers.set("authorization", `Token ${auth.user.token}`)
       }
 
       return headers
@@ -17,21 +17,21 @@ export const api = createApi({
   }),
   tagTypes: ["CurrentUser"],
   endpoints: (build) => ({
-    login: build.mutation<User, LoginRequest>({
+    login: build.mutation<WrapUser<User>, WrapUser<LoginRequest>>({
       query: (body) => ({
         url: "/users/login",
         method: "POST",
         body,
       }),
     }),
-    register: build.mutation<User, RegisterRequest>({
+    register: build.mutation<WrapUser<User>, WrapUser<RegisterRequest>>({
       query: (body) => ({
         url: "/users",
         method: "POST",
         body,
       }),
     }),
-    getCurrentUser: build.query<User, string | void>({
+    getCurrentUser: build.query<WrapUser<User>, string | void>({
       query: (token) => ({
         url: "/user",
         method: "GET",

@@ -9,12 +9,12 @@ export const Route = createFileRoute("/login")({
 })
 
 function Login() {
-  const { register, handleSubmit } = useForm<LoginRequest["user"]>({
+  const { register, handleSubmit } = useForm<LoginRequest>({
     defaultValues: {
       email: "",
       password: "",
     },
-    resolver: zodResolver(loginRequestSchema.shape.user),
+    resolver: zodResolver(loginRequestSchema),
   })
 
   const [loginMutation, results] = api.useLoginMutation()

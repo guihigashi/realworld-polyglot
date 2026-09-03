@@ -9,13 +9,13 @@ export const Route = createFileRoute("/register")({
 })
 
 function Register() {
-  const { register, handleSubmit } = useForm<RegisterRequest["user"]>({
+  const { register, handleSubmit } = useForm<RegisterRequest>({
     defaultValues: {
       username: "",
       email: "",
       password: "",
     },
-    resolver: zodResolver(registerRequestSchema.shape.user),
+    resolver: zodResolver(registerRequestSchema),
   })
 
   const [registerMutation, result] = api.useRegisterMutation()
@@ -39,9 +39,7 @@ function Register() {
             <form
               onSubmit={handleSubmit(async (data) => {
                 try {
-                  const user = await registerMutation({
-                    user: data,
-                  }).unwrap()
+                  const user = await registerMutation({ user: data }).unwrap()
 
                   console.log(user)
                   await navigate({ to: "/" })

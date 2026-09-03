@@ -30,8 +30,8 @@ export const authSlice = createSlice({
           api.endpoints.register.matchFulfilled,
           api.endpoints.getCurrentUser.matchFulfilled,
         ),
-        (_state, action: PayloadAction<User>) => {
-          return { status: "authenticated", user: action.payload }
+        (_state, action: PayloadAction<{ user: User }>) => {
+          return { status: "authenticated", user: action.payload.user }
         },
       )
   },
@@ -51,7 +51,9 @@ export const verifyStoredToken = createAsyncThunk<User | null, void, { dispatch:
     }
 
     try {
-      return await thunkAPI.dispatch(api.endpoints.getCurrentUser.initiate(token)).unwrap()
+      const { user } = await thunkAPI.dispatch(api.endpoints.getCurrentUser.initiate(token)).unwrap()
+
+      return user
     } catch (e) {
       console.error(e)
 

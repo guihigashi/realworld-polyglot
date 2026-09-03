@@ -6,4 +6,6 @@ declare global {
   type RegisterRequest = z.infer<typeof registerRequestSchema>
 
   type User = z.infer<typeof userSchema>
+
+  type WrapUser<T> = { user: T }
 }
