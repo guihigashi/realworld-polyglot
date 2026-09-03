@@ -40,3 +40,10 @@ web-client.iml
 .yarn/build-state.yml
 .yarn/unplugged/
 .yarn/cache/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

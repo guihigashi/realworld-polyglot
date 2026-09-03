@@ -15,4 +15,9 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] }),
   ],
+  server: {
+    watch: {
+      ignored: ["**/playwright-report/**", "**/test-results/**"],
+    },
+  },
 })
