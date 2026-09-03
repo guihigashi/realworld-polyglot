@@ -8,4 +8,14 @@ declare global {
   type User = z.infer<typeof userSchema>
 
   type WrapUser<T> = { user: T }
+
+  interface ConduitDebug {
+    getToken: () => string | null
+    getAuthState: () => "authenticated" | "unauthenticated" | "unavailable" | "loading"
+    getCurrentUser: () => User | null
+  }
+
+  interface Window {
+    __conduit_debug__: ConduitDebug
+  }
 }

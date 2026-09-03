@@ -1,7 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, redirect } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/editor")({
   component: CreateArticle,
+  beforeLoad: ({ context }) => {
+    if (context.auth.status !== "authenticated") {
+      throw redirect({ to: "/" })
+    }
+  },
 })
 
 function CreateArticle() {

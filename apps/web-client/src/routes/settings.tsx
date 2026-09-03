@@ -1,10 +1,20 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router"
+import { useAppDispatch } from "../state/hooks.ts"
+import { logout } from "../state/authSlice.ts"
 
 export const Route = createFileRoute("/settings")({
   component: Settings,
+  beforeLoad: ({ context }) => {
+    if (context.auth.status !== "authenticated") {
+      throw redirect({ to: "/" })
+    }
+  },
 })
 
 function Settings() {
+  const dispatch = useAppDispatch()
+  const router = useRouter()
+
   return (
     <div className="settings-page">
       <div className="container page">
@@ -41,7 +51,15 @@ function Settings() {
               </fieldset>
             </form>
             <hr />
-            <button className="btn btn-outline-danger">Or click here to logout.</button>
+            <button
+              className="btn btn-outline-danger"
+              onClick={async () => {
+                dispatch(logout())
+                await router.invalidate()
+              }}
+            >
+              Or click here to logout.
+            </button>
           </div>
         </div>
       </div>

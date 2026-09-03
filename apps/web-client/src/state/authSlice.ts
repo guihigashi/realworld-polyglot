@@ -5,11 +5,12 @@ import type { AppDispatch } from "./store.ts"
 export const JWT_TOKEN_KEY = "jwt_token"
 
 export type AuthState =
-  | { status: "uninitialized" }
+  | { status: "loading" }
+  | { status: "unavailable" }
   | { status: "unauthenticated" }
   | { status: "authenticated"; user: User }
 
-const uninitialized: AuthState = { status: "uninitialized" }
+const uninitialized: AuthState = { status: "loading" }
 
 export const authSlice = createSlice({
   name: "auth",
@@ -63,3 +64,19 @@ export const verifyStoredToken = createAsyncThunk<User | null, void, { dispatch:
     }
   },
 )
+
+export function makeConduitDebug(auth: AuthState): ConduitDebug {
+  if (auth.status === "authenticated") {
+    return {
+      getToken: () => auth.user.token,
+      getAuthState: () => "authenticated",
+      getCurrentUser: () => auth.user,
+    }
+  }
+
+  return {
+    getToken: () => null,
+    getAuthState: () => auth.status,
+    getCurrentUser: () => null,
+  }
+}

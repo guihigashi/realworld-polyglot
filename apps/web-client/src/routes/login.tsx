@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { loginRequestSchema } from "../types/schemas.ts"
@@ -19,6 +19,8 @@ function Login() {
 
   const [loginMutation, results] = api.useLoginMutation()
 
+  const navigate = useNavigate()
+
   return (
     <div className="auth-page">
       <div className="container page">
@@ -37,6 +39,8 @@ function Login() {
               onSubmit={handleSubmit(async (data) => {
                 try {
                   const user = await loginMutation({ user: data }).unwrap()
+
+                  await navigate({ to: "/" })
                 } catch (e) {
                   console.error(e)
                 }

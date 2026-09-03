@@ -4,13 +4,13 @@ import { createRouter, RouterProvider } from "@tanstack/react-router"
 import { routeTree } from "./routeTree.gen.ts"
 import { useAppDispatch, useAppSelector } from "./state/hooks.ts"
 import { useEffect } from "react"
-import { verifyStoredToken } from "./state/authSlice.ts"
+import { makeConduitDebug, verifyStoredToken } from "./state/authSlice.ts"
 
 const router = createRouter({
   routeTree,
   context: {
     auth: {
-      status: "uninitialized",
+      status: "loading",
     },
   },
 })
@@ -29,7 +29,11 @@ function InnerApp() {
     dispatch(verifyStoredToken())
   }, [dispatch])
 
-  if (auth.status === "uninitialized") {
+  useEffect(() => {
+    window.__conduit_debug__ = makeConduitDebug(auth)
+  }, [auth])
+
+  if (auth.status === "loading") {
     return <div>Loading application...</div>
   }
 
