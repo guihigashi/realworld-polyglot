@@ -7,7 +7,7 @@ function RootLayout() {
   const auth = useAppSelector((state: RootState) => state.auth)
   return (
     <>
-      {auth.isAuthenticated ? (
+      {auth.status === "authenticated" ? (
         <nav className="navbar navbar-light">
           <div className="container">
             <a className="navbar-brand" href="/">
@@ -15,28 +15,44 @@ function RootLayout() {
             </a>
             <ul className="nav navbar-nav pull-xs-right">
               <li className="nav-item">
-                {/* Add "active" class when you're on that page */}
-                <a className="nav-link active" href="/">
+                <Link className="nav-link" to="/" activeProps={{ className: "active" }}>
                   Home
-                </a>
+                </Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/editor">
+                <Link
+                  className="nav-link"
+                  to="/editor"
+
+                  activeProps={{ className: "active" }}
+                >
                   {" "}
                   <i className="ion-compose"></i>&nbsp;New Article{" "}
-                </a>
+                </Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/settings">
+                <Link
+                  className="nav-link"
+                  to="/settings"
+
+                  activeProps={{ className: "active" }}
+                >
                   {" "}
                   <i className="ion-gear-a"></i>&nbsp;Settings{" "}
-                </a>
+                </Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/profile/eric-simons">
+                <Link
+                  className="nav-link"
+                  to="/profile/$username"
+                  params={{
+                    username: auth.user.user.username,
+                  }}
+                  activeProps={{ className: "active" }}
+                >
                   <img src="" className="user-pic" />
-                  Eric Simons
-                </a>
+                  {auth.user.user.username}
+                </Link>
               </li>
             </ul>
           </div>

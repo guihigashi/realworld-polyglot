@@ -1,18 +1,24 @@
 import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit"
-import { login, logout } from "./authSlice.ts"
+import { JWT_TOKEN_KEY, logout } from "./authSlice.ts"
 import type { RootState } from "./store.ts"
+import { api } from "./api.ts"
 
 export const authListenerMiddleware = createListenerMiddleware()
 
 authListenerMiddleware.startListening({
-  matcher: isAnyOf(login, logout),
+  matcher: isAnyOf(
+    api.endpoints.login.matchFulfilled,
+    api.endpoints.register.matchFulfilled,
+    api.endpoints.getCurrentUser.matchFulfilled,
+    logout,
+  ),
   effect: (_action, api) => {
-    const token = (api.getState() as RootState).auth.token
+    const auth = (api.getState() as RootState).auth
 
-    if (token) {
-      localStorage.setItem("jwt_token", token)
+    if (auth.status === "authenticated") {
+      localStorage.setItem(JWT_TOKEN_KEY, auth.user.user.token)
     } else {
-      localStorage.removeItem("jwt_token")
+      localStorage.removeItem(JWT_TOKEN_KEY)
     }
   },
 })

@@ -10,10 +10,7 @@ const router = createRouter({
   routeTree,
   context: {
     auth: {
-      token: null,
-      user: null,
-      isAuthenticated: false,
-      isInitialized: false,
+      status: "uninitialized",
     },
   },
 })
@@ -32,7 +29,7 @@ function InnerApp() {
     dispatch(verifyStoredToken())
   }, [dispatch])
 
-  if (!auth.isInitialized) {
+  if (auth.status === "uninitialized") {
     return <div>Loading application...</div>
   }
 

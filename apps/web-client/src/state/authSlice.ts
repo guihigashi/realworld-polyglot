@@ -1,80 +1,63 @@
-import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit"
-import { apiSlice } from "./apiSlice.ts"
+import { createAsyncThunk, createSlice, isAnyOf, type PayloadAction } from "@reduxjs/toolkit"
+import { api } from "./api.ts"
 import type { AppDispatch } from "./store.ts"
 
-export interface AuthState {
-  token: string | null
-  user: User | null
-  isAuthenticated: boolean
-  isInitialized: boolean
-}
+export const JWT_TOKEN_KEY = "jwt_token"
 
-const initialState: AuthState = {
-  token: null,
-  user: null,
-  isAuthenticated: false,
-  isInitialized: false,
-}
+export type AuthState =
+  | { status: "uninitialized" }
+  | { status: "unauthenticated" }
+  | { status: "authenticated"; user: User }
+
+const uninitialized: AuthState = { status: "uninitialized" }
 
 export const authSlice = createSlice({
   name: "auth",
-  initialState,
+  initialState: uninitialized as AuthState,
   reducers: {
-    login: (state, action: PayloadAction<string>) => {
-      state.isAuthenticated = true
-      state.token = action.payload
-    },
-    logout: (state) => {
-      state.token = null
-      state.user = null
-      state.isAuthenticated = false
+    logout: (_state) => {
+      return { status: "unauthenticated" }
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(verifyStoredToken.fulfilled, (state, action) => {
-        if (action.payload !== null) {
-          state.token = action.payload.token
-          state.user = action.payload.user
-          state.isAuthenticated = true
-        } else {
-          state.token = null
-          state.user = null
-          state.isAuthenticated = false
-        }
-        state.isInitialized = true
+      .addCase(verifyStoredToken.rejected, (_state) => {
+        return { status: "unauthenticated" }
       })
-      .addCase(verifyStoredToken.rejected, (state) => {
-        state.token = null
-        state.user = null
-        state.isAuthenticated = false
-        state.isInitialized = true
-      })
+      .addMatcher(
+        isAnyOf(
+          api.endpoints.login.matchFulfilled,
+          api.endpoints.register.matchFulfilled,
+          api.endpoints.getCurrentUser.matchFulfilled,
+        ),
+        (_state, action: PayloadAction<User>) => {
+          return { status: "authenticated", user: action.payload }
+        },
+      )
   },
 })
 
-export const { login, logout } = authSlice.actions
+export const { logout } = authSlice.actions
 
 export default authSlice.reducer
 
-export const verifyStoredToken = createAsyncThunk<
-  { token: string; user: User } | null,
-  void,
-  { dispatch: AppDispatch }
->("auth/verifyStoredSession", async (_arg, thunkAPI) => {
-  const token = localStorage.getItem("jwt_token")
-  if (!token) {
-    return null
-  }
+export const verifyStoredToken = createAsyncThunk<User | null, void, { dispatch: AppDispatch }>(
+  "auth/verifyStoredToken",
+  async (_arg, thunkAPI) => {
+    const token = localStorage.getItem(JWT_TOKEN_KEY)
 
-  try {
-    const user = await thunkAPI.dispatch(apiSlice.endpoints.getCurrentUser.initiate(token)).unwrap()
+    if (!token) {
+      return thunkAPI.rejectWithValue(null)
+    }
 
-    return { token, user }
-  } catch (e) {
-    console.error(e)
-    localStorage.removeItem("jwt_token")
+    try {
+      return await thunkAPI.dispatch(api.endpoints.getCurrentUser.initiate(token)).unwrap()
+    } catch (e) {
+      console.error(e)
 
-    return thunkAPI.rejectWithValue(null)
-  }
-})
+      localStorage.removeItem(JWT_TOKEN_KEY)
+
+      return thunkAPI.rejectWithValue(null)
+    }
+  },
+)
