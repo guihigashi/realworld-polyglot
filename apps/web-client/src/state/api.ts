@@ -18,18 +18,10 @@ export const api = createApi({
   tagTypes: ["CurrentUser"],
   endpoints: (build) => ({
     login: build.mutation<WrapUser<User>, WrapUser<LoginRequest>>({
-      query: (body) => ({
-        url: "/users/login",
-        method: "POST",
-        body,
-      }),
+      query: (body) => ({ url: "/users/login", method: "POST", body }),
     }),
     register: build.mutation<WrapUser<User>, WrapUser<RegisterRequest>>({
-      query: (body) => ({
-        url: "/users",
-        method: "POST",
-        body,
-      }),
+      query: (body) => ({ url: "/users", method: "POST", body }),
     }),
     getCurrentUser: build.query<WrapUser<User>, string | void>({
       query: (token) => ({
@@ -37,6 +29,12 @@ export const api = createApi({
         method: "GET",
         headers: token ? { authorization: `Token ${token}` } : undefined,
       }),
+    }),
+    updateUser: build.mutation<WrapUser<User>, WrapUser<UpdateUserRequestOut>>({
+      query: (body) => ({ url: "/user", method: "PUT", body }),
+    }),
+    getProfile: build.query<WrapProfile<Profile>, string>({
+      query: (username) => ({ url: `/profiles/${username}`, method: "GET" }),
     }),
   }),
 })

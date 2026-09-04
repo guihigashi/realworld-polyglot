@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { removeEmptyValues } from "../utils/object.ts"
 
 export const userSchema = z.object({
   email: z.email(),
@@ -23,4 +24,22 @@ export const registerRequestSchema = userSchema
   })
   .extend({
     password: z.string(),
+  })
+
+export const updateUserRequestSchema = userSchema
+  .omit({
+    token: true,
+  })
+  .extend({
+    password: z.string(),
+  })
+  .transform(removeEmptyValues)
+
+export const profileSchema = userSchema
+  .omit({
+    email: true,
+    token: true,
+  })
+  .extend({
+    following: z.boolean(),
   })

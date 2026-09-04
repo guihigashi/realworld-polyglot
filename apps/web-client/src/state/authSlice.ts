@@ -30,6 +30,7 @@ export const authSlice = createSlice({
           api.endpoints.login.matchFulfilled,
           api.endpoints.register.matchFulfilled,
           api.endpoints.getCurrentUser.matchFulfilled,
+          api.endpoints.updateUser.matchFulfilled,
         ),
         (_state, action: PayloadAction<{ user: User }>) => {
           return { status: "authenticated", user: action.payload.user }
