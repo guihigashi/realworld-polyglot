@@ -17,3 +17,7 @@ export function removeEmptyValues<T extends Record<string, any>>(obj: T): Partia
 
   return result
 }
+
+export function isDefined<T>(obj: T): obj is NonNullable<T> {
+  return typeof obj !== "undefined" && obj !== null
+}
