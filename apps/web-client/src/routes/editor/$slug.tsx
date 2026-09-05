@@ -12,7 +12,13 @@ export const Route = createFileRoute("/editor/$slug")({
     return { user: context.auth.user }
   },
   loader: async ({ context, params }) => {
-    const { article } = await store.dispatch(api.endpoints.getArticle.initiate(params.slug)).unwrap()
+    const { article } = await store
+      .dispatch(
+        api.endpoints.getArticle.initiate(params.slug, {
+          forceRefetch: true,
+        }),
+      )
+      .unwrap()
 
     if (article.author.username !== context.user.username) {
       throw redirect({ to: "/" })
@@ -25,5 +31,5 @@ export const Route = createFileRoute("/editor/$slug")({
 function EditArticle() {
   const article = Route.useLoaderData()
 
-  return <ArticleForm article={article} />
+  return <ArticleForm key={article.updatedAt} article={article} from={Route.to} />
 }

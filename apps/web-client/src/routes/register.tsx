@@ -20,7 +20,7 @@ function Register() {
 
   const [registerMutation, result] = api.useRegisterMutation()
 
-  const navigate = useNavigate()
+  const navigate = useNavigate({from: Route.to})
 
   return (
     <div className="auth-page">

@@ -11,5 +11,5 @@ export const Route = createFileRoute("/editor/")({
 })
 
 function CreateArticle() {
-  return <ArticleForm />
+  return <ArticleForm from={Route.to} />
 }

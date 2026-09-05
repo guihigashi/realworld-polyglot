@@ -19,7 +19,7 @@ function Login() {
 
   const [loginMutation, results] = api.useLoginMutation()
 
-  const navigate = useNavigate()
+  const navigate = useNavigate({from: Route.to})
 
   return (
     <div className="auth-page">

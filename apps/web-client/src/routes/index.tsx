@@ -1,10 +1,36 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { api } from "../state/api.ts"
+import { z } from "zod"
+import ArticlePreview from "../components/article-preview.tsx"
+import { useState } from "react"
+import { clsx } from "clsx"
+import { isDefined } from "../utils/object.ts"
+
+const searchSchema = z.object({
+  tag: z.string().optional(),
+  author: z.string().optional(),
+  favorited: z.string().optional(),
+  limit: z.number().optional(),
+  offset: z.number().optional(),
+})
 
 export const Route = createFileRoute("/")({
   component: Index,
+  validateSearch: searchSchema,
 })
 
 function Index() {
+  const { tag } = Route.useSearch()
+
+  const navigate = useNavigate({ from: Route.to })
+
+  const { data: tags } = api.useGetTagsQuery()
+
+  type Tabs = "feed" | "global"
+  const [selectedTab, setSelectedTab] = useState<Tabs>("global")
+
+  const activateTabIf = (s: Tabs) => !isDefined(tag) && selectedTab === s && "active"
+
   return (
     <div className="home-page">
       <div className="banner">
@@ -20,69 +46,52 @@ function Index() {
             <div className="feed-toggle">
               <ul className="nav nav-pills outline-active">
                 <li className="nav-item">
-                  <a className="nav-link" href="">
+                  <a
+                    className={clsx("nav-link", activateTabIf("feed"))}
+                    href="#"
+                    onClick={async (event) => {
+                      event.preventDefault()
+                      setSelectedTab("feed")
+                      await navigate({
+                        search: (prev) => ({
+                          ...prev,
+                          tag: undefined,
+                        }),
+                      })
+                    }}
+                  >
                     Your Feed
                   </a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link active" href="">
+                  <a
+                    className={clsx("nav-link", activateTabIf("global"))}
+                    href="#"
+                    onClick={async (event) => {
+                      event.preventDefault()
+                      setSelectedTab("global")
+                      await navigate({
+                        search: (prev) => ({
+                          ...prev,
+                          tag: undefined,
+                        }),
+                      })
+                    }}
+                  >
                     Global Feed
                   </a>
                 </li>
+                {isDefined(tag) ? (
+                  <li className="nav-item">
+                    <Link className="nav-link active" to={Route.to} search={{ tag }}>
+                      {tag}
+                    </Link>
+                  </li>
+                ) : null}
               </ul>
             </div>
 
-            <div className="article-preview">
-              <div className="article-meta">
-                <Link to="/profile/$username" params={{ username: "eric-simmons" }}>
-                  <img src="https://i.imgur.com/Qr71crq.jpg" />
-                </Link>
-                <div className="info">
-                  <Link to="/profile/$username" params={{ username: "eric-simmons" }} className="author">
-                    Eric Simons
-                  </Link>
-                  <span className="date">January 20th</span>
-                </div>
-                <button className="btn btn-outline-primary btn-sm pull-xs-right">
-                  <i className="ion-heart"></i> 29
-                </button>
-              </div>
-              <a href="/article/how-to-build-webapps-that-scale" className="preview-link">
-                <h1>How to build webapps that scale</h1>
-                <p>This is the description for the post.</p>
-                <span>Read more...</span>
-                <ul className="tag-list">
-                  <li className="tag-default tag-pill tag-outline">realworld</li>
-                  <li className="tag-default tag-pill tag-outline">implementations</li>
-                </ul>
-              </a>
-            </div>
-
-            <div className="article-preview">
-              <div className="article-meta">
-                <a href="/profile/albert-pai">
-                  <img src="http://i.imgur.com/N4VcUeJ.jpg" />
-                </a>
-                <div className="info">
-                  <a href="/profile/albert-pai" className="author">
-                    Albert Pai
-                  </a>
-                  <span className="date">January 20th</span>
-                </div>
-                <button className="btn btn-outline-primary btn-sm pull-xs-right">
-                  <i className="ion-heart"></i> 32
-                </button>
-              </div>
-              <a href="/article/the-song-you" className="preview-link">
-                <h1>The song you won't ever stop singing. No matter how hard you try.</h1>
-                <p>This is the description for the post.</p>
-                <span>Read more...</span>
-                <ul className="tag-list">
-                  <li className="tag-default tag-pill tag-outline">realworld</li>
-                  <li className="tag-default tag-pill tag-outline">implementations</li>
-                </ul>
-              </a>
-            </div>
+            {selectedTab === "feed" ? <YourFeed /> : <GlobalFeed />}
 
             <ul className="pagination">
               <li className="page-item active">
@@ -103,35 +112,44 @@ function Index() {
               <p>Popular Tags</p>
 
               <div className="tag-list">
-                <a href="" className="tag-pill tag-default">
-                  programming
-                </a>
-                <a href="" className="tag-pill tag-default">
-                  javascript
-                </a>
-                <a href="" className="tag-pill tag-default">
-                  emberjs
-                </a>
-                <a href="" className="tag-pill tag-default">
-                  angularjs
-                </a>
-                <a href="" className="tag-pill tag-default">
-                  react
-                </a>
-                <a href="" className="tag-pill tag-default">
-                  mean
-                </a>
-                <a href="" className="tag-pill tag-default">
-                  node
-                </a>
-                <a href="" className="tag-pill tag-default">
-                  rails
-                </a>
+                {tags?.tags.map((tag) => (
+                  <Link key={tag} to={Route.to} search={{ tag }} className="tag-pill tag-default">
+                    {tag}
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+function YourFeed() {
+  const params = Route.useSearch()
+
+  const { data: feedData } = api.useFeedArticlesQuery(params)
+
+  return (
+    <>
+      {feedData?.articles.map((a) => (
+        <ArticlePreview key={a.slug} article={a} />
+      ))}
+    </>
+  )
+}
+
+function GlobalFeed() {
+  const params = Route.useSearch()
+
+  const { data: feedData } = api.useListArticlesQuery(params)
+
+  return (
+    <>
+      {feedData?.articles.map((a) => (
+        <ArticlePreview key={a.slug} article={a} />
+      ))}
+    </>
   )
 }

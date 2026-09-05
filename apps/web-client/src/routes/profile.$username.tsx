@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { store } from "../state/store.ts"
 import { api } from "../state/api.ts"
+import ProfileAvatar from "../components/profile-avatar.tsx"
 
 export const Route = createFileRoute("/profile/$username")({
   component: Profile,
@@ -23,11 +24,7 @@ function Profile() {
         <div className="container">
           <div className="row">
             <div className="col-xs-12 col-md-10 offset-md-1">
-              {profile.image !== null ? (
-                <img alt={`profile image of ${profile.username}`} src={profile.image} className="user-img" />
-              ) : (
-                <img alt="default avatar" src="/default-avatar.svg" className="user-img" />
-              )}
+              <ProfileAvatar profile={profile} className="user-img" />
               <h4>{profile.username}</h4>
               <p>{profile.bio}</p>
               <button className="btn btn-sm btn-outline-secondary action-btn">

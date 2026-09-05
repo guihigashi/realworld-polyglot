@@ -23,13 +23,14 @@ function initialValue(article?: Article): CreateArticleRequestIn {
 }
 
 type ArticleFormProps = {
+  from: string
   article?: Article
 }
 export default function ArticleForm({ article }: ArticleFormProps) {
   const isEditing = typeof article?.slug === "string"
 
   const { register, handleSubmit, control } = useForm<CreateArticleRequestIn, unknown, CreateArticleRequestOut>({
-    defaultValues: initialValue(article),
+    values: initialValue(article),
     resolver: zodResolver(createArticleRequestSchema),
   })
 

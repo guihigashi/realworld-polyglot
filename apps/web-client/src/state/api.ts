@@ -36,6 +36,22 @@ export const api = createApi({
     getProfile: build.query<WrapProfile<Profile>, string>({
       query: (username) => ({ url: `/profiles/${username}`, method: "GET" }),
     }),
+    listArticles: build.query<
+      WrapArticles<ArticleSummary>,
+      | {
+          tag?: string
+          author?: string
+          favorited?: string
+          limit?: number
+          offset?: number
+        }
+      | undefined
+    >({
+      query: (params) => ({ url: "/articles", method: "GET", params }),
+    }),
+    feedArticles: build.query<WrapArticles<ArticleSummary>, { limit?: number; offset?: number } | undefined>({
+      query: (params) => ({ url: "/articles/feed", method: "GET", params }),
+    }),
     getArticle: build.query<WrapArticle<Article>, string>({
       query: (slug) => ({ url: `/articles/${slug}`, method: "GET" }),
     }),
@@ -44,6 +60,18 @@ export const api = createApi({
     }),
     updateArticle: build.mutation<WrapArticle<Article>, WrapArticle<CreateArticleRequestOut> & { slug: string }>({
       query: ({ slug, ...body }) => ({ url: `/articles/${slug}`, method: "PUT", body }),
+    }),
+    deleteArticle: build.mutation<void, string>({
+      query: (slug) => ({ url: `/articles/${slug}`, method: "DELETE" }),
+    }),
+    favoriteArticle: build.mutation<WrapArticle<Article>, string>({
+      query: (slug) => ({ url: `/articles/${slug}/favorite`, method: "POST" }),
+    }),
+    unfavoriteArticle: build.mutation<WrapArticle<Article>, string>({
+      query: (slug) => ({ url: `/articles/${slug}/favorite`, method: "DELETE" }),
+    }),
+    getTags: build.query<{ tags: string[] }, void>({
+      query: () => ({ url: "/tags", method: "GET" }),
     }),
   }),
 })

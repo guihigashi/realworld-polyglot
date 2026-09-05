@@ -6,7 +6,7 @@ export default defineConfig({
   testDir: "../../reference/realworld-spec/specs/e2e",
   fullyParallel: true,
   retries: 2,
-  workers: process.env.CI ? 1 : 4,
+  workers: process.env.CI ? 1 : undefined,
   use: {
     ...baseConfig.use,
     baseURL: "http://localhost:5173",

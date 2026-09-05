@@ -10,9 +10,9 @@ function RootLayout() {
       {auth.status === "authenticated" ? (
         <nav className="navbar navbar-light">
           <div className="container">
-            <a className="navbar-brand" href="/">
+            <Link className="navbar-brand" to="/">
               conduit
-            </a>
+            </Link>
             <ul className="nav navbar-nav pull-xs-right">
               <li className="nav-item">
                 <Link className="nav-link" to="/" activeProps={{ className: "active" }}>

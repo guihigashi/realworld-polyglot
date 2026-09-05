@@ -54,12 +54,11 @@ export const articleSchema = z.object({
   updatedAt: z.string(),
   favorited: z.boolean(),
   favoritesCount: z.number(),
-  author: z.object({
-    username: z.string(),
-    bio: z.string().nullable(),
-    image: z.string().nullable(),
-    following: z.boolean(),
-  }),
+  author: profileSchema,
+})
+
+export const articleSummarySchema = articleSchema.omit({
+  body: true,
 })
 
 export const createArticleRequestSchema = articleSchema

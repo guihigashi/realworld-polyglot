@@ -33,7 +33,7 @@ function Settings() {
   const dispatch = useAppDispatch()
   const auth = useAppSelector((state) => state.auth)
   const router = useRouter()
-  const navigate = useNavigate()
+  const navigate = useNavigate({from: Route.to})
 
   const { register, handleSubmit } = useForm<UpdateUserRequestIn, any, UpdateUserRequestOut>({
     defaultValues: defaultValuesFromAuth(auth),

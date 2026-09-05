@@ -1,5 +1,6 @@
 import {
   articleSchema,
+  articleSummarySchema,
   createArticleRequestSchema,
   loginRequestSchema,
   profileSchema,
@@ -21,10 +22,15 @@ declare global {
   type User = z.infer<typeof userSchema>
   type Profile = z.infer<typeof profileSchema>
   type Article = z.infer<typeof articleSchema>
+  type ArticleSummary = z.infer<typeof articleSummarySchema>
 
   type WrapUser<T> = { user: T }
   type WrapProfile<T> = { profile: T }
   type WrapArticle<T> = { article: T }
+  type WrapArticles<T> = {
+    articles: T[]
+    articlesCount: number
+  }
 
   interface ConduitDebug {
     getToken: () => string | null
