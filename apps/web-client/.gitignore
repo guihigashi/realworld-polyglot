@@ -47,3 +47,5 @@ web-client.iml
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+.env*

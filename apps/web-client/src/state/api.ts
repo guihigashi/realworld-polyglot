@@ -4,7 +4,7 @@ import type { RootState } from "./store.ts"
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://rwa-api.guihigashi.dev/api",
+    baseUrl: import.meta.env.VITE_API_BASE_URL,
     prepareHeaders: (headers, api1) => {
       const auth = (api1.getState() as RootState).auth
 
