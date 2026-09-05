@@ -1,20 +1,29 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { store } from "../state/store.ts"
+import { api } from "../state/api.ts"
 
 export const Route = createFileRoute("/article/$slug")({
   component: RouteComponent,
+  loader: async ({ params }) => {
+    const { article } = await store.dispatch(api.endpoints.getArticle.initiate(params.slug)).unwrap()
+
+    return article
+  },
 })
 
 function RouteComponent() {
+  const article = Route.useLoaderData()
+
   return (
     <div className="article-page">
       <div className="banner">
         <div className="container">
-          <h1>How to build webapps that scale</h1>
+          <h1>{article.title}</h1>
 
           <div className="article-meta">
-            <a href="/profile/eric-simons">
+            <Link to="/profile/$username" params={{ username: article.author.username }}>
               <img src="http://i.imgur.com/Qr71crq.jpg" />
-            </a>
+            </Link>
             <div className="info">
               <a href="/profile/eric-simons" className="author">
                 Eric Simons
@@ -43,12 +52,13 @@ function RouteComponent() {
       <div className="container page">
         <div className="row article-content">
           <div className="col-md-12">
-            <p>Web development technologies have evolved at an incredible clip over the past few years.</p>
-            <h2 id="introducing-ionic">Introducing RealWorld.</h2>
-            <p>It's a great solution for learning how other frameworks work.</p>
+            <p>{article.body}</p>
             <ul className="tag-list">
-              <li className="tag-default tag-pill tag-outline">realworld</li>
-              <li className="tag-default tag-pill tag-outline">implementations</li>
+              {article.tagList.map((tag) => (
+                <li key={tag} className="tag-default tag-pill tag-outline">
+                  {tag}
+                </li>
+              ))}
             </ul>
           </div>
         </div>

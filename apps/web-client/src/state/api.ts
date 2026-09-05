@@ -36,5 +36,14 @@ export const api = createApi({
     getProfile: build.query<WrapProfile<Profile>, string>({
       query: (username) => ({ url: `/profiles/${username}`, method: "GET" }),
     }),
+    getArticle: build.query<WrapArticle<Article>, string>({
+      query: (slug) => ({ url: `/articles/${slug}`, method: "GET" }),
+    }),
+    createArticle: build.mutation<WrapArticle<Article>, WrapArticle<CreateArticleRequestOut>>({
+      query: (body) => ({ url: "/articles", method: "POST", body }),
+    }),
+    updateArticle: build.mutation<WrapArticle<Article>, WrapArticle<CreateArticleRequestOut> & { slug: string }>({
+      query: ({ slug, ...body }) => ({ url: `/articles/${slug}`, method: "PUT", body }),
+    }),
   }),
 })

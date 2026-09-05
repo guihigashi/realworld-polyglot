@@ -43,3 +43,35 @@ export const profileSchema = userSchema
   .extend({
     following: z.boolean(),
   })
+
+export const articleSchema = z.object({
+  slug: z.string(),
+  title: z.string(),
+  description: z.string(),
+  body: z.string(),
+  tagList: z.string().array(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  favorited: z.boolean(),
+  favoritesCount: z.number(),
+  author: z.object({
+    username: z.string(),
+    bio: z.string().nullable(),
+    image: z.string().nullable(),
+    following: z.boolean(),
+  }),
+})
+
+export const createArticleRequestSchema = articleSchema
+  .pick({
+    title: true,
+    description: true,
+    body: true,
+  })
+  .extend({
+    tagList: z
+      .object({ value: z.string() })
+      .array()
+      .optional()
+      .transform((value) => value?.map(({ value }) => value)),
+  })
