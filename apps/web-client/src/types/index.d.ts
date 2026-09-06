@@ -1,5 +1,7 @@
 import {
+  addCommentRequestSchema,
   articleSchema,
+  commentSchema,
   articleSummarySchema,
   createArticleRequestSchema,
   loginRequestSchema,
@@ -19,10 +21,13 @@ declare global {
   type CreateArticleRequestIn = z.input<typeof createArticleRequestSchema>
   type CreateArticleRequestOut = z.output<typeof createArticleRequestSchema>
 
+  type AddCommentRequest = z.infer<typeof addCommentRequestSchema>
+
   type User = z.infer<typeof userSchema>
   type Profile = z.infer<typeof profileSchema>
   type Article = z.infer<typeof articleSchema>
   type ArticleSummary = z.infer<typeof articleSummarySchema>
+  type ArticleComment = z.infer<typeof commentSchema>
 
   type WrapUser<T> = { user: T }
   type WrapProfile<T> = { profile: T }
@@ -31,6 +36,8 @@ declare global {
     articles: T[]
     articlesCount: number
   }
+  type WrapComment<T> = { comment: T }
+  type WrapComments<T> = { comments: T[] }
 
   interface ConduitDebug {
     getToken: () => string | null

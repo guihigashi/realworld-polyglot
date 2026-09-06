@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import { createApi, fetchBaseQuery, type TagDescription } from "@reduxjs/toolkit/query/react"
 import type { RootState } from "./store.ts"
 
 export const api = createApi({
@@ -15,7 +15,7 @@ export const api = createApi({
       return headers
     },
   }),
-  tagTypes: ["CurrentUser"],
+  tagTypes: ["CurrentUser", "Comment"],
   endpoints: (build) => ({
     login: build.mutation<WrapUser<User>, WrapUser<LoginRequest>>({
       query: (body) => ({ url: "/users/login", method: "POST", body }),
@@ -63,6 +63,34 @@ export const api = createApi({
     }),
     deleteArticle: build.mutation<void, string>({
       query: (slug) => ({ url: `/articles/${slug}`, method: "DELETE" }),
+    }),
+    addComment: build.mutation<WrapComment<ArticleComment>, WrapComment<AddCommentRequest> & { slug: string }>({
+      query: ({ slug, ...body }) => ({ url: `/articles/${slug}/comments`, method: "POST", body }),
+      invalidatesTags: (_result, error, { slug }) => (error ? [] : [{ type: "Comment", id: `LIST-${slug}` }]),
+    }),
+    getComments: build.query<WrapComments<ArticleComment>, string>({
+      query: (slug) => ({ url: `/articles/${slug}/comments`, method: "GET" }),
+      providesTags: (result, _error, slug) => {
+        const tags: TagDescription<"Comment">[] = [{ type: "Comment", id: `LIST-${slug}` }]
+
+        if (result) {
+          for (const c of result.comments) {
+            tags.push({ type: "Comment", id: c.id })
+          }
+        }
+
+        return tags
+      },
+    }),
+    deleteComment: build.mutation<void, { slug: string; id: number }>({
+      query: ({ slug, id }) => ({ url: `/articles/${slug}/comments/${id}`, method: "DELETE" }),
+      invalidatesTags: (_result, error, { id, slug }) =>
+        error
+          ? []
+          : [
+              { type: "Comment", id },
+              { type: "Comment", id: `LIST-${slug}` },
+            ],
     }),
     favoriteArticle: build.mutation<WrapArticle<Article>, string>({
       query: (slug) => ({ url: `/articles/${slug}/favorite`, method: "POST" }),

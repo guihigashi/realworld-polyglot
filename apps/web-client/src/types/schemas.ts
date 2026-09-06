@@ -74,3 +74,15 @@ export const createArticleRequestSchema = articleSchema
       .optional()
       .transform((value) => value?.map(({ value }) => value)),
   })
+
+export const commentSchema = z.object({
+  id: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  body: z.string(),
+  author: profileSchema,
+})
+
+export const addCommentRequestSchema = commentSchema.pick({
+  body: true,
+})
