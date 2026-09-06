@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import ProfileAvatar from "./profile-avatar.tsx"
+import FavoriteToggle from "./favorite-toggle.tsx"
 
 export default function ArticlePreview({ article }: { article: ArticleSummary }) {
   return (
@@ -14,9 +15,7 @@ export default function ArticlePreview({ article }: { article: ArticleSummary })
           </Link>
           <span className="date">January 20th</span>
         </div>
-        <button className="btn btn-outline-primary btn-sm pull-xs-right">
-          <i className="ion-heart"></i> {article.favoritesCount}
-        </button>
+        <FavoriteToggle {...article} />
       </div>
       <Link className="preview-link" to="/article/$slug" params={{ slug: article.slug }}>
         <h1>{article.title}</h1>

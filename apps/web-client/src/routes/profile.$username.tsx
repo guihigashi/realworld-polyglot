@@ -1,23 +1,42 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, Link, redirect } from "@tanstack/react-router"
 import { store } from "../state/store.ts"
 import { api } from "../state/api.ts"
 import ProfileAvatar from "../components/profile-avatar.tsx"
+import { useEffect, useState } from "react"
+import ArticlePreview from "../components/article-preview.tsx"
+import { clsx } from "clsx"
 
 export const Route = createFileRoute("/profile/$username")({
   component: Profile,
-  loader: async ({ params }) => {
+  loader: async ({ params, context }) => {
     try {
       const { profile } = await store.dispatch(api.endpoints.getProfile.initiate(params.username)).unwrap()
 
-      return profile
+      return { profile, user: context.auth.status === "authenticated" ? context.auth.user : null }
     } catch (e) {
-      throw new Error("failed to fetch profile")
+      throw redirect({ to: "/", replace: true })
     }
   },
 })
 
 function Profile() {
-  const profile = Route.useLoaderData()
+  const { username } = Route.useParams()
+  const { user } = Route.useLoaderData()
+  const { data } = api.useGetProfileQuery(username)
+
+  type Tabs = "my-articles" | "favorited"
+
+  const [selectedTab, setSelectedTab] = useState<Tabs>("my-articles")
+  const activateTabIf = (s: Tabs) => selectedTab === s && "active"
+
+  const { data: articles } = api.useListArticlesQuery({ author: username })
+
+  const profile = data?.profile
+
+  if (!profile) {
+    return null
+  }
+
   return (
     <div className="profile-page">
       <div className="user-info">
@@ -27,14 +46,14 @@ function Profile() {
               <ProfileAvatar profile={profile} className="user-img" />
               <h4>{profile.username}</h4>
               <p>{profile.bio}</p>
-              <button className="btn btn-sm btn-outline-secondary action-btn">
-                <i className="ion-plus-round"></i>
-                &nbsp; Follow {profile.username}
-              </button>
-              <button className="btn btn-sm btn-outline-secondary action-btn">
-                <i className="ion-gear-a"></i>
-                &nbsp; Edit Profile Settings
-              </button>
+              {user && user.username !== profile.username ? (
+                <FollowToggle {...profile} />
+              ) : (
+                <Link className="btn btn-sm btn-outline-secondary action-btn" to="/settings">
+                  <i className="ion-gear-a"></i>
+                  &nbsp; Edit Profile Settings
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -46,69 +65,35 @@ function Profile() {
             <div className="articles-toggle">
               <ul className="nav nav-pills outline-active">
                 <li className="nav-item">
-                  <a className="nav-link active" href="">
+                  <a
+                    className={clsx("nav-link", activateTabIf("my-articles"))}
+                    href="#"
+                    onClick={() => {
+                      setSelectedTab("my-articles")
+                    }}
+                  >
                     My Articles
                   </a>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="">
+                  <a
+                    className={clsx("nav-link", activateTabIf("favorited"))}
+                    href="#"
+                    onClick={() => {
+                      setSelectedTab("favorited")
+                    }}
+                  >
                     Favorited Articles
                   </a>
                 </li>
               </ul>
             </div>
 
-            <div className="article-preview">
-              <div className="article-meta">
-                <a href="/profile/eric-simons">
-                  <img src="http://i.imgur.com/Qr71crq.jpg" />
-                </a>
-                <div className="info">
-                  <a href="/profile/eric-simons" className="author">
-                    Eric Simons
-                  </a>
-                  <span className="date">January 20th</span>
-                </div>
-                <button className="btn btn-outline-primary btn-sm pull-xs-right">
-                  <i className="ion-heart"></i> 29
-                </button>
-              </div>
-              <a href="/article/how-to-buil-webapps-that-scale" className="preview-link">
-                <h1>How to build webapps that scale</h1>
-                <p>This is the description for the post.</p>
-                <span>Read more...</span>
-                <ul className="tag-list">
-                  <li className="tag-default tag-pill tag-outline">realworld</li>
-                  <li className="tag-default tag-pill tag-outline">implementations</li>
-                </ul>
-              </a>
-            </div>
-
-            <div className="article-preview">
-              <div className="article-meta">
-                <a href="/profile/albert-pai">
-                  <img src="http://i.imgur.com/N4VcUeJ.jpg" />
-                </a>
-                <div className="info">
-                  <a href="/profile/albert-pai" className="author">
-                    Albert Pai
-                  </a>
-                  <span className="date">January 20th</span>
-                </div>
-                <button className="btn btn-outline-primary btn-sm pull-xs-right">
-                  <i className="ion-heart"></i> 32
-                </button>
-              </div>
-              <a href="/article/the-song-you" className="preview-link">
-                <h1>The song you won't ever stop singing. No matter how hard you try.</h1>
-                <p>This is the description for the post.</p>
-                <span>Read more...</span>
-                <ul className="tag-list">
-                  <li className="tag-default tag-pill tag-outline">Music</li>
-                  <li className="tag-default tag-pill tag-outline">Song</li>
-                </ul>
-              </a>
-            </div>
+            {selectedTab === "my-articles" ? (
+              <MyArticles username={username} />
+            ) : (
+              <FavoritedArticles username={username} />
+            )}
 
             <ul className="pagination">
               <li className="page-item active">
@@ -126,5 +111,56 @@ function Profile() {
         </div>
       </div>
     </div>
+  )
+}
+
+type FollowToggleProps = Pick<Profile, "username" | "following">
+
+function FollowToggle({ username, following }: FollowToggleProps) {
+  const [followUserMutation] = api.useFollowUserMutation()
+  const [unfollowUserMutation] = api.useUnfollowUserMutation()
+  const label = following ? ` Unfollow ${username}` : ` Follow ${username}`
+
+  useEffect(() => {
+    console.log(username, following, label)
+  }, [username, following, label])
+
+  return (
+    <button
+      className="btn btn-sm btn-outline-secondary action-btn"
+      onClick={async () => {
+        try {
+          const result = following ? await unfollowUserMutation(username) : await followUserMutation(username)
+          console.log(result)
+        } catch (e) {
+          console.error(e)
+        }
+      }}
+    >
+      <i className="ion-plus-round"></i>
+      {label}
+    </button>
+  )
+}
+
+function MyArticles({ username }: Pick<Profile, "username">) {
+  const { data } = api.useListArticlesQuery({ author: username })
+  return (
+    <>
+      {data?.articles.map((a) => (
+        <ArticlePreview key={a.slug} article={a} />
+      ))}
+    </>
+  )
+}
+
+function FavoritedArticles({ username }: Pick<Profile, "username">) {
+  const { data } = api.useListArticlesQuery({ favorited: username })
+  return (
+    <>
+      {data?.articles.map((a) => (
+        <ArticlePreview key={a.slug} article={a} />
+      ))}
+    </>
   )
 }

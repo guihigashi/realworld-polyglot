@@ -16,18 +16,20 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository)
     extends ZioSocialGraph.ZSocialGraphService[AppContext]:
 
   override def getProfile(request: GetProfileRequest, context: AppContext): IO[StatusException, ProfileResponse] =
-    for
-      profile <- profileRepository
-        .getProfile(request.targetUsername)
-        .mapError {
-          case e: NoSuchElementException => StatusException(Status.NOT_FOUND.withDescription(e.getMessage))
-          case e                         => StatusException(Status.INTERNAL.withDescription(e.getMessage))
-        }
+    (for
+      profile   <- profileRepository.getProfile(request.targetUsername)
+      following <- context.requestorId match
+        case Some(value) => profileRepository.isRequestorFollowing(value, request.targetUsername)
+        case None        => ZIO.succeed(false)
     yield ProfileResponse(
       username = profile._1,
       bio = profile._2,
       image = profile._3,
-    )
+      following = following,
+    )).mapError {
+      case e: NoSuchElementException => StatusException(Status.NOT_FOUND.withDescription(e.getMessage))
+      case e                         => StatusException(Status.INTERNAL.withDescription(e.getMessage))
+    }
 
   override def followUser(request: FollowRequest, context: AppContext): IO[StatusException, ProfileResponse] =
     for
