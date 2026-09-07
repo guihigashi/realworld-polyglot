@@ -39,7 +39,6 @@ object ProfileRepository:
               _.execute(getProfileQuery)(username).map(_.headOption)
             }
             .someOrFail(new NoSuchElementException(s"Profile not found for username: $username"))
-            .debug
 
         private val followCommand: Command[(RequestorId, String)] =
           sql"""insert into follows (follower_id, followed_id)
@@ -84,11 +83,7 @@ object ProfileRepository:
             bio: Option[String],
             image: Option[String]
         ): Task[Unit] =
-          pool
-            .use {
-              _.execute(upsertCommand)((userId, username, bio, image)).unit
-            }
-            .debug
+          pool.use(_.execute(upsertCommand)((userId, username, bio, image)).unit)
 
         private val selectProfilesByIds: Query[Arr[UUID], (UUID, (String, Option[String], Option[String]))] =
           sql"""select user_id, username, bio, image
@@ -113,17 +108,15 @@ object ProfileRepository:
           if usernames.isEmpty then
             ZIO.succeed(Nil)
           else
-            pool
-              .use {
-                _.execute(selectIdsByUsernames)(Arr.fromFoldable(usernames))
-                  .map { rows =>
-                    val resultMap = rows.toMap
-                    usernames.map { username =>
-                      username -> resultMap.get(username)
-                    }
+            pool.use {
+              _.execute(selectIdsByUsernames)(Arr.fromFoldable(usernames))
+                .map { rows =>
+                  val resultMap = rows.toMap
+                  usernames.map { username =>
+                    username -> resultMap.get(username)
                   }
-              }
-              .debug
+                }
+            }
 
         private val selectFollowing: Query[RequestorId, UUID] =
           sql"""select followed_id
@@ -131,7 +124,7 @@ object ProfileRepository:
                |where follower_id = ${RequestorId.codec}""".stripMargin.query(uuid)
 
         override def getFollowing(id: RequestorId): Task[List[UUID]] =
-          pool.use(_.execute(selectFollowing)(id)).debug
+          pool.use(_.execute(selectFollowing)(id))
 
         private val selectIsRequestorFollowing: Query[(RequestorId, String), Boolean] =
           sql"""select exists(select 1
