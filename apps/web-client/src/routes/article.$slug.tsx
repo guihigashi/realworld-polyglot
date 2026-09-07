@@ -6,7 +6,7 @@ import { clsx } from "clsx"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { addCommentRequestSchema } from "../types/schemas.ts"
-import type { ComponentProps, ReactNode } from "react"
+import { type ComponentProps, type ReactNode } from "react"
 import dayjs from "dayjs"
 
 export const Route = createFileRoute("/article/$slug")({
@@ -188,7 +188,7 @@ function Article() {
 }
 
 function AddCommentForm({ slug, profile }: { slug: string } & Pick<ComponentProps<typeof ProfileAvatar>, "profile">) {
-  const { register, handleSubmit } = useForm<AddCommentRequest>({
+  const { register, handleSubmit, resetField } = useForm<AddCommentRequest>({
     defaultValues: {
       body: "",
     },
@@ -203,6 +203,8 @@ function AddCommentForm({ slug, profile }: { slug: string } & Pick<ComponentProp
       onSubmit={handleSubmit(async (data) => {
         try {
           await addComment({ slug, comment: data }).unwrap()
+
+          resetField("body")
         } catch (e) {
           console.error(e)
         }
