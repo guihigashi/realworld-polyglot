@@ -1,8 +1,8 @@
 import {
   addCommentRequestSchema,
   articleSchema,
-  commentSchema,
   articleSummarySchema,
+  commentSchema,
   createArticleRequestSchema,
   loginRequestSchema,
   profileSchema,
@@ -15,8 +15,7 @@ import { z } from "zod"
 declare global {
   type LoginRequest = z.infer<typeof loginRequestSchema>
   type RegisterRequest = z.infer<typeof registerRequestSchema>
-  type UpdateUserRequestIn = z.input<typeof updateUserRequestSchema>
-  type UpdateUserRequestOut = z.output<typeof updateUserRequestSchema>
+  type UpdateUserRequest = z.infer<typeof updateUserRequestSchema>
 
   type CreateArticleRequestIn = z.input<typeof createArticleRequestSchema>
   type CreateArticleRequestOut = z.output<typeof createArticleRequestSchema>

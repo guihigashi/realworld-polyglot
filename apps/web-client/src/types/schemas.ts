@@ -1,5 +1,4 @@
 import { z } from "zod"
-import { removeEmptyValues } from "../utils/object.ts"
 
 export const userSchema = z.object({
   email: z.email(),
@@ -26,14 +25,13 @@ export const registerRequestSchema = userSchema
     password: z.string(),
   })
 
-export const updateUserRequestSchema = userSchema
-  .omit({
-    token: true,
-  })
-  .extend({
-    password: z.string(),
-  })
-  .transform(removeEmptyValues)
+export const updateUserRequestSchema = z.object({
+  image: z.string(),
+  email: z.email(),
+  username: z.string(),
+  bio: z.string(),
+  password: z.string(),
+}).partial()
 
 export const profileSchema = userSchema
   .omit({

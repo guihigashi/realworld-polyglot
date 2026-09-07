@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { api } from "../state/api.ts"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { updateUserRequestSchema } from "../types/schemas.ts"
+import { z } from "zod"
 
 export const Route = createFileRoute("/settings")({
   component: Settings,
@@ -15,12 +16,16 @@ export const Route = createFileRoute("/settings")({
   },
 })
 
-function defaultValuesFromAuth(auth: AuthState): UpdateUserRequestIn {
+const updateUserFormSchema = updateUserRequestSchema.required()
+
+type UpdateUserForm = z.infer<typeof updateUserFormSchema>
+
+function defaultValuesFromAuth(auth: AuthState): UpdateUserForm {
   if (auth.status === "authenticated") {
     return {
-      image: auth.user.image,
+      image: auth.user.image ?? "",
       username: auth.user.username,
-      bio: auth.user.bio,
+      bio: auth.user.bio ?? "",
       email: auth.user.email,
       password: "",
     }
@@ -33,11 +38,15 @@ function Settings() {
   const dispatch = useAppDispatch()
   const auth = useAppSelector((state) => state.auth)
   const router = useRouter()
-  const navigate = useNavigate({from: Route.to})
+  const navigate = useNavigate({ from: Route.to })
 
-  const { register, handleSubmit } = useForm<UpdateUserRequestIn, any, UpdateUserRequestOut>({
+  const {
+    register,
+    handleSubmit,
+    formState: { touchedFields },
+  } = useForm<UpdateUserForm>({
     defaultValues: defaultValuesFromAuth(auth),
-    resolver: zodResolver(updateUserRequestSchema),
+    resolver: zodResolver(updateUserFormSchema),
   })
 
   const [updateUserMutation] = api.useUpdateUserMutation()
@@ -55,8 +64,17 @@ function Settings() {
 
             <form
               onSubmit={handleSubmit(async (data) => {
+                const payload: UpdateUserRequest = {}
+
+                for (const k of Object.keys(touchedFields)) {
+                  const key = k as keyof UpdateUserForm
+                  if (touchedFields[key]) {
+                    payload[key] = data[key]
+                  }
+                }
+
                 try {
-                  const { user } = await updateUserMutation({ user: data }).unwrap()
+                  const { user } = await updateUserMutation({ user: payload }).unwrap()
 
                   await navigate({
                     to: "/profile/$username",

@@ -10,6 +10,7 @@ authListenerMiddleware.startListening({
     api.endpoints.login.matchFulfilled,
     api.endpoints.register.matchFulfilled,
     api.endpoints.getCurrentUser.matchFulfilled,
+    api.endpoints.updateUser.matchFulfilled,
     logout,
   ),
   effect: (_action, api) => {

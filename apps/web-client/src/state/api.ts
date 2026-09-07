@@ -30,7 +30,7 @@ export const api = createApi({
         headers: token ? { authorization: `Token ${token}` } : undefined,
       }),
     }),
-    updateUser: build.mutation<WrapUser<User>, WrapUser<UpdateUserRequestOut>>({
+    updateUser: build.mutation<WrapUser<User>, WrapUser<UpdateUserRequest>>({
       query: (body) => ({ url: "/user", method: "PUT", body }),
     }),
     getProfile: build.query<WrapProfile<Profile>, string>({
