@@ -8,8 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test:e2e": "cross-env NODE_PATH=./node_modules playwright test",
-    "test:e2e:ui": "cross-env NODE_PATH=./node_modules playwright test --ui"
+    "test:e2e": "cross-env NODE_PATH=./node_modules TEST_MODE=fullstack playwright test",
+    "test:e2e:ui": "cross-env NODE_PATH=./node_modules TEST_MODE=fullstack playwright test --ui"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

@@ -20,6 +20,7 @@ trait ProfileRepository:
   def upsert(userId: RequestorId, username: String, bio: Option[String], image: Option[String]): Task[Unit]
   def resolveIdsByUsernames(usernames: List[String]): Task[List[(String, Option[UUID])]]
   def getFollowing(id: RequestorId): Task[List[UUID]]
+  def isRequestorFollowing(followerId: RequestorId, followeeUsername: String): Task[Boolean]
 
 object ProfileRepository:
   val live =
@@ -131,5 +132,18 @@ object ProfileRepository:
 
         override def getFollowing(id: RequestorId): Task[List[UUID]] =
           pool.use(_.execute(selectFollowing)(id)).debug
+
+        private val selectIsRequestorFollowing: Query[(RequestorId, String), Boolean] =
+          sql"""select exists(select 1
+               |              from follows f
+               |                       inner join profiles p on f.followed_id = p.user_id
+               |              where f.follower_id = ${RequestorId.codec}
+               |                and p.username = $varchar)
+               |""".stripMargin.query(bool)
+
+        override def isRequestorFollowing(followerId: RequestorId, followeeUsername: String): Task[Boolean] =
+          pool.use(_
+            .execute(selectIsRequestorFollowing)(followerId, followeeUsername)
+            .map(_.headOption.getOrElse(false)))
 
     }

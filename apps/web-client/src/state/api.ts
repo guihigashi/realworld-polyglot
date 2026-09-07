@@ -15,7 +15,7 @@ export const api = createApi({
       return headers
     },
   }),
-  tagTypes: ["CurrentUser", "Comment"],
+  tagTypes: ["CurrentUser", "Profile", "Article", "ArticleSummary", "Comment"],
   endpoints: (build) => ({
     login: build.mutation<WrapUser<User>, WrapUser<LoginRequest>>({
       query: (body) => ({ url: "/users/login", method: "POST", body }),
@@ -35,6 +35,15 @@ export const api = createApi({
     }),
     getProfile: build.query<WrapProfile<Profile>, string>({
       query: (username) => ({ url: `/profiles/${username}`, method: "GET" }),
+      providesTags: (_result, error, arg) => (error ? [] : [{ type: "Profile", id: arg }]),
+    }),
+    followUser: build.mutation<WrapProfile<Profile>, string>({
+      query: (username) => ({ url: `/profiles/${username}/follow`, method: "POST" }),
+      invalidatesTags: (_result, error, arg) => (error ? [] : [{ type: "Profile", id: arg }]),
+    }),
+    unfollowUser: build.mutation<WrapProfile<Profile>, string>({
+      query: (username) => ({ url: `/profiles/${username}/follow`, method: "DELETE" }),
+      invalidatesTags: (_result, error, arg) => (error ? [] : [{ type: "Profile", id: arg }]),
     }),
     listArticles: build.query<
       WrapArticles<ArticleSummary>,
@@ -48,21 +57,57 @@ export const api = createApi({
       | undefined
     >({
       query: (params) => ({ url: "/articles", method: "GET", params }),
+      providesTags: (result, error) => {
+        if (error) return []
+
+        const tags: TagDescription<"ArticleSummary">[] = [{ type: "ArticleSummary", id: "LIST" }]
+
+        if (result) {
+          for (const a of result.articles) {
+            tags.push({ type: "ArticleSummary", id: a.slug })
+          }
+        }
+
+        return tags
+      },
     }),
     feedArticles: build.query<WrapArticles<ArticleSummary>, { limit?: number; offset?: number } | undefined>({
       query: (params) => ({ url: "/articles/feed", method: "GET", params }),
+      providesTags: (result, error) => {
+        if (error) return []
+
+        const tags: TagDescription<"ArticleSummary">[] = [{ type: "ArticleSummary", id: "LIST" }]
+
+        if (result) {
+          for (const a of result.articles) {
+            tags.push({ type: "ArticleSummary", id: a.slug })
+          }
+        }
+
+        return tags
+      },
     }),
     getArticle: build.query<WrapArticle<Article>, string>({
       query: (slug) => ({ url: `/articles/${slug}`, method: "GET" }),
+      providesTags: (_result, error, slug) => (error ? [] : [{ type: "Article", id: slug }]),
     }),
     createArticle: build.mutation<WrapArticle<Article>, WrapArticle<CreateArticleRequestOut>>({
       query: (body) => ({ url: "/articles", method: "POST", body }),
+      invalidatesTags: (_result, error) => (error ? [] : [{ type: "ArticleSummary", id: "LIST" }]),
     }),
     updateArticle: build.mutation<WrapArticle<Article>, WrapArticle<CreateArticleRequestOut> & { slug: string }>({
       query: ({ slug, ...body }) => ({ url: `/articles/${slug}`, method: "PUT", body }),
+      invalidatesTags: (_result, error, { slug }) => (error ? [] : [{ type: "ArticleSummary", id: slug }]),
     }),
     deleteArticle: build.mutation<void, string>({
       query: (slug) => ({ url: `/articles/${slug}`, method: "DELETE" }),
+      invalidatesTags: (_result, error, slug) =>
+        error
+          ? []
+          : [
+              { type: "ArticleSummary", id: slug },
+              { type: "ArticleSummary", id: "LIST" },
+            ],
     }),
     addComment: build.mutation<WrapComment<ArticleComment>, WrapComment<AddCommentRequest> & { slug: string }>({
       query: ({ slug, ...body }) => ({ url: `/articles/${slug}/comments`, method: "POST", body }),
@@ -70,7 +115,9 @@ export const api = createApi({
     }),
     getComments: build.query<WrapComments<ArticleComment>, string>({
       query: (slug) => ({ url: `/articles/${slug}/comments`, method: "GET" }),
-      providesTags: (result, _error, slug) => {
+      providesTags: (result, error, slug) => {
+        if (error) return []
+
         const tags: TagDescription<"Comment">[] = [{ type: "Comment", id: `LIST-${slug}` }]
 
         if (result) {
@@ -94,9 +141,11 @@ export const api = createApi({
     }),
     favoriteArticle: build.mutation<WrapArticle<Article>, string>({
       query: (slug) => ({ url: `/articles/${slug}/favorite`, method: "POST" }),
+      invalidatesTags: (_result, error, slug) => (error ? [] : [{ type: "ArticleSummary", id: slug }]),
     }),
     unfavoriteArticle: build.mutation<WrapArticle<Article>, string>({
       query: (slug) => ({ url: `/articles/${slug}/favorite`, method: "DELETE" }),
+      invalidatesTags: (_result, error, slug) => (error ? [] : [{ type: "ArticleSummary", id: slug }]),
     }),
     getTags: build.query<{ tags: string[] }, void>({
       query: () => ({ url: "/tags", method: "GET" }),
