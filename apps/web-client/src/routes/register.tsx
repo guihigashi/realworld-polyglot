@@ -18,9 +18,9 @@ function Register() {
     resolver: zodResolver(registerRequestSchema),
   })
 
-  const [registerMutation, result] = api.useRegisterMutation()
+  const [registerMutation] = api.useRegisterMutation()
 
-  const navigate = useNavigate({from: Route.to})
+  const navigate = useNavigate({ from: Route.to })
 
   return (
     <div className="auth-page">

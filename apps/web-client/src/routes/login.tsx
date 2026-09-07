@@ -17,9 +17,9 @@ function Login() {
     resolver: zodResolver(loginRequestSchema),
   })
 
-  const [loginMutation, results] = api.useLoginMutation()
+  const [loginMutation] = api.useLoginMutation()
 
-  const navigate = useNavigate({from: Route.to})
+  const navigate = useNavigate({ from: Route.to })
 
   return (
     <div className="auth-page">
@@ -38,7 +38,7 @@ function Login() {
             <form
               onSubmit={handleSubmit(async (data) => {
                 try {
-                  const user = await loginMutation({ user: data }).unwrap()
+                  await loginMutation({ user: data }).unwrap()
 
                   await navigate({ to: "/" })
                 } catch (e) {
@@ -72,4 +72,3 @@ function Login() {
     </div>
   )
 }
-

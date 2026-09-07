@@ -11,7 +11,11 @@ export default function FavoriteToggle({ slug, favorited, favoritesCount }: Favo
       className="btn btn-outline-primary btn-sm pull-xs-right"
       onClick={async () => {
         try {
-          const result = favorited ? await unfavorite(slug) : await favorite(slug)
+          if (favorited) {
+            await unfavorite(slug)
+          } else {
+            await favorite(slug)
+          }
         } catch (e) {
           console.error(e)
         }

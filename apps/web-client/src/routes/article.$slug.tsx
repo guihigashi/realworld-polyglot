@@ -58,9 +58,11 @@ function Article() {
               className={clsx("btn", "btn-sm", article.favorited ? "btn-primary" : "btn-outline-primary")}
               onClick={async () => {
                 try {
-                  const result = article.favorited
-                    ? await unfavoriteArticle(article.slug).unwrap()
-                    : await favoriteArticle(article.slug).unwrap()
+                  if (article.favorited) {
+                    await unfavoriteArticle(article.slug).unwrap()
+                  } else {
+                    await favoriteArticle(article.slug).unwrap()
+                  }
 
                   await router.invalidate()
                 } catch (e) {
