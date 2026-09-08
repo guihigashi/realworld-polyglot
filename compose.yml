@@ -12,7 +12,18 @@ services:
       - ./dev/postgres/initdb.d:/docker-entrypoint-initdb.d:z
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U realworld" ]
-      interval: 2s
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping" ]
+      interval: 10s
       timeout: 5s
       retries: 10
   gateway:
@@ -27,8 +38,10 @@ services:
       - ./dev/gateway/.env
     volumes:
       - ./dev/gateway/logs:/app/storage/logs:z
-    depends_on:
+    depends_on: &infrastructure_dependencies
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
   article-service:
     image: ghcr.io/guihigashi/realworld-polyglot/article-service:latest
@@ -38,9 +51,7 @@ services:
       dockerfile: ./Containerfile
     volumes:
       - ./dev/article-service/application.yml:/app/application.yml:z
-    depends_on:
-      postgres:
-        condition: service_healthy
+    depends_on: *infrastructure_dependencies
   feed-aggregator:
     image: ghcr.io/guihigashi/realworld-polyglot/feed-aggregator:latest
     build:
@@ -48,16 +59,13 @@ services:
       dockerfile: ./cmd/server/Containerfile
     volumes:
       - ./dev/feed-aggregator/feed-aggregator.yml:/app/feed-aggregator.yml:z
-    depends_on:
-      postgres:
-        condition: service_healthy
+    depends_on: *infrastructure_dependencies
   social-graph:
     image: ghcr.io/guihigashi/realworld-polyglot/social-graph:0.1.0-SNAPSHOT
     command: -Dconfig.file=/opt/docker/application.conf
     volumes:
       - ./dev/social-graph/application.conf:/opt/docker/application.conf:z
-    depends_on:
-      postgres:
-        condition: service_healthy
+    depends_on: *infrastructure_dependencies
 volumes:
   postgres_data:
+  redis_data:
