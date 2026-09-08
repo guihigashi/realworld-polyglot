@@ -55,6 +55,7 @@ function ProfileLayout() {
                     className="nav-link"
                     activeOptions={{ exact: true }}
                     activeProps={{ className: "active" }}
+                    resetScroll={false}
                   >
                     My Articles
                   </Link>
@@ -65,6 +66,7 @@ function ProfileLayout() {
                     params={{ username: username }}
                     className="nav-link"
                     activeProps={{ className: "active" }}
+                    resetScroll={false}
                   >
                     Favorited Articles
                   </Link>

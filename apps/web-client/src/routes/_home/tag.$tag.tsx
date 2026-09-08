@@ -1,25 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { api } from "../../../state/api.ts"
-import { getLimitOffset } from "../../../utils/pagination.ts"
-import Pagination from "../../../components/pagination.tsx"
+import { api } from "../../state/api.ts"
+import Pagination from "../../components/pagination.tsx"
 import { z } from "zod"
-import { isDefined } from "../../../utils/object.ts"
-import ArticlePreviewList from "../../../components/article-preview-list.tsx"
+import { getLimitOffset } from "../../utils/pagination.ts"
+import { isDefined } from "../../utils/object.ts"
+import ArticlePreviewList from "../../components/article-preview-list.tsx"
 
 const searchSchema = z.object({
   page: z.number().int().positive().optional(),
 })
 
-export const Route = createFileRoute("/profile/$username/")({
-  component: MyArticles,
+export const Route = createFileRoute("/_home/tag/$tag")({
+  component: FeedByTag,
   validateSearch: searchSchema,
 })
 
-function MyArticles() {
-  const { username } = Route.useParams()
+function FeedByTag() {
+  const { tag } = Route.useParams()
   const { page } = Route.useSearch()
   const { data } = api.useListArticlesQuery({
-    author: username,
+    tag,
     ...getLimitOffset(page),
   })
 

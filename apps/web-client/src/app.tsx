@@ -13,6 +13,7 @@ const router = createRouter({
       status: "loading",
     },
   },
+  scrollRestoration: true,
 })
 
 declare module "@tanstack/react-router" {
