@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router"
+import { createFileRoute, Link, Outlet, useLocation, useParams } from "@tanstack/react-router"
 import TagList from "./-tag-list.tsx"
 import { clsx } from "clsx"
 
@@ -6,11 +6,20 @@ export const Route = createFileRoute("/_home")({
   component: HomeLayout,
 })
 
-type FeedType = "your-feed" | "global-feed"
+type FeedType = { type: "your-feed" } | { type: "global-feed" } | { type: "tag"; tag: string }
 function useFeedType(): FeedType {
   const location = useLocation()
+  const { tag } = useParams({ strict: false })
 
-  return location.search.feed === "following" ? "your-feed" : "global-feed"
+  if (tag) {
+    return { type: "tag", tag }
+  }
+
+  if (location.search.feed === "following") {
+    return { type: "your-feed" }
+  }
+
+  return { type: "global-feed" }
 }
 
 function HomeLayout() {
@@ -34,7 +43,7 @@ function HomeLayout() {
                   <Link
                     to="/"
                     search={(prev) => ({ ...prev, feed: "following" })}
-                    className={clsx("nav-link", feedType === "your-feed" && "active")}
+                    className={clsx("nav-link", feedType.type === "your-feed" && "active")}
                     activeOptions={{ exact: true }}
                     resetScroll={false}
                   >
@@ -44,13 +53,18 @@ function HomeLayout() {
                 <li className="nav-item">
                   <Link
                     to="/"
-                    className={clsx("nav-link", feedType === "global-feed" && "active")}
+                    className={clsx("nav-link", feedType.type === "global-feed" && "active")}
                     activeOptions={{ exact: true }}
                     resetScroll={false}
                   >
                     Global Feed
                   </Link>
                 </li>
+                {feedType.type === "tag" && (
+                  <li className="nav-item">
+                    <span className="nav-link active">{feedType.tag}</span>
+                  </li>
+                )}
               </ul>
             </div>
 
