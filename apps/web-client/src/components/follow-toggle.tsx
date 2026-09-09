@@ -1,30 +1,36 @@
 import { api } from "../state/api.ts"
-import { useEffect } from "react"
+import { clsx } from "clsx"
 
-type FollowToggleProps = Pick<Profile, "username" | "following">
+type FollowToggleProps = {
+  profile: Pick<Profile, "username" | "following">
+  onSuccess?: () => void
+  variant?: "profile" | "article"
+}
 
-export default function FollowToggle({ username, following }: FollowToggleProps) {
-  const [followUserMutation] = api.useFollowUserMutation()
-  const [unfollowUserMutation] = api.useUnfollowUserMutation()
+export default function FollowToggle({ profile, onSuccess, variant }: FollowToggleProps) {
+  const { username, following } = profile
   const label = following ? ` Unfollow ${username}` : ` Follow ${username}`
 
-  useEffect(() => {
-    console.log(username, following, label)
-  }, [username, following, label])
+  const [followUserMutation] = api.useFollowUserMutation()
+  const [unfollowUserMutation] = api.useUnfollowUserMutation()
 
   return (
     <button
-      className="btn btn-sm btn-outline-secondary action-btn"
+      className={clsx("btn btn-sm btn-outline-secondary", variant === "profile" && "action-btn")}
       onClick={async () => {
         try {
-          const result = following ? await unfollowUserMutation(username) : await followUserMutation(username)
-          console.log(result)
+          if (following) {
+            await unfollowUserMutation(username)
+          } else {
+            await followUserMutation(username)
+          }
+          onSuccess?.()
         } catch (e) {
           console.error(e)
         }
       }}
     >
-      <i className="ion-plus-round"></i>
+      <i className="ion-plus-round" />
       {label}
     </button>
   )

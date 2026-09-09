@@ -29,7 +29,7 @@ function ProfileLayout() {
                   <h4>{profile.username}</h4>
                   <p>{profile.bio}</p>
                   {user && user.username !== profile.username ? (
-                    <FollowToggle {...profile} />
+                    <FollowToggle variant="profile" profile={profile} />
                   ) : (
                     <Link className="btn btn-sm btn-outline-secondary action-btn" to="/settings">
                       <i className="ion-gear-a"></i>

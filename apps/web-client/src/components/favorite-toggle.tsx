@@ -1,14 +1,21 @@
 import { api } from "../state/api.ts"
+import type { ComponentProps } from "react"
+import { clsx } from "clsx"
 
-type FavoriteToggleProps = Pick<Article, "slug" | "favorited" | "favoritesCount">
+type FavoriteToggleProps = {
+  article: Pick<Article, "slug" | "favorited" | "favoritesCount">
+  variant?: "icon-only" | "with-label"
+} & Pick<ComponentProps<"button">, "className">
 
-export default function FavoriteToggle({ slug, favorited, favoritesCount }: FavoriteToggleProps) {
+export default function FavoriteToggle({ article, variant = "with-label", className }: FavoriteToggleProps) {
+  const { slug, favorited, favoritesCount } = article
+
   const [favorite] = api.useFavoriteArticleMutation()
   const [unfavorite] = api.useUnfavoriteArticleMutation()
 
   return (
     <button
-      className="btn btn-outline-primary btn-sm pull-xs-right"
+      className={clsx("btn btn-sm btn-outline-primary", className)}
       onClick={async () => {
         try {
           if (favorited) {
@@ -21,7 +28,14 @@ export default function FavoriteToggle({ slug, favorited, favoritesCount }: Favo
         }
       }}
     >
-      <i className="ion-heart"></i> {favoritesCount}
+      <i className="ion-heart" />
+      {variant === "icon-only" ? (
+        <>&nbsp; {favoritesCount}</>
+      ) : (
+        <>
+          &nbsp; {favorited ? "Unfavorite" : "Favorite"} Post <span className="counter">({favoritesCount})</span>
+        </>
+      )}
     </button>
   )
 }

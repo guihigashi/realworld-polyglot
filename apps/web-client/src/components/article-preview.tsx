@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router"
 import ProfileAvatar from "./profile-avatar.tsx"
 import FavoriteToggle from "./favorite-toggle.tsx"
+import dayjs from "dayjs"
 
 export default function ArticlePreview({ article }: { article: ArticleSummary }) {
   return (
-    <div key={article.slug} className="article-preview">
+    <div className="article-preview">
       <div className="article-meta">
         <Link to="/profile/$username" params={{ username: article.author.username }}>
           <ProfileAvatar profile={article.author} />
@@ -13,9 +14,9 @@ export default function ArticlePreview({ article }: { article: ArticleSummary })
           <Link to="/profile/$username" params={{ username: article.author.username }} className="author">
             {article.author.username}
           </Link>
-          <span className="date">January 20th</span>
+          <span className="date">{dayjs(article.createdAt).format("MMMM Do")}</span>
         </div>
-        <FavoriteToggle {...article} />
+        <FavoriteToggle article={article} variant="icon-only" className="pull-xs-right" />
       </div>
       <Link className="preview-link" to="/article/$slug" params={{ slug: article.slug }}>
         <h1>{article.title}</h1>

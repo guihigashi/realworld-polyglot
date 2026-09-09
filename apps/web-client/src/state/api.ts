@@ -141,11 +141,23 @@ export const api = createApi({
     }),
     favoriteArticle: build.mutation<WrapArticle<Article>, string>({
       query: (slug) => ({ url: `/articles/${slug}/favorite`, method: "POST" }),
-      invalidatesTags: (_result, error, slug) => (error ? [] : [{ type: "ArticleSummary", id: slug }]),
+      invalidatesTags: (_result, error, slug) =>
+        error
+          ? []
+          : [
+              { type: "ArticleSummary", id: slug },
+              { type: "Article", id: slug },
+            ],
     }),
     unfavoriteArticle: build.mutation<WrapArticle<Article>, string>({
       query: (slug) => ({ url: `/articles/${slug}/favorite`, method: "DELETE" }),
-      invalidatesTags: (_result, error, slug) => (error ? [] : [{ type: "ArticleSummary", id: slug }]),
+      invalidatesTags: (_result, error, slug) =>
+        error
+          ? []
+          : [
+              { type: "ArticleSummary", id: slug },
+              { type: "Article", id: slug },
+            ],
     }),
     getTags: build.query<{ tags: string[] }, void>({
       query: () => ({ url: "/tags", method: "GET" }),
