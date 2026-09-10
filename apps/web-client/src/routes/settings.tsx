@@ -6,6 +6,7 @@ import { api } from "../state/api.ts"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { updateUserRequestSchema } from "../types/schemas.ts"
 import { z } from "zod"
+import { handleFormError } from "../utils/helpers.ts"
 
 export const Route = createFileRoute("/settings")({
   component: Settings,
@@ -43,7 +44,9 @@ function Settings() {
   const {
     register,
     handleSubmit,
-    formState: { touchedFields },
+    formState: { touchedFields, errors, isDirty },
+    setError,
+    clearErrors,
   } = useForm<UpdateUserForm>({
     defaultValues: defaultValuesFromAuth(auth),
     resolver: zodResolver(updateUserFormSchema),
@@ -58,9 +61,11 @@ function Settings() {
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1 className="text-xs-center">Your Settings</h1>
 
-            <ul className="error-messages">
-              <li>That name is required</li>
-            </ul>
+            {errors.root && (
+              <ul className="error-messages">
+                <li>{errors.root.message}</li>
+              </ul>
+            )}
 
             <form
               onSubmit={handleSubmit(async (data) => {
@@ -73,6 +78,7 @@ function Settings() {
                   }
                 }
 
+                clearErrors()
                 try {
                   const { user } = await updateUserMutation({ user: payload }).unwrap()
 
@@ -83,7 +89,7 @@ function Settings() {
                     },
                   })
                 } catch (e) {
-                  console.error(e)
+                  handleFormError(e, setError, (s) => s.replace(/^user\./, ""))
                 }
               })}
             >
@@ -95,6 +101,7 @@ function Settings() {
                     placeholder="URL of profile picture"
                     {...register("image")}
                   />
+                  {errors.image && <span className="form-field-error-message">{errors.image.message}</span>}
                 </fieldset>
                 <fieldset className="form-group">
                   <input
@@ -103,6 +110,7 @@ function Settings() {
                     placeholder="Your Name"
                     {...register("username")}
                   />
+                  {errors.username && <span className="form-field-error-message">{errors.username.message}</span>}
                 </fieldset>
                 <fieldset className="form-group">
                   <textarea
@@ -110,7 +118,8 @@ function Settings() {
                     rows={8}
                     placeholder="Short bio about you"
                     {...register("bio")}
-                  ></textarea>
+                  />
+                  {errors.bio && <span className="form-field-error-message">{errors.bio.message}</span>}
                 </fieldset>
                 <fieldset className="form-group">
                   <input
@@ -119,6 +128,7 @@ function Settings() {
                     placeholder="Email"
                     {...register("email")}
                   />
+                  {errors.email && <span className="form-field-error-message">{errors.email.message}</span>}
                 </fieldset>
                 <fieldset className="form-group">
                   <input
@@ -127,8 +137,9 @@ function Settings() {
                     placeholder="New Password"
                     {...register("password")}
                   />
+                  {errors.password && <span className="form-field-error-message">{errors.password.message}</span>}
                 </fieldset>
-                <button type="submit" className="btn btn-lg btn-primary pull-xs-right">
+                <button type="submit" className="btn btn-lg btn-primary pull-xs-right" disabled={!isDirty}>
                   Update Settings
                 </button>
               </fieldset>

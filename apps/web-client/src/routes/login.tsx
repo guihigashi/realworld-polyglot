@@ -3,13 +3,20 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { loginRequestSchema } from "../types/schemas.ts"
 import { api } from "../state/api.ts"
+import { handleFormError } from "../utils/helpers.ts"
 
 export const Route = createFileRoute("/login")({
   component: Login,
 })
 
 function Login() {
-  const { register, handleSubmit } = useForm<LoginRequest>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+    clearErrors,
+  } = useForm<LoginRequest>({
     defaultValues: {
       email: "",
       password: "",
@@ -31,18 +38,21 @@ function Login() {
               <Link to="/register">Need an account?</Link>
             </p>
 
-            <ul className="error-messages">
-              <li>That email is already taken</li>
-            </ul>
+            {errors.root && (
+              <ul className="error-messages">
+                <li>{errors.root.message}</li>
+              </ul>
+            )}
 
             <form
               onSubmit={handleSubmit(async (data) => {
+                clearErrors()
                 try {
                   await loginMutation({ user: data }).unwrap()
 
                   await navigate({ to: "/" })
                 } catch (e) {
-                  console.error(e)
+                  handleFormError(e, setError)
                 }
               })}
             >
@@ -53,6 +63,7 @@ function Login() {
                   placeholder="Email"
                   {...register("email")}
                 />
+                {errors.email && <span className="form-field-error-message">{errors.email.message}</span>}
               </fieldset>
               <fieldset className="form-group">
                 <input
@@ -61,6 +72,7 @@ function Login() {
                   placeholder="Password"
                   {...register("password")}
                 />
+                {errors.password && <span className="form-field-error-message">{errors.password.message}</span>}
               </fieldset>
               <button type="submit" className="btn btn-lg btn-primary pull-xs-right">
                 Sign in

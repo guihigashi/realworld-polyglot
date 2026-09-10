@@ -1,5 +1,7 @@
 import { z } from "zod"
 
+const passwordSchema = z.string().min(8).max(255)
+
 export const userSchema = z.object({
   email: z.email(),
   token: z.jwt(),
@@ -13,7 +15,7 @@ export const loginRequestSchema = userSchema
     email: true,
   })
   .extend({
-    password: z.string(),
+    password: passwordSchema,
   })
 
 export const registerRequestSchema = userSchema
@@ -22,16 +24,18 @@ export const registerRequestSchema = userSchema
     email: true,
   })
   .extend({
-    password: z.string(),
+    password: passwordSchema,
   })
 
-export const updateUserRequestSchema = z.object({
-  image: z.string(),
-  email: z.email(),
-  username: z.string(),
-  bio: z.string(),
-  password: z.string(),
-}).partial()
+export const updateUserRequestSchema = z
+  .object({
+    image: z.url(),
+    email: z.email(),
+    username: z.string(),
+    bio: z.string(),
+    password: passwordSchema,
+  })
+  .partial()
 
 export const profileSchema = userSchema
   .omit({

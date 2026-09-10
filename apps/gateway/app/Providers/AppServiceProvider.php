@@ -15,11 +15,14 @@ use App\Infrastructure\Auth\Providers\FirebaseJwtGenerator;
 use App\Infrastructure\Auth\Providers\LaravelPasswordHasher;
 use App\Infrastructure\Auth\Repositories\EloquentUserRepository;
 use App\Infrastructure\Feed\Services\GrpcFeedService;
+use App\Infrastructure\Grpc\TimeoutInterceptor;
 use App\Infrastructure\Profile\Services\GrpcSocialGraphService;
 use Generated\Grpc\Article\ArticleServiceClient;
 use Generated\Grpc\Feed\FeedServiceClient;
 use Generated\Grpc\SocialGraph\SocialGraphServiceClient;
+use Grpc\Channel;
 use Grpc\ChannelCredentials;
+use Grpc\Interceptor;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -35,21 +38,33 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(JwtDecoderInterface::class, FirebaseJwtDecoder::class);
 
         $this->app->singleton(ArticleServiceClient::class, function () {
+            $channel = new Channel(config('grpc.article-service.target'), $this->grpcChannelOptions());
+            $interceptedChannel = Interceptor::intercept($channel, new TimeoutInterceptor);
+
             return new ArticleServiceClient(
                 config('grpc.article-service.target'),
-                $this->grpcChannelOptions()
+                $this->grpcChannelOptions(),
+                $interceptedChannel
             );
         });
         $this->app->singleton(FeedServiceClient::class, function () {
+            $channel = new Channel(config('grpc.feed-aggregator.target'), $this->grpcChannelOptions());
+            $interceptedChannel = Interceptor::intercept($channel, new TimeoutInterceptor);
+
             return new FeedServiceClient(
                 config('grpc.feed-aggregator.target'),
-                $this->grpcChannelOptions()
+                $this->grpcChannelOptions(),
+                $interceptedChannel
             );
         });
         $this->app->singleton(SocialGraphServiceClient::class, function () {
+            $channel = new Channel(config('grpc.social-graph.target'), $this->grpcChannelOptions());
+            $interceptedChannel = Interceptor::intercept($channel, new TimeoutInterceptor);
+
             return new SocialGraphServiceClient(
                 config('grpc.social-graph.target'),
-                $this->grpcChannelOptions()
+                $this->grpcChannelOptions(),
+                $interceptedChannel
             );
         });
 

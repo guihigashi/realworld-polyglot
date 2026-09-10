@@ -38,6 +38,13 @@ declare global {
   type WrapComment<T> = { comment: T }
   type WrapComments<T> = { comments: T[] }
 
+  type LaravelError = {
+    status: number
+    data: {
+      errors: Record<string, string[]>
+    }
+  }
+
   interface ConduitDebug {
     getToken: () => string | null
     getAuthState: () => "authenticated" | "unauthenticated" | "unavailable" | "loading"

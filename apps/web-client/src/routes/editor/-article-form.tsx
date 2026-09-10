@@ -4,6 +4,8 @@ import { createArticleRequestSchema } from "../../types/schemas.ts"
 import { type KeyboardEvent, useState } from "react"
 import { api } from "../../state/api.ts"
 import { useNavigate } from "@tanstack/react-router"
+import { handleFormError } from "../../utils/helpers.ts"
+import { useDispatch } from "react-redux"
 
 function initialValue(article?: Article): CreateArticleRequestIn {
   if (article) {
@@ -29,7 +31,14 @@ type ArticleFormProps = {
 export default function ArticleForm({ article }: ArticleFormProps) {
   const isEditing = typeof article?.slug === "string"
 
-  const { register, handleSubmit, control } = useForm<CreateArticleRequestIn, unknown, CreateArticleRequestOut>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isDirty },
+    setError,
+    clearErrors,
+  } = useForm<CreateArticleRequestIn, unknown, CreateArticleRequestOut>({
     values: initialValue(article),
     resolver: zodResolver(createArticleRequestSchema),
   })
@@ -52,6 +61,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
 
   const [createArticleMutation] = api.useCreateArticleMutation()
   const [updateArticleMutation] = api.useUpdateArticleMutation()
+  const dispatch = useDispatch()
 
   const navigate = useNavigate()
 
@@ -60,20 +70,34 @@ export default function ArticleForm({ article }: ArticleFormProps) {
       <div className="container page">
         <div className="row">
           <div className="col-md-10 offset-md-1 col-xs-12">
-            <ul className="error-messages">
-              <li>That title is required</li>
-            </ul>
+            {errors.root && (
+              <ul className="error-messages">
+                <li>{errors.root.message}</li>
+              </ul>
+            )}
 
             <form
               onSubmit={handleSubmit(async (data) => {
+                clearErrors()
                 try {
-                  const { article: newArticle } = isEditing
-                    ? await updateArticleMutation({ slug: article.slug, article: data }).unwrap()
-                    : await createArticleMutation({ article: data }).unwrap()
+                  let newArticle: Article
+
+                  if (isEditing) {
+                    const payload = await updateArticleMutation({ slug: article.slug, article: data }).unwrap()
+
+                    if (article.slug === payload.article.slug) {
+                      dispatch(api.util.invalidateTags([{ type: "Article", id: article.slug }]))
+                    }
+
+                    newArticle = payload.article
+                  } else {
+                    const payload = await createArticleMutation({ article: data }).unwrap()
+                    newArticle = payload.article
+                  }
 
                   await navigate({ to: "/article/$slug", params: { slug: newArticle.slug } })
                 } catch (e) {
-                  console.error(e)
+                  handleFormError(e, setError)
                 }
               })}
             >
@@ -85,6 +109,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
                     placeholder="Article Title"
                     {...register("title")}
                   />
+                  {errors.title && <span className="form-field-error-message">{errors.title.message}</span>}
                 </fieldset>
                 <fieldset className="form-group">
                   <input
@@ -93,6 +118,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
                     placeholder="What's this article about?"
                     {...register("description")}
                   />
+                  {errors.description && <span className="form-field-error-message">{errors.description.message}</span>}
                 </fieldset>
                 <fieldset className="form-group">
                   <textarea
@@ -100,7 +126,8 @@ export default function ArticleForm({ article }: ArticleFormProps) {
                     rows={8}
                     placeholder="Write your article (in markdown)"
                     {...register("body")}
-                  ></textarea>
+                  />
+                  {errors.body && <span className="form-field-error-message">{errors.body.message}</span>}
                 </fieldset>
                 <fieldset className="form-group">
                   <input
@@ -120,7 +147,7 @@ export default function ArticleForm({ article }: ArticleFormProps) {
                     ))}
                   </div>
                 </fieldset>
-                <button className="btn btn-lg pull-xs-right btn-primary" type="submit">
+                <button className="btn btn-lg pull-xs-right btn-primary" type="submit" disabled={!isDirty}>
                   Publish Article
                 </button>
               </fieldset>

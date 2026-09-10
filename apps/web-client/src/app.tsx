@@ -5,6 +5,7 @@ import { routeTree } from "./routeTree.gen.ts"
 import { useAppDispatch, useAppSelector } from "./state/hooks.ts"
 import { useEffect } from "react"
 import { makeConduitDebug, verifyStoredToken } from "./state/authSlice.ts"
+import "./styles.css"
 
 const router = createRouter({
   routeTree,

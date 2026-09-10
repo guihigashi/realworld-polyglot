@@ -15,14 +15,18 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
       auto-commit: false
+      leak-detection-threshold: 30000
   jpa:
     hibernate:
       ddl-auto: update
+    open-in-view: false
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        connection:
+          provider_disables_autocommit: true
   grpc:
     server:
       port: 9092

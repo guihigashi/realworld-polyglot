@@ -3,13 +3,20 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { registerRequestSchema } from "../types/schemas"
 import { api } from "../state/api.ts"
+import { handleFormError } from "../utils/helpers.ts"
 
 export const Route = createFileRoute("/register")({
   component: Register,
 })
 
 function Register() {
-  const { register, handleSubmit } = useForm<RegisterRequest>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+    clearErrors
+  } = useForm<RegisterRequest>({
     defaultValues: {
       username: "",
       email: "",
@@ -32,19 +39,21 @@ function Register() {
               <Link to="/login">Have an account?</Link>
             </p>
 
-            <ul className="error-messages">
-              <li>That email is already taken</li>
-            </ul>
+            {errors.root && (
+              <ul className="error-messages">
+                <li>{errors.root.message}</li>
+              </ul>
+            )}
 
             <form
               onSubmit={handleSubmit(async (data) => {
+              clearErrors()
                 try {
-                  const user = await registerMutation({ user: data }).unwrap()
+                  await registerMutation({ user: data }).unwrap()
 
-                  console.log(user)
                   await navigate({ to: "/" })
                 } catch (e) {
-                  console.error(e)
+                  handleFormError(e, setError)
                 }
               })}
             >
@@ -55,6 +64,7 @@ function Register() {
                   placeholder="Username"
                   {...register("username")}
                 />
+                {errors.username && <span className="form-field-error-message">{errors.username.message}</span>}
               </fieldset>
               <fieldset className="form-group">
                 <input
@@ -63,6 +73,7 @@ function Register() {
                   placeholder="Email"
                   {...register("email")}
                 />
+                {errors.email && <span className="form-field-error-message">{errors.email.message}</span>}
               </fieldset>
               <fieldset className="form-group">
                 <input
@@ -71,6 +82,7 @@ function Register() {
                   placeholder="Password"
                   {...register("password")}
                 />
+                {errors.password && <span className="form-field-error-message">{errors.password.message}</span>}
               </fieldset>
               <button type="submit" className="btn btn-lg btn-primary pull-xs-right">
                 Sign up
