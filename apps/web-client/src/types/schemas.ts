@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-const passwordSchema = z.string().min(8).max(255)
+export const passwordSchema = z.string().min(8).max(255)
 
 export const userSchema = z.object({
   email: z.email(),
@@ -29,7 +29,7 @@ export const registerRequestSchema = userSchema
 
 export const updateUserRequestSchema = z
   .object({
-    image: z.url(),
+    image: z.url().or(z.literal("")),
     email: z.email(),
     username: z.string(),
     bio: z.string(),

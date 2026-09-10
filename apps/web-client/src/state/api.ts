@@ -32,6 +32,7 @@ export const api = createApi({
     }),
     updateUser: build.mutation<WrapUser<User>, WrapUser<UpdateUserRequest>>({
       query: (body) => ({ url: "/user", method: "PUT", body }),
+      invalidatesTags: (result, error) => (!error && result ? [{ type: "Profile", id: result.user.username }] : []),
     }),
     getProfile: build.query<WrapProfile<Profile>, string>({
       query: (username) => ({ url: `/profiles/${username}`, method: "GET" }),

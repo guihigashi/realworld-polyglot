@@ -17,7 +17,9 @@ export const Route = createFileRoute("/settings")({
   },
 })
 
-const updateUserFormSchema = updateUserRequestSchema.required()
+const updateUserFormSchema = updateUserRequestSchema.required().extend({
+  password: updateUserRequestSchema.shape.password.unwrap().or(z.literal("")),
+})
 
 type UpdateUserForm = z.infer<typeof updateUserFormSchema>
 
@@ -44,7 +46,7 @@ function Settings() {
   const {
     register,
     handleSubmit,
-    formState: { touchedFields, errors, isDirty },
+    formState: { touchedFields, errors },
     setError,
     clearErrors,
   } = useForm<UpdateUserForm>({
@@ -74,7 +76,9 @@ function Settings() {
                 for (const k of Object.keys(touchedFields)) {
                   const key = k as keyof UpdateUserForm
                   if (touchedFields[key]) {
-                    payload[key] = data[key]
+                    if (key !== "password" || data[key] !== "") {
+                      payload[key] = data[key]
+                    }
                   }
                 }
 
@@ -139,7 +143,7 @@ function Settings() {
                   />
                   {errors.password && <span className="form-field-error-message">{errors.password.message}</span>}
                 </fieldset>
-                <button type="submit" className="btn btn-lg btn-primary pull-xs-right" disabled={!isDirty}>
+                <button type="submit" className="btn btn-lg btn-primary pull-xs-right">
                   Update Settings
                 </button>
               </fieldset>
