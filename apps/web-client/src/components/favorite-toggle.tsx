@@ -15,7 +15,7 @@ export default function FavoriteToggle({ article, variant = "with-label", classN
 
   return (
     <button
-      className={clsx("btn btn-sm btn-outline-primary", className)}
+      className={clsx("btn btn-sm", favorited ? "btn-primary" : "btn-outline-primary", className)}
       onClick={async () => {
         try {
           if (favorited) {

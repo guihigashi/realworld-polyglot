@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, redirect } from "@tanstack/react-router"
 import { z } from "zod"
 import { api } from "../../state/api.ts"
 import Pagination from "../../components/pagination.tsx"
@@ -14,6 +14,11 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/_home/")({
   component: Index,
   validateSearch: searchSchema,
+  beforeLoad: ({ context, search }) => {
+    if (search.feed === "following" && context.auth.status !== "authenticated") {
+      throw redirect({ to: "/login" })
+    }
+  },
 })
 
 function Index() {

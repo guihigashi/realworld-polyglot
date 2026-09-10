@@ -4,6 +4,9 @@ import { clsx } from "clsx"
 
 export const Route = createFileRoute("/_home")({
   component: HomeLayout,
+  loader: ({ context }) => {
+    return { user: context.auth.status === "authenticated" ? context.auth.user : null }
+  },
 })
 
 type FeedType = { type: "your-feed" } | { type: "global-feed" } | { type: "tag"; tag: string }
@@ -24,6 +27,7 @@ function useFeedType(): FeedType {
 
 function HomeLayout() {
   const feedType = useFeedType()
+  const { user } = Route.useLoaderData()
 
   return (
     <div className="home-page">
@@ -39,17 +43,19 @@ function HomeLayout() {
           <div className="col-md-9">
             <div className="feed-toggle">
               <ul className="nav nav-pills outline-active">
-                <li className="nav-item">
-                  <Link
-                    to="/"
-                    search={(prev) => ({ ...prev, feed: "following" })}
-                    className={clsx("nav-link", feedType.type === "your-feed" && "active")}
-                    activeOptions={{ exact: true }}
-                    resetScroll={false}
-                  >
-                    Your Feed
-                  </Link>
-                </li>
+                {user !== null && (
+                  <li className="nav-item">
+                    <Link
+                      to="/"
+                      search={(prev) => ({ ...prev, feed: "following" })}
+                      className={clsx("nav-link", feedType.type === "your-feed" && "active")}
+                      activeOptions={{ exact: true }}
+                      resetScroll={false}
+                    >
+                      Your Feed
+                    </Link>
+                  </li>
+                )}
                 <li className="nav-item">
                   <Link
                     to="/"

@@ -16,7 +16,11 @@ export default function FollowToggle({ profile, onSuccess, variant }: FollowTogg
 
   return (
     <button
-      className={clsx("btn btn-sm btn-outline-secondary", variant === "profile" && "action-btn")}
+      className={clsx(
+        "btn btn-sm",
+        following ? "btn-secondary" : "btn-outline-secondary",
+        variant === "profile" && "action-btn",
+      )}
       onClick={async () => {
         try {
           if (following) {
