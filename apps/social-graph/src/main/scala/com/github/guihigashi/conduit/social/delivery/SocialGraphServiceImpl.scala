@@ -39,12 +39,18 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository)
         .mapError {
           case e: ProfileNotFoundException =>
             StatusException(Status.NOT_FOUND.withDescription(s"Failed to follow user: ${e.getMessage}"))
-          case e => StatusException(Status.INVALID_ARGUMENT.withDescription(s"Failed to follow user: ${e.getMessage}"))
+          case e => StatusException(Status.INTERNAL.withDescription(e.getMessage))
+        }
+      profile <- profileRepository
+        .getProfile(request.targetUsername)
+        .mapError {
+          case e: NoSuchElementException => StatusException(Status.NOT_FOUND.withDescription(e.getMessage))
+          case e                         => StatusException(Status.INTERNAL.withDescription(e.getMessage))
         }
     yield ProfileResponse(
-      username = request.targetUsername,
-      bio = None,
-      image = None,
+      username = profile._1,
+      bio = profile._2,
+      image = profile._3,
       following = true
     )
 
@@ -56,13 +62,18 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository)
         .mapError {
           case e: ProfileNotFoundException =>
             StatusException(Status.NOT_FOUND.withDescription(s"Failed to follow user: ${e.getMessage}"))
-          case e =>
-            StatusException(Status.INVALID_ARGUMENT.withDescription(s"Failed to unfollow user: ${e.getMessage}"))
+          case e => StatusException(Status.INTERNAL.withDescription(e.getMessage))
+        }
+      profile <- profileRepository
+        .getProfile(request.targetUsername)
+        .mapError {
+          case e: NoSuchElementException => StatusException(Status.NOT_FOUND.withDescription(e.getMessage))
+          case e                         => StatusException(Status.INTERNAL.withDescription(e.getMessage))
         }
     yield ProfileResponse(
-      username = request.targetUsername,
-      bio = None,
-      image = None,
+      username = profile._1,
+      bio = profile._2,
+      image = profile._3,
     )
 
   override def getProfilesByIds(
@@ -77,13 +88,27 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository)
         .mapError(e =>
           StatusException(Status.INVALID_ARGUMENT.withDescription(s"Invalid user_id format: ${e.getMessage}"))
         )
-      profiles <- profileRepository
-        .getProfilesByIds(ids)
-        .mapBoth(
-          e =>
-            StatusException(Status.INTERNAL.withDescription(s"Database error: ${e.getMessage}")),
-          _.map((id, p) => id.toString -> ProfileResponse(p._1, p._2, p._3))
-        )
+      profiles <-
+        if ids.isEmpty then
+          ZIO.succeed(Map.empty[String, ProfileResponse])
+        else
+          val fetchProfiles  = profileRepository.getProfilesByIds(ids)
+          val fetchFollowing = context.requestorId match
+            case Some(value) => profileRepository.isRequestorFollowingIds(value, ids)
+            case None        => ZIO.succeed(Set.empty[UUID])
+
+          fetchProfiles
+            .zipWithPar(fetchFollowing) { (profiles, followingSet) =>
+              profiles.map((id, p) =>
+                id.toString -> ProfileResponse(
+                  username = p._1,
+                  bio = p._2,
+                  image = p._3,
+                  following = followingSet.contains(id)
+                )
+              )
+            }
+            .mapError(e => StatusException(Status.INTERNAL.withDescription(s"Database error: ${e.getMessage}")))
     yield ProfilesResponse(profiles)
 
   override def upsertProfileProjection(
@@ -127,7 +152,7 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository)
 object SocialGraphServiceImpl:
   private val requestorIdKey: Key[String] = Key.of("x-requestor-id", ASCII_STRING_MARSHALLER)
 
-  def findRequestorId(rc: RequestContext): IO[StatusException, AppContext] =
+  private def findRequestorId(rc: RequestContext): IO[StatusException, AppContext] =
     rc.metadata
       .get(requestorIdKey)
       .flatMap {

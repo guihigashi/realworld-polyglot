@@ -21,6 +21,7 @@ trait ProfileRepository:
   def resolveIdsByUsernames(usernames: List[String]): Task[List[(String, Option[UUID])]]
   def getFollowing(id: RequestorId): Task[List[UUID]]
   def isRequestorFollowing(followerId: RequestorId, followeeUsername: String): Task[Boolean]
+  def isRequestorFollowingIds(followerId: RequestorId, followeeIds: List[UUID]): Task[Set[UUID]]
 
 object ProfileRepository:
   val live =
@@ -138,5 +139,15 @@ object ProfileRepository:
           pool.use(_
             .execute(selectIsRequestorFollowing)(followerId, followeeUsername)
             .map(_.headOption.getOrElse(false)))
+
+        private val selectIsRequestorFollowingIds: Query[(RequestorId, Arr[UUID]), UUID] =
+          sql"""select followed_id
+               |from follows
+               |where follower_id = ${RequestorId.codec}
+               |  and followed_id = any($_uuid)
+               |""".stripMargin.query(uuid)
+
+        override def isRequestorFollowingIds(followerId: RequestorId, followeeIds: List[UUID]): Task[Set[UUID]] =
+          pool.use(_.execute(selectIsRequestorFollowingIds)(followerId, Arr.fromFoldable(followeeIds)).map(_.toSet))
 
     }
