@@ -11,7 +11,7 @@ services:
       - postgres_data:/var/lib/postgresql
       - ./dev/postgres/initdb.d:/docker-entrypoint-initdb.d:z
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U realworld" ]
+      test: [ "CMD", "pg_isready", "-U", "realworld" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -22,10 +22,65 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: [ "CMD-SHELL", "redis-cli ping" ]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 10
+  article-service:
+    image: ghcr.io/guihigashi/realworld-polyglot/article-service:latest
+    command: --spring.config.location=file:/app/application.yml
+    build:
+      context: ./apps/article-service
+      dockerfile: ./Containerfile
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./dev/article-service/application.yml:/app/application.yml:z
+    healthcheck:
+      test: [ 'CMD', '/bin/grpc-health-probe', '-addr=article-service:9092' ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    depends_on: &infra_deps
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  social-graph:
+    image: ghcr.io/guihigashi/realworld-polyglot/social-graph:0.1.0-SNAPSHOT
+    command: -Dconfig.file=/opt/docker/application.conf
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./dev/social-graph/application.conf:/opt/docker/application.conf:z
+    healthcheck:
+      test: [ 'CMD', '/bin/grpc-health-probe', '-addr=social-graph:9090' ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    depends_on: *infra_deps
+  feed-aggregator:
+    image: ghcr.io/guihigashi/realworld-polyglot/feed-aggregator:latest
+    build:
+      context: ./apps/feed-aggregator
+      dockerfile: ./cmd/server/Containerfile
+    ports:
+      - "9091:9091"
+    volumes:
+      - ./dev/feed-aggregator/feed-aggregator.yml:/app/feed-aggregator.yml:z
+    healthcheck:
+      test: [ 'CMD', '/bin/grpc-health-probe', '-addr=feed-aggregator:9091' ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      <<: *infra_deps
+      article-service:
+        condition: service_healthy
+      social-graph:
+        condition: service_healthy
   gateway:
     image: ghcr.io/guihigashi/realworld-polyglot/gateway:latest
     command: 'php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000'
@@ -38,34 +93,14 @@ services:
       - ./dev/gateway/.env
     volumes:
       - ./dev/gateway/logs:/app/storage/logs:z
-    depends_on: &infrastructure_dependencies
-      postgres:
+    depends_on:
+      <<: *infra_deps
+      article-service:
         condition: service_healthy
-      redis:
+      social-graph:
         condition: service_healthy
-  article-service:
-    image: ghcr.io/guihigashi/realworld-polyglot/article-service:latest
-    command: --spring.config.location=file:/app/application.yml
-    build:
-      context: ./apps/article-service
-      dockerfile: ./Containerfile
-    volumes:
-      - ./dev/article-service/application.yml:/app/application.yml:z
-    depends_on: *infrastructure_dependencies
-  feed-aggregator:
-    image: ghcr.io/guihigashi/realworld-polyglot/feed-aggregator:latest
-    build:
-      context: ./apps/feed-aggregator
-      dockerfile: ./cmd/server/Containerfile
-    volumes:
-      - ./dev/feed-aggregator/feed-aggregator.yml:/app/feed-aggregator.yml:z
-    depends_on: *infrastructure_dependencies
-  social-graph:
-    image: ghcr.io/guihigashi/realworld-polyglot/social-graph:0.1.0-SNAPSHOT
-    command: -Dconfig.file=/opt/docker/application.conf
-    volumes:
-      - ./dev/social-graph/application.conf:/opt/docker/application.conf:z
-    depends_on: *infrastructure_dependencies
+      feed-aggregator:
+        condition: service_healthy
 volumes:
   postgres_data:
   redis_data:

@@ -16,4 +16,6 @@ COPY --from=builder /app/feed-aggregator .
 
 EXPOSE 9091
 
+COPY --from=ghcr.io/grpc-ecosystem/grpc-health-probe:v0.4.57 /ko-app/grpc-health-probe /bin/grpc-health-probe
+
 ENTRYPOINT ["/app/feed-aggregator"]

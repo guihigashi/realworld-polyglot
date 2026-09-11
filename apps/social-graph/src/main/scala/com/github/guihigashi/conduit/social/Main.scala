@@ -5,7 +5,7 @@ import com.github.guihigashi.conduit.social.grpc.social_graph.*
 import com.github.guihigashi.conduit.social.infrastructure.db.SkunkSessionPool
 import com.github.guihigashi.conduit.social.infrastructure.repository.ProfileRepository
 import io.grpc.ServerBuilder
-import io.grpc.protobuf.services.ProtoReflectionServiceV1
+import io.grpc.protobuf.services.{HealthStatusManager, ProtoReflectionServiceV1}
 import scalapb.zio_grpc.{ServerLayer, ServiceList}
 import zio.*
 import zio.config.typesafe.TypesafeConfigProvider
@@ -17,8 +17,13 @@ object Main extends ZIOAppDefault:
     Runtime.setConfigProvider(TypesafeConfigProvider.fromResourcePath()) ++
       Runtime.removeDefaultLoggers >>> consoleLogger() >+> Slf4jBridge.init()
 
+  private val healthStatusManager = new HealthStatusManager()
+
   private val serverLayer = ServerLayer.fromServiceList(
-    ServerBuilder.forPort(9090).addService(ProtoReflectionServiceV1.newInstance()),
+    ServerBuilder
+      .forPort(9090)
+      .addService(ProtoReflectionServiceV1.newInstance())
+      .addService(healthStatusManager.getHealthService),
     ServiceList.addFromEnvironment[ZioSocialGraph.RCSocialGraphService]
   )
 

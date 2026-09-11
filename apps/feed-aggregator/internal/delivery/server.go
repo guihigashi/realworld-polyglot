@@ -6,6 +6,8 @@ import (
 	"github.com/guihigashi/conduit/feed/internal/infrastructure/grpcutil"
 	"github.com/guihigashi/conduit/feed/internal/usecase"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -24,6 +26,9 @@ func CreateGrpcServer(generateFeed *usecase.GenerateFeed) *grpc.Server {
 	})
 
 	reflection.Register(s)
+
+	healthcheck := health.NewServer()
+	grpc_health_v1.RegisterHealthServer(s, healthcheck)
 
 	return s
 }

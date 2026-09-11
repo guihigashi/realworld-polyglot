@@ -1,3 +1,5 @@
+import com.typesafe.sbt.packager.docker.Cmd
+
 scalaVersion := "3.9.0"
 scalacOptions ++= Seq(
   "-Wunused:all",
@@ -14,6 +16,17 @@ dockerExecCommand := Seq("podman")
 dockerBaseImage   := "docker.io/library/eclipse-temurin:25-jre-ubi10-minimal"
 dockerRepository  := Some("ghcr.io/guihigashi/realworld-polyglot")
 
+Docker / dockerCommands := {
+  val cmds = (Docker / dockerCommands).value
+
+  cmds.init :+ Cmd(
+    "COPY",
+    "--from=ghcr.io/grpc-ecosystem/grpc-health-probe:v0.4.57",
+    "/ko-app/grpc-health-probe",
+    "/bin/grpc-health-probe"
+  ) :+ cmds.last
+}
+
 lazy val root = project
   .in(file("."))
   .enablePlugins(JavaAppPackaging, DockerPlugin)
@@ -23,7 +36,6 @@ lazy val root = project
     version              := "0.1.0-SNAPSHOT",
     Docker / packageName := "social-graph",
     dockerExposedPorts += 9090,
-    scalaVersion := "3.8.4",
 
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio"               % zioVersion,

@@ -17,12 +17,12 @@ func RequestorIdServerInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
-			return nil, status.Error(codes.Unauthenticated, "metadata is not provided")
+			return handler(ctx, req)
 		}
 
 		values := md.Get(RequestorIdHeader)
 		if len(values) == 0 {
-			return nil, status.Errorf(codes.Unauthenticated, "%s is missing", RequestorIdHeader)
+			return handler(ctx, req)
 		}
 
 		requestorId, err := uuid.Parse(values[0])
