@@ -2,7 +2,7 @@ import { Provider } from "react-redux"
 import { store } from "./state/store.ts"
 import { createRouter, RouterProvider } from "@tanstack/react-router"
 import { routeTree } from "./routeTree.gen.ts"
-import { useAppDispatch, useAppSelector } from "./state/hooks.ts"
+import { useAppSelector } from "./state/hooks.ts"
 import { useEffect } from "react"
 import { makeConduitDebug, verifyStoredToken } from "./state/authSlice.ts"
 import "./styles.css"
@@ -23,16 +23,21 @@ declare module "@tanstack/react-router" {
   }
 }
 
+if (typeof window !== "undefined") {
+  store.dispatch(verifyStoredToken())
+}
+
 function InnerApp() {
-  const dispatch = useAppDispatch()
   const auth = useAppSelector((state) => state.auth)
 
   useEffect(() => {
-    dispatch(verifyStoredToken())
-  }, [dispatch])
+    window.__conduit_debug__ = makeConduitDebug(auth)
+  }, [auth])
 
   useEffect(() => {
-    window.__conduit_debug__ = makeConduitDebug(auth)
+    router.invalidate().catch((e) => {
+      console.error("invalidating router", e)
+    })
   }, [auth])
 
   if (auth.status === "loading") {

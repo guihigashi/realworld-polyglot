@@ -38,7 +38,7 @@ return [
     |
     */
 
-    'server' => env('OCTANE_SERVER', 'roadrunner'),
+    'server' => env('OCTANE_SERVER', 'swoole'),
 
     /*
     |--------------------------------------------------------------------------
@@ -233,5 +233,11 @@ return [
     */
 
     'state_file' => env('OCTANE_STATE_FILE', storage_path('logs/octane-server-state.json')),
+
+    'swoole' => [
+        'options' => [
+            'buffer_output_size' => 32 * 2 ** 20,
+        ],
+    ],
 
 ];

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { loginRequestSchema } from "../types/schemas.ts"
@@ -7,6 +7,11 @@ import { handleFormError } from "../utils/helpers.ts"
 
 export const Route = createFileRoute("/login")({
   component: Login,
+  beforeLoad: ({ context }) => {
+    if (context.auth.status === "authenticated") {
+      throw redirect({ to: "/", replace: true })
+    }
+  },
 })
 
 function Login() {
@@ -50,7 +55,10 @@ function Login() {
                 try {
                   await loginMutation({ user: data }).unwrap()
 
-                  await navigate({ to: "/" })
+                  await navigate({
+                    to: "/",
+                    replace: true,
+                  })
                 } catch (e) {
                   handleFormError(e, setError)
                 }
