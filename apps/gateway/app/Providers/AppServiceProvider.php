@@ -17,6 +17,7 @@ use App\Infrastructure\Auth\Repositories\EloquentUserRepository;
 use App\Infrastructure\Feed\Services\GrpcFeedService;
 use App\Infrastructure\Grpc\TimeoutInterceptor;
 use App\Infrastructure\Profile\Services\GrpcSocialGraphService;
+use App\Presentation\Http\Middleware\RequestDurationMiddleware;
 use Generated\Grpc\Article\ArticleServiceClient;
 use Generated\Grpc\Feed\FeedServiceClient;
 use Generated\Grpc\SocialGraph\SocialGraphServiceClient;
@@ -78,7 +79,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        if (config('http.middleware.request-duration')) {
+            $router = app('router');
+            $router->pushMiddlewareToGroup('api', RequestDurationMiddleware::class);
+        }
     }
 
     private function grpcChannelOptions(): array

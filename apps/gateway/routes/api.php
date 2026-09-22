@@ -10,13 +10,12 @@ use App\Presentation\Http\Controllers\ProfileController;
 use App\Presentation\Http\Controllers\TagController;
 use App\Presentation\Http\Middleware\JwtAuthenticationMiddleware;
 use App\Presentation\Http\Middleware\OptionalJwtAuthenticationMiddleware;
-use App\Presentation\Http\Middleware\RequestDurationMiddleware;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/users/login', [AuthController::class, 'login']);
 Route::post('/users', [AuthController::class, 'register']);
 
-Route::middleware([JwtAuthenticationMiddleware::class, RequestDurationMiddleware::class])->group(function () {
+Route::middleware([JwtAuthenticationMiddleware::class])->group(function () {
     Route::get('/user', [UserController::class, 'show']);
     Route::put('/user', [UserController::class, 'update']);
 
@@ -34,7 +33,7 @@ Route::middleware([JwtAuthenticationMiddleware::class, RequestDurationMiddleware
     Route::delete('/articles/{slug}/favorite', [FavoriteController::class, 'destroy']);
 });
 
-Route::middleware([OptionalJwtAuthenticationMiddleware::class, RequestDurationMiddleware::class])->group(function () {
+Route::middleware([OptionalJwtAuthenticationMiddleware::class])->group(function () {
     Route::get('/profiles/{username}', [ProfileController::class, 'show']);
 
     Route::get('/articles', [ArticleController::class, 'index']);
