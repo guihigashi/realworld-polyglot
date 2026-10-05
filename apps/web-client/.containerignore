@@ -1,0 +1,14 @@
+.env
+.gitignore
+.oxfmtrc.json
+.oxlintrc.json
+.tanstack
+.yarn
+Containerfile
+README.md
+dist
+node_modules
+playwright-report
+playwright.config.ts
+test-results
+web-client.iml

@@ -101,6 +101,13 @@ services:
         condition: service_healthy
       feed-aggregator:
         condition: service_healthy
+  web-client:
+    image: ghcr.io/guihigashi/realworld-polyglot/web-client:latest
+    build:
+      context: ./apps/web-client
+      dockerfile: Containerfile
+    ports:
+      - "8080:80"
 volumes:
   postgres_data:
   redis_data:
