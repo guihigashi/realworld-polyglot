@@ -17,6 +17,8 @@ RUN install-php-extensions \
     swoole \
     zip
 
+RUN echo "grpc.enable_fork_support=1" >> /usr/local/etc/php/conf.d/docker-php-ext-grpc.ini
+
 COPY --from=docker.io/library/composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
