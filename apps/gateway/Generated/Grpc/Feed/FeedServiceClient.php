@@ -20,7 +20,7 @@ class FeedServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\Feed\GetFeedRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Feed\GetFeedResponse>
      */
     public function GetFeed(\Generated\Grpc\Feed\GetFeedRequest $argument,
       $metadata = [], $options = []) {

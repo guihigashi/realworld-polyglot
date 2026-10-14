@@ -20,7 +20,7 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\SocialGraph\GetProfileRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\SocialGraph\ProfileResponse>
      */
     public function GetProfile(\Generated\Grpc\SocialGraph\GetProfileRequest $argument,
       $metadata = [], $options = []) {
@@ -34,7 +34,7 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\SocialGraph\FollowRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\SocialGraph\ProfileResponse>
      */
     public function FollowUser(\Generated\Grpc\SocialGraph\FollowRequest $argument,
       $metadata = [], $options = []) {
@@ -48,7 +48,7 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\SocialGraph\UnfollowRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\SocialGraph\ProfileResponse>
      */
     public function UnfollowUser(\Generated\Grpc\SocialGraph\UnfollowRequest $argument,
       $metadata = [], $options = []) {
@@ -62,7 +62,7 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\SocialGraph\GetProfilesByIdsRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\SocialGraph\ProfilesResponse>
      */
     public function GetProfilesByIds(\Generated\Grpc\SocialGraph\GetProfilesByIdsRequest $argument,
       $metadata = [], $options = []) {
@@ -76,7 +76,7 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\SocialGraph\UpsertProfileRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\SocialGraph\UpsertProfileResponse>
      */
     public function UpsertProfileProjection(\Generated\Grpc\SocialGraph\UpsertProfileRequest $argument,
       $metadata = [], $options = []) {
@@ -90,7 +90,7 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\SocialGraph\ResolveIdsByUsernamesRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\SocialGraph\ResolveIdsByUsernamesResponse>
      */
     public function ResolveIdsByUsernames(\Generated\Grpc\SocialGraph\ResolveIdsByUsernamesRequest $argument,
       $metadata = [], $options = []) {
@@ -104,7 +104,7 @@ class SocialGraphServiceClient extends \Grpc\BaseStub {
      * @param \Google\Protobuf\GPBEmpty $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\SocialGraph\GetFollowingResponse>
      */
     public function GetFollowing(\Google\Protobuf\GPBEmpty $argument,
       $metadata = [], $options = []) {

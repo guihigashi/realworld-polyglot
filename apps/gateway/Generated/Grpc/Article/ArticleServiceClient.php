@@ -20,7 +20,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\Article\ListArticlesRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Article\ListArticlesResponse>
      */
     public function ListArticles(\Generated\Grpc\Article\ListArticlesRequest $argument,
       $metadata = [], $options = []) {
@@ -34,7 +34,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\Article\GetArticleRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Article\ArticleResponse>
      */
     public function GetArticle(\Generated\Grpc\Article\GetArticleRequest $argument,
       $metadata = [], $options = []) {
@@ -48,7 +48,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\Article\CreateArticleRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Article\ArticleResponse>
      */
     public function CreateArticle(\Generated\Grpc\Article\CreateArticleRequest $argument,
       $metadata = [], $options = []) {
@@ -62,7 +62,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\Article\UpdateArticleRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Article\ArticleResponse>
      */
     public function UpdateArticle(\Generated\Grpc\Article\UpdateArticleRequest $argument,
       $metadata = [], $options = []) {
@@ -76,7 +76,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\Article\DeleteArticleRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Google\Protobuf\GPBEmpty>
      */
     public function DeleteArticle(\Generated\Grpc\Article\DeleteArticleRequest $argument,
       $metadata = [], $options = []) {
@@ -90,7 +90,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\Article\AddCommentRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Article\AddCommentResponse>
      */
     public function AddComment(\Generated\Grpc\Article\AddCommentRequest $argument,
       $metadata = [], $options = []) {
@@ -104,7 +104,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\Article\GetCommentsRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Article\GetCommentsResponse>
      */
     public function GetComments(\Generated\Grpc\Article\GetCommentsRequest $argument,
       $metadata = [], $options = []) {
@@ -118,7 +118,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\Article\DeleteCommentRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Google\Protobuf\GPBEmpty>
      */
     public function DeleteComment(\Generated\Grpc\Article\DeleteCommentRequest $argument,
       $metadata = [], $options = []) {
@@ -132,7 +132,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\Article\FavoriteArticleRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Article\ArticleResponse>
      */
     public function FavoriteArticle(\Generated\Grpc\Article\FavoriteArticleRequest $argument,
       $metadata = [], $options = []) {
@@ -146,7 +146,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\Article\UnfavoriteArticleRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Article\ArticleResponse>
      */
     public function UnfavoriteArticle(\Generated\Grpc\Article\UnfavoriteArticleRequest $argument,
       $metadata = [], $options = []) {
@@ -160,7 +160,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
      * @param \Google\Protobuf\GPBEmpty $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Article\GetTagsResponse>
      */
     public function GetTags(\Google\Protobuf\GPBEmpty $argument,
       $metadata = [], $options = []) {
@@ -174,7 +174,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
      * @param \Generated\Grpc\Article\GetArticlesFeedRequest $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Article\ListArticlesResponse>
      */
     public function GetArticlesFeed(\Generated\Grpc\Article\GetArticlesFeedRequest $argument,
       $metadata = [], $options = []) {
@@ -188,7 +188,7 @@ class ArticleServiceClient extends \Grpc\BaseStub {
      * @param \Google\Protobuf\GPBEmpty $argument input argument
      * @param array $metadata metadata
      * @param array $options call options
-     * @return \Grpc\UnaryCall
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Article\UserFavoritedArticlesResponse>
      */
     public function UserFavoritedArticles(\Google\Protobuf\GPBEmpty $argument,
       $metadata = [], $options = []) {

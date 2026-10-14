@@ -3,8 +3,8 @@ package com.github.guihigashi.conduit.social.infrastructure.db
 import cats.effect.std.Console
 import com.github.guihigashi.conduit.social.infrastructure.config.DbConfig
 import fs2.io.net.Network
-import org.typelevel.otel4s.metrics.Meter.Implicits.noop
-import org.typelevel.otel4s.trace.Tracer.Implicits.noop
+import org.typelevel.otel4s.metrics.MeterProvider
+import org.typelevel.otel4s.trace.TracerProvider
 import skunk.Session
 import skunk.Session.Credentials
 import zio.interop.catz.*
@@ -19,6 +19,8 @@ object SkunkSessionPool:
     ZLayer.scoped {
       given cats.effect.std.Console[Task] = cats.effect.std.Console.make[Task]
       given fs2.io.net.Network[Task]      = fs2.io.net.Network.forAsync[Task]
+      given TracerProvider[Task]          = TracerProvider.noop
+      given MeterProvider[Task]           = MeterProvider.noop
 
       ZIO
         .config(DbConfig.config.nested("db"))

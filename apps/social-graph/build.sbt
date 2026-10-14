@@ -7,10 +7,10 @@ scalacOptions ++= Seq(
   "-Wconf:src=.*/src_managed/.*:silent"
 )
 
-lazy val zioVersion        = "2.1.26"
-lazy val zioConfigVersion  = "4.0.8"
+lazy val zioVersion        = "2.1.27"
+lazy val zioConfigVersion  = "4.1.0"
 lazy val zioLoggingVersion = "2.5.3"
-lazy val grpcJavaVersion   = "1.83.1"
+lazy val grpcJavaVersion   = "1.85.0"
 
 dockerExecCommand := Seq("podman")
 dockerBaseImage   := "docker.io/library/eclipse-temurin:25-jre-ubi10-minimal"
@@ -49,8 +49,8 @@ lazy val root = project
       "dev.zio" %% "zio-logging"               % zioLoggingVersion,
       "dev.zio" %% "zio-logging-slf4j2-bridge" % zioLoggingVersion,
 
-      "dev.zio"      %% "zio-interop-cats" % "23.1.0.13",
-      "org.tpolecat" %% "skunk-core"       % "2.0.0-RC2",
+      "dev.zio"      %% "zio-interop-cats" % "23.1.0.14",
+      "org.tpolecat" %% "skunk-core"       % "2.0.0-RC3",
 
       "io.grpc"               % "grpc-netty"           % grpcJavaVersion,
       "io.grpc"               % "grpc-services"        % grpcJavaVersion,
