@@ -21,11 +21,6 @@ export const Route = createFileRoute("/article/$slug")({
   },
 })
 
-const markdownContent = `
-# Hello World
-This is **bold** text and a [link](https://reactjs.org).
-`
-
 function Article() {
   const { user } = Route.useLoaderData()
   const { slug } = Route.useParams()
