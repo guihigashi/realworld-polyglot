@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
-import { store } from "../../state/store.ts"
-import { api } from "../../state/api.ts"
-import ArticleForm from "./-article-form.tsx"
+import { store } from "@/state/store.ts"
+import { api } from "@/state/api.ts"
+import ArticleForm from "@/routes/editor/-article-form.tsx"
 
 export const Route = createFileRoute("/editor/$slug")({
   component: EditArticle,

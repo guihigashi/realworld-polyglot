@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router"
-import ProfileAvatar from "./profile-avatar.tsx"
-import FavoriteToggle from "./favorite-toggle.tsx"
+import ProfileAvatar from "@/components/profile-avatar.tsx"
+import FavoriteToggle from "@/components/favorite-toggle.tsx"
 import dayjs from "dayjs"
 
 export default function ArticlePreview({ article }: { article: ArticleSummary }) {

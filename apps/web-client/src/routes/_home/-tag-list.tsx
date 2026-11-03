@@ -1,4 +1,4 @@
-import { api } from "../../state/api.ts"
+import { api } from "@/state/api.ts"
 import { Link } from "@tanstack/react-router"
 
 export default function TagList() {

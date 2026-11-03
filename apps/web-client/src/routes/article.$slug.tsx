@@ -1,16 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
-import { api } from "../state/api.ts"
-import ProfileAvatar from "../components/profile-avatar.tsx"
+import { api } from "@/state/api.ts"
+import ProfileAvatar from "@/components/profile-avatar.tsx"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { addCommentRequestSchema } from "../types/schemas.ts"
+import { addCommentRequestSchema } from "@/types/schemas.ts"
 import { type ComponentProps, type ReactNode } from "react"
 import dayjs from "dayjs"
-import FollowToggle from "../components/follow-toggle.tsx"
-import FavoriteToggle from "../components/favorite-toggle.tsx"
-import RouterButton from "../components/router-button.tsx"
+import FollowToggle from "@/components/follow-toggle.tsx"
+import FavoriteToggle from "@/components/favorite-toggle.tsx"
+import RouterButton from "@/components/router-button.tsx"
 import { skipToken } from "@reduxjs/toolkit/query/react"
-import { useAppDispatch } from "../state/hooks.ts"
+import { useAppDispatch } from "@/state/hooks.ts"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 export const Route = createFileRoute("/article/$slug")({
   component: Article,
@@ -18,6 +20,11 @@ export const Route = createFileRoute("/article/$slug")({
     return { user: context.auth.status === "authenticated" ? context.auth.user : null }
   },
 })
+
+const markdownContent = `
+# Hello World
+This is **bold** text and a [link](https://reactjs.org).
+`
 
 function Article() {
   const { user } = Route.useLoaderData()
@@ -45,7 +52,7 @@ function Article() {
       <div className="container page">
         <div className="row article-content">
           <div className="col-md-12">
-            <p>{article.body}</p>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.body}</ReactMarkdown>
 
             <ul className="tag-list">
               {article.tagList.map((tag) => (

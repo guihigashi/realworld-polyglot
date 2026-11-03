@@ -9,7 +9,7 @@ import {
   registerRequestSchema,
   updateUserRequestSchema,
   userSchema,
-} from "./schemas.ts"
+} from "@/types/schemas.ts"
 import { z } from "zod"
 
 declare global {

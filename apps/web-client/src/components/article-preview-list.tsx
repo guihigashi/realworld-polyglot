@@ -1,4 +1,4 @@
-import ArticlePreview from "./article-preview.tsx"
+import ArticlePreview from "@/components/article-preview.tsx"
 import { Link } from "@tanstack/react-router"
 
 type ArticlePreviewListProps = {

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, isAnyOf, type PayloadAction } from "@reduxjs/toolkit"
-import { api } from "./api.ts"
-import type { AppDispatch } from "./store.ts"
+import { api } from "@/state/api.ts"
+import type { AppDispatch } from "@/state/store.ts"
 
 export const JWT_TOKEN_KEY = "jwt_token"
 

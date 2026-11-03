@@ -1,4 +1,4 @@
-import { api } from "../state/api.ts"
+import { api } from "@/state/api.ts"
 import type { ComponentProps } from "react"
 import { clsx } from "clsx"
 

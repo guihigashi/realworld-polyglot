@@ -1,8 +1,8 @@
 import { createRootRouteWithContext, Link, Outlet } from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
-import type { RootState } from "../state/store.ts"
-import { useAppSelector } from "../state/hooks.ts"
-import ProfileAvatar from "../components/profile-avatar.tsx"
+import type { RootState } from "@/state/store.ts"
+import { useAppSelector } from "@/state/hooks.ts"
+import ProfileAvatar from "@/components/profile-avatar.tsx"
 
 function RootLayout() {
   const auth = useAppSelector((state: RootState) => state.auth)

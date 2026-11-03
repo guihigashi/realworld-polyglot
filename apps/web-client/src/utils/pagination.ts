@@ -1,4 +1,4 @@
-import { isDefined } from "./object.ts"
+import { isDefined } from "@/utils/object.ts"
 
 export const PAGE_SIZE = 10
 

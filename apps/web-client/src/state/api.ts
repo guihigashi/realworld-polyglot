@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery, type TagDescription } from "@reduxjs/toolkit/query/react"
-import type { RootState } from "./store.ts"
+import type { RootState } from "@/state/store.ts"
 
 export const api = createApi({
   reducerPath: "api",

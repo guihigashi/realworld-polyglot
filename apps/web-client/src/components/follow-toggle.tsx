@@ -1,4 +1,4 @@
-import { api } from "../state/api.ts"
+import { api } from "@/state/api.ts"
 import { clsx } from "clsx"
 
 type FollowToggleProps = {

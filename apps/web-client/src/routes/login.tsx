@@ -1,9 +1,9 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { loginRequestSchema } from "../types/schemas.ts"
-import { api } from "../state/api.ts"
-import { handleFormError } from "../utils/helpers.ts"
+import { loginRequestSchema } from "@/types/schemas.ts"
+import { api } from "@/state/api.ts"
+import { handleFormError } from "@/utils/helpers.ts"
 
 export const Route = createFileRoute("/login")({
   component: Login,

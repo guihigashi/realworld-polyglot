@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useLocation, useParams } from "@tanstack/react-router"
-import TagList from "./-tag-list.tsx"
+import TagList from "@/routes/_home/-tag-list.tsx"
 import { clsx } from "clsx"
 
 export const Route = createFileRoute("/_home")({

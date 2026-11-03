@@ -1,6 +1,6 @@
 import { Link, useSearch } from "@tanstack/react-router"
 import { clsx } from "clsx"
-import { getPaginationRange, PAGE_SIZE } from "../utils/pagination.ts"
+import { getPaginationRange, PAGE_SIZE } from "@/utils/pagination.ts"
 
 type PaginationProps = {
   total?: number

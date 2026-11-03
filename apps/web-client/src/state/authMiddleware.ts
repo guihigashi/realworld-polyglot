@@ -1,7 +1,7 @@
 import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit"
-import { JWT_TOKEN_KEY, logout } from "./authSlice.ts"
-import type { RootState } from "./store.ts"
-import { api } from "./api.ts"
+import { JWT_TOKEN_KEY, logout } from "@/state/authSlice.ts"
+import type { RootState } from "@/state/store.ts"
+import { api } from "@/state/api.ts"
 
 export const authListenerMiddleware = createListenerMiddleware()
 

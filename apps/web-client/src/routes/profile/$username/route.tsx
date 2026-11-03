@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router"
-import { api } from "../../../state/api.ts"
-import ProfileAvatar from "../../../components/profile-avatar.tsx"
-import FollowToggle from "../../../components/follow-toggle.tsx"
+import { api } from "@/state/api.ts"
+import ProfileAvatar from "@/components/profile-avatar.tsx"
+import FollowToggle from "@/components/follow-toggle.tsx"
 
 export const Route = createFileRoute("/profile/$username")({
   component: ProfileLayout,

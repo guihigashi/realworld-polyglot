@@ -1,10 +1,10 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
 import { z } from "zod"
-import { api } from "../../state/api.ts"
-import Pagination from "../../components/pagination.tsx"
-import { getLimitOffset } from "../../utils/pagination.ts"
-import ArticlePreviewList from "../../components/article-preview-list.tsx"
-import { isDefined } from "../../utils/object.ts"
+import { api } from "@/state/api.ts"
+import Pagination from "@/components/pagination.tsx"
+import { getLimitOffset } from "@/utils/pagination.ts"
+import ArticlePreviewList from "@/components/article-preview-list.tsx"
+import { isDefined } from "@/utils/object.ts"
 
 const searchSchema = z.object({
   feed: z.literal("following").optional(),

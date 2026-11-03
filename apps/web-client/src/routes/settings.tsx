@@ -1,12 +1,12 @@
 import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router"
-import { useAppDispatch, useAppSelector } from "../state/hooks.ts"
-import { type AuthState, logout } from "../state/authSlice.ts"
+import { useAppDispatch, useAppSelector } from "@/state/hooks.ts"
+import { type AuthState, logout } from "@/state/authSlice.ts"
 import { useForm } from "react-hook-form"
-import { api } from "../state/api.ts"
+import { api } from "@/state/api.ts"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { updateUserRequestSchema } from "../types/schemas.ts"
+import { updateUserRequestSchema } from "@/types/schemas.ts"
 import { z } from "zod"
-import { handleFormError } from "../utils/helpers.ts"
+import { handleFormError } from "@/utils/helpers.ts"
 
 export const Route = createFileRoute("/settings")({
   component: Settings,

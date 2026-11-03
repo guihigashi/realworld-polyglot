@@ -1,4 +1,5 @@
 import { defineConfig, devices } from "@playwright/test"
+// oxlint-disable-next-line import/no-relative-parent-imports
 import { baseConfig } from "../../reference/realworld-spec/specs/e2e/playwright.base"
 
 export default defineConfig({

@@ -1,11 +1,11 @@
 import { Provider } from "react-redux"
-import { store } from "./state/store.ts"
+import { store } from "@/state/store.ts"
 import { createRouter, RouterProvider } from "@tanstack/react-router"
-import { routeTree } from "./routeTree.gen.ts"
-import { useAppSelector } from "./state/hooks.ts"
+import { routeTree } from "@/routeTree.gen.ts"
+import { useAppSelector } from "@/state/hooks.ts"
 import { useEffect } from "react"
-import { makeConduitDebug, verifyStoredToken } from "./state/authSlice.ts"
-import "./styles.css"
+import { makeConduitDebug, verifyStoredToken } from "@/state/authSlice.ts"
+import "@/styles.css"
 
 const router = createRouter({
   routeTree,

@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
-import ArticleForm from "./-article-form.tsx"
+import ArticleForm from "@/routes/editor/-article-form.tsx"
 
 export const Route = createFileRoute("/editor/")({
   component: CreateArticle,

@@ -1,11 +1,13 @@
-import { useFieldArray, useForm } from "react-hook-form"
+import { Controller, useFieldArray, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { createArticleRequestSchema } from "../../types/schemas.ts"
+import { createArticleRequestSchema } from "@/types/schemas.ts"
 import { type KeyboardEvent, useState } from "react"
-import { api } from "../../state/api.ts"
+import { api } from "@/state/api.ts"
 import { useNavigate } from "@tanstack/react-router"
-import { handleFormError } from "../../utils/helpers.ts"
+import { handleFormError } from "@/utils/helpers.ts"
 import { useDispatch } from "react-redux"
+import remarkGfm from "remark-gfm"
+import MDEditor from "@uiw/react-md-editor"
 
 function initialValue(article?: Article): CreateArticleRequestIn {
   if (article) {
@@ -121,11 +123,18 @@ export default function ArticleForm({ article }: ArticleFormProps) {
                   {errors.description && <span className="form-field-error-message">{errors.description.message}</span>}
                 </fieldset>
                 <fieldset className="form-group">
-                  <textarea
-                    className="form-control"
-                    rows={8}
-                    placeholder="Write your article (in markdown)"
-                    {...register("body")}
+                  <Controller
+                    control={control}
+                    name="body"
+                    render={({ field }) => (
+                      <MDEditor
+                        {...field}
+                        previewOptions={{
+                          remarkPlugins: [remarkGfm],
+                        }}
+                        data-color-mode="light"
+                      />
+                    )}
                   />
                   {errors.body && <span className="form-field-error-message">{errors.body.message}</span>}
                 </fieldset>
