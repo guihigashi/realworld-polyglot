@@ -8,7 +8,13 @@ export default function TagList() {
     <>
       <p>Popular Tags</p>
 
-      <div className="tag-list">
+      <div
+        className="tag-list"
+        style={{
+          maxHeight: "40rem",
+          overflowY: "auto",
+        }}
+      >
         {tags?.tags.map((tag) => (
           <Link key={tag} to="/tag/$tag" params={{ tag }} className="tag-pill tag-default" resetScroll={false}>
             {tag}
