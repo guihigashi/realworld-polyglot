@@ -1154,6 +1154,7 @@ footer .attribution {
  * ============================================================================ */
 
 .preview-link {
+  display: flow-root;
   color: inherit;
 }
 
@@ -1485,6 +1486,14 @@ footer > .container {
 
 .article-page .card .mod-options i:hover {
   opacity: 1;
+}
+
+.article-page .article-content code:not([class*="language-"]) {
+  background-color: var(--bg-light);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+  font-family: monospace;
 }
 
 /* ============================================================================

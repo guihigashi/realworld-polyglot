@@ -13,6 +13,7 @@ import { skipToken } from "@reduxjs/toolkit/query/react"
 import { useAppDispatch } from "@/state/hooks.ts"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { Prism } from "react-syntax-highlighter"
 
 export const Route = createFileRoute("/article/$slug")({
   component: Article,
@@ -47,7 +48,41 @@ function Article() {
       <div className="container page">
         <div className="row article-content">
           <div className="col-md-12">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.body}</ReactMarkdown>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                pre: ({ children }) => <>{children}</>,
+                code: ({ className, children, node: _node, ...props }) => {
+                  const match = /language-(\w+)/.exec(className || "")
+                  const isCodeBlock = Boolean(match) || String(children).includes("\n")
+
+                  if (isCodeBlock) {
+                    return (
+                      <Prism
+                        language={match ? match[1] : "text"}
+                        PreTag="pre"
+                        customStyle={{
+                          overflowX: "auto",
+                          margin: "1rem 0",
+                          borderRadius: "0.375rem",
+                        }}
+                      >
+                        {String(children).replace(/\n$/, "")}
+                      </Prism>
+                    )
+                  }
+
+                  // Inline code (e.g. `git status`)
+                  return (
+                    <code className={className} {...props}>
+                      {children}
+                    </code>
+                  )
+                },
+              }}
+            >
+              {article.body}
+            </ReactMarkdown>
 
             <ul className="tag-list">
               {article.tagList.map((tag) => (
