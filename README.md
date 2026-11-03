@@ -1,18 +1,24 @@
-# RealWorld Implementation
+# RealWorld Polyglot Implementation
 
-This repository is a full-stack implementation of the [RealWorld Specification](https://docs.realworld.show/). 
+This repository is a full-stack, polyglot microservices implementation of
+the [RealWorld Specification](https://docs.realworld.show/) ("Conduit").
 
-The RealWorld spec defines a standardized API and frontend behavior for a medium-complexity blogging platform (often called "Conduit"), allowing developers to compare how different languages, frameworks, and architectures handle identical product requirements.
+🚀 **Live Demo:** [https://rwa.guihigashi.dev](https://rwa.guihigashi.dev)
+
+🤖 **Companion Studio:** Content generation and persona simulation are managed
+via [RealWorld Studio](https://github.com/guihigashi/realworld-studio), an AI-driven publishing and approval dashboard.
 
 ## Architecture & Goals
 
-This project was built primarily to showcase my personal skills and architectural approach to modern web application development. 
+This project showcases a polyglot microservice architecture adhering to Clean Architecture and Domain-Driven Design
+principles across diverse runtime ecosystems:
 
-Rather than defaulting to standard framework conventions, this implementation explores:
-* **Clean Architecture / Domain-Driven Design:** Decoupling core business rules from infrastructure and presentation concerns.
-* **Strict Typing & Behavior:** Ensuring entities maintain valid states (e.g., proper handling of nulls vs. empty strings) and expose explicit behavioral methods rather than generic setters.
-* **Component-Based Structure:** Organizing the codebase by domain features rather than technical layers.
-
-## Current Status
-
-* **Gateway Service:** The API gateway is actively passing the RealWorld API testing suite for authentication (`auth.hurl`), handling registration, login, and strict partial updates securely via JWT.
+* **API Gateway (`apps/gateway`):** PHP & Laravel Octane (Swoole) handling HTTP REST endpoints, JWT authentication, and
+  routing via gRPC.
+* **Article Service (`apps/article-service`):** Java 25 & Spring Boot gRPC service managing articles, comments,
+  favorites, and tags.
+* **Social Graph (`apps/social-graph`):** Scala 3 & ZIO gRPC service managing profiles and follow relationships.
+* **Feed Aggregator (`apps/feed-aggregator`):** Go gRPC service aggregating personalized user feeds.
+* **Web Client (`apps/web-client`):** Modern React SPA built with TypeScript, Vite, TanStack Router, Redux Toolkit, and
+  Markdown support.
+* **Infrastructure:** PostgreSQL, Redis cache, and container orchestration via Compose.
