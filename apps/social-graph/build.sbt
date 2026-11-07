@@ -1,6 +1,6 @@
 import com.typesafe.sbt.packager.docker.Cmd
 
-scalaVersion := "3.9.0"
+scalaVersion := "3.10.0"
 scalacOptions ++= Seq(
   "-Wunused:all",
   "-deprecation",
@@ -10,7 +10,7 @@ scalacOptions ++= Seq(
 lazy val zioVersion        = "2.1.27"
 lazy val zioConfigVersion  = "4.1.0"
 lazy val zioLoggingVersion = "2.5.3"
-lazy val grpcJavaVersion   = "1.85.0"
+lazy val grpcJavaVersion   = "1.85.1"
 
 dockerExecCommand := Seq("podman")
 dockerBaseImage   := "docker.io/library/eclipse-temurin:25-jre-ubi10-minimal"

@@ -1,0 +1,51 @@
+[tools]
+node = "lts"
+
+# --- Subtasks ---
+[tasks."dev:infra"]
+description = "Start Postgres and Redis containers"
+run = "podman compose up -d postgres redis"
+
+[tasks."dev:web"]
+description = "Start React web-client Vite dev server"
+dir = "apps/web-client"
+run = "yarn dev"
+
+[tasks."dev:gateway"]
+description = "Start Laravel Octane gateway"
+dir = "apps/gateway"
+run = "php artisan serve"
+
+[tasks."dev:feed"]
+description = "Start Go feed aggregator"
+dir = "apps/feed-aggregator"
+run = "air"
+
+[tasks."dev:article:run"]
+description = "Start Spring Boot article service"
+dir = "apps/article-service"
+run = "./gradlew bootRun"
+
+[tasks."dev:article:watch"]
+description = "Continuously compile Spring Boot article service on file change"
+dir = "apps/article-service"
+run = "./gradlew classes --continuous --quiet"
+
+[tasks."dev:article"]
+description = "Start Spring Boot article service with hot reload"
+depends = ["dev:article:run", "dev:article:watch"]
+
+[tasks."dev:social"]
+description = "Start Scala social graph service with hot reload"
+dir = "apps/social-graph"
+run = "sbt ~reStart"
+
+# --- Dev Up Orchestrator ---
+[tasks."dev:up"]
+description = "Start infra and run all dev services in parallel"
+depends = ["dev:infra", "dev:web", "dev:gateway", "dev:feed", "dev:article", "dev:social"]
+
+# Optional: allows `mise dev up` in addition to `mise dev:up`
+[tasks.dev]
+description = "Run dev commands (e.g. mise dev up)"
+run = 'mise run "dev:${1:-up}"'

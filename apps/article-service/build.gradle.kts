@@ -34,6 +34,10 @@ dependencies {
     testRuntimeOnly("com.h2database:h2")
 }
 
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    sourceResources(sourceSets["main"])
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }
