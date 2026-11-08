@@ -13,7 +13,7 @@ import zio.*
 import java.util.UUID
 
 trait ProfileRepository:
-  def getProfile(username: String): Task[(String, Option[String], Option[String])]
+  def getProfile(username: String): Task[(UUID, String, Option[String], Option[String])]
   def follow(followerId: RequestorId, followeeUsername: String): Task[Unit]
   def unfollow(followerId: RequestorId, followeeUsername: String): Task[Unit]
   def getProfilesByIds(ids: List[UUID]): Task[Map[UUID, (String, Option[String], Option[String])]]
@@ -29,12 +29,12 @@ object ProfileRepository:
       for
         pool <- ZIO.service[SkunkPool]
       yield new ProfileRepository:
-        private val getProfileQuery: Query[String, (String, Option[String], Option[String])] =
-          sql"""select username, bio, image
+        private val getProfileQuery: Query[String, (UUID, String, Option[String], Option[String])] =
+          sql"""select user_id, username, bio, image
                |from profiles
-               |where username = $varchar""".stripMargin.query((varchar, text.opt, varchar.opt).tupled)
+               |where username = $varchar""".stripMargin.query((uuid, varchar, text.opt, varchar.opt).tupled)
 
-        override def getProfile(username: String): Task[(String, Option[String], Option[String])] =
+        override def getProfile(username: String): Task[(UUID, String, Option[String], Option[String])] =
           pool
             .use {
               _.execute(getProfileQuery)(username).map(_.headOption)

@@ -5,40 +5,19 @@ import zio.json.*
 import java.time.Instant
 import java.util.UUID
 
-case class UserFollowedPayload(
+case class FollowEventPayload(
     followerId: RequestorId,
-    followedId: UUID,
-    followedUsername: String,
-    followedAt: Instant
+    followedId: UUID
 )
-object UserFollowedPayload:
-  given JsonEncoder[UserFollowedPayload] = DeriveJsonEncoder.gen[UserFollowedPayload]
+object FollowEventPayload:
+  given JsonEncoder[FollowEventPayload] = DeriveJsonEncoder.gen[FollowEventPayload]
 
-case class UserFollowedEvent(
+case class FollowEvent(
     eventId: UUID,
     eventType: String,
     aggregateId: RequestorId,
     timestamp: Instant,
-    payload: UserFollowedPayload
+    payload: FollowEventPayload
 )
-object UserFollowedEvent:
-  given JsonEncoder[UserFollowedEvent] = DeriveJsonEncoder.gen[UserFollowedEvent]
-
-case class UserUnfollowedPayload(
-    followerId: RequestorId,
-    followedId: UUID,
-    followedUsername: String,
-    unfollowedAt: Instant
-)
-object UserUnfollowedPayload:
-  given JsonEncoder[UserUnfollowedPayload] = DeriveJsonEncoder.gen[UserUnfollowedPayload]
-
-case class UserUnfollowedEvent(
-    eventId: UUID,
-    eventType: String,
-    aggregateId: RequestorId,
-    timestamp: Instant,
-    payload: UserUnfollowedPayload
-)
-object UserUnfollowedEvent:
-  given JsonEncoder[UserUnfollowedEvent] = DeriveJsonEncoder.gen[UserUnfollowedEvent]
+object FollowEvent:
+  given JsonEncoder[FollowEvent] = DeriveJsonEncoder.gen[FollowEvent]

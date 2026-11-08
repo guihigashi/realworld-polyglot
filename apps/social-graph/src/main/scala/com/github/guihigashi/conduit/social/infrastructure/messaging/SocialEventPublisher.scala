@@ -13,10 +13,13 @@ import java.time.Instant
 import java.util.UUID
 
 trait SocialEventPublisher:
-  def publishUserFollowed(followerId: RequestorId, followedId: UUID, followedUsername: String): Task[Unit]
-  def publishUserUnfollowed(followerId: RequestorId, followedId: UUID, followedUsername: String): Task[Unit]
+  def publishUserFollowed(followerId: RequestorId, followedId: UUID): Task[Unit]
+  def publishUserUnfollowed(followerId: RequestorId, followedId: UUID): Task[Unit]
 
 object SocialEventPublisher:
+  val RoutingKeyUserFollowed   = "social.user-followed"
+  val RoutingKeyUserUnfollowed = "social.user-unfollowed"
+
   val live: ZLayer[Any, Throwable, SocialEventPublisher] =
     ZLayer.scoped {
       for
@@ -35,35 +38,25 @@ object SocialEventPublisher:
           .deliveryMode(2)
           .build()
 
-        override def publishUserFollowed(followerId: RequestorId, followedId: UUID, followedUsername: String): Task[Unit] =
-          val now   = Instant.now()
-          val event = UserFollowedEvent(
-            eventId = UUID.randomUUID(),
-            eventType = "social.user_followed",
-            aggregateId = followerId,
-            timestamp = now,
-            payload = UserFollowedPayload(followerId, followedId, followedUsername, now)
-          )
-          channel.publish(
-            exchange = ExchangeName(config.exchange),
-            body = event.toJson.getBytes("UTF-8"),
-            routingKey = RoutingKey("social.user_followed"),
-            props = jsonProps
-          )
+        override def publishUserFollowed(followerId: RequestorId, followedId: UUID): Task[Unit] =
+          publishFollowEvent(RoutingKeyUserFollowed, followerId, followedId)
 
-        override def publishUserUnfollowed(followerId: RequestorId, followedId: UUID, followedUsername: String): Task[Unit] =
+        override def publishUserUnfollowed(followerId: RequestorId, followedId: UUID): Task[Unit] =
+          publishFollowEvent(RoutingKeyUserUnfollowed, followerId, followedId)
+
+        private def publishFollowEvent(routingKey: String, followerId: RequestorId, followedId: UUID): Task[Unit] =
           val now   = Instant.now()
-          val event = UserUnfollowedEvent(
+          val event = FollowEvent(
             eventId = UUID.randomUUID(),
-            eventType = "social.user_unfollowed",
+            eventType = routingKey,
             aggregateId = followerId,
             timestamp = now,
-            payload = UserUnfollowedPayload(followerId, followedId, followedUsername, now)
+            payload = FollowEventPayload(followerId, followedId)
           )
           channel.publish(
             exchange = ExchangeName(config.exchange),
             body = event.toJson.getBytes("UTF-8"),
-            routingKey = RoutingKey("social.user_unfollowed"),
+            routingKey = RoutingKey(routingKey),
             props = jsonProps
           )
     }

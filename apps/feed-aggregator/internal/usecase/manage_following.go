@@ -19,7 +19,7 @@ type FollowingStore interface {
 // ManageFollowing keeps the set of users each logged-in user follows in memory.
 //
 //   - Filled on demand from social-graph on a miss, bounded by an LRU over users.
-//   - Kept current by social.user_followed / social.user_unfollowed events (idempotent, so redelivery is harmless).
+//   - Kept current by social.user-followed / social.user-unfollowed events (idempotent, so redelivery is harmless).
 //   - Cached slices are immutable (copy-on-write): readers need no lock and must not modify the result.
 //
 // Events for users that are not cached are ignored: the next miss reads the current state from social-graph.
@@ -98,7 +98,7 @@ type followEvent struct {
 
 // HandleSocialEvent applies follow and unfollow events to the cached sets.
 func (m *ManageFollowing) HandleSocialEvent(routingKey string, body []byte) {
-	if routingKey != "social.user_followed" && routingKey != "social.user_unfollowed" {
+	if routingKey != "social.user-followed" && routingKey != "social.user-unfollowed" {
 		return
 	}
 
@@ -122,14 +122,14 @@ func (m *ManageFollowing) HandleSocialEvent(routingKey string, body []byte) {
 	}
 
 	switch routingKey {
-	case "social.user_followed":
+	case "social.user-followed":
 		if slices.Contains(current, followed) {
 			return
 		}
 		next := make([]uuid.UUID, len(current), len(current)+1)
 		copy(next, current)
 		m.cache.Add(follower, append(next, followed))
-	case "social.user_unfollowed":
+	case "social.user-unfollowed":
 		idx := slices.Index(current, followed)
 		if idx < 0 {
 			return

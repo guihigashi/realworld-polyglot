@@ -40,11 +40,23 @@ export const api = createApi({
     }),
     followUser: build.mutation<WrapProfile<Profile>, string>({
       query: (username) => ({ url: `/profiles/${username}/follow`, method: "POST" }),
-      invalidatesTags: (_result, error, arg) => (error ? [] : [{ type: "Profile", id: arg }]),
+      invalidatesTags: (_result, error, arg) =>
+        error
+          ? []
+          : [
+              { type: "Profile", id: arg },
+              { type: "ArticleSummary", id: "LIST" },
+            ],
     }),
     unfollowUser: build.mutation<WrapProfile<Profile>, string>({
       query: (username) => ({ url: `/profiles/${username}/follow`, method: "DELETE" }),
-      invalidatesTags: (_result, error, arg) => (error ? [] : [{ type: "Profile", id: arg }]),
+      invalidatesTags: (_result, error, arg) =>
+        error
+          ? []
+          : [
+              { type: "Profile", id: arg },
+              { type: "ArticleSummary", id: "LIST" },
+            ],
     }),
     listArticles: build.query<
       WrapArticles<ArticleSummary>,
