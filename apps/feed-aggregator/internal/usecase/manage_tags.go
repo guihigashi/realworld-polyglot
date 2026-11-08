@@ -107,53 +107,110 @@ func (m *ManageTags) WarmUp(ctx context.Context) error {
 	return nil
 }
 
-type articleCreatedPayload struct {
-	TagList []string `json:"tagList"`
+// articleEvent is the subset of the article.created / article.updated / article.deleted envelope used for tag counts.
+// previousTagList is only present on article.updated.
+type articleEvent struct {
+	Payload struct {
+		TagList         []string `json:"tagList"`
+		PreviousTagList []string `json:"previousTagList"`
+	} `json:"payload"`
 }
 
-type articleCreatedEvent struct {
-	Payload articleCreatedPayload `json:"payload"`
+// tagDeltas returns how each tag's article count changes for the given event, or nil if the event does not affect tags.
+//   - article.created: every tag +1
+//   - article.deleted: every tag -1
+//   - article.updated: tags only in the new list +1, tags only in the previous list -1
+func tagDeltas(routingKey string, e articleEvent) map[string]int {
+	deltas := make(map[string]int)
+	add := func(tags []string, d int) {
+		for _, tag := range tags {
+			if tag != "" {
+				deltas[tag] += d
+			}
+		}
+	}
+
+	switch routingKey {
+	case "article.created":
+		add(dedupe(e.Payload.TagList), 1)
+	case "article.deleted":
+		add(dedupe(e.Payload.TagList), -1)
+	case "article.updated":
+		add(dedupe(e.Payload.TagList), 1)
+		add(dedupe(e.Payload.PreviousTagList), -1)
+	default:
+		return nil
+	}
+
+	for tag, d := range deltas {
+		if d == 0 {
+			delete(deltas, tag)
+		}
+	}
+	return deltas
 }
 
-// HandleArticleEvent updates tag counts via Copy-on-Write and atomically stores the new snapshot.
+func dedupe(tags []string) []string {
+	seen := make(map[string]struct{}, len(tags))
+	out := make([]string, 0, len(tags))
+	for _, t := range tags {
+		if _, ok := seen[t]; ok {
+			continue
+		}
+		seen[t] = struct{}{}
+		out = append(out, t)
+	}
+	return out
+}
+
+// HandleArticleEvent applies tag count changes via Copy-on-Write and atomically stores the new snapshot.
+// Events received before the first warm-up are ignored: the warm-up reads the current state from article-service.
 func (m *ManageTags) HandleArticleEvent(routingKey string, body []byte) {
-	if routingKey != "article.created" {
+	switch routingKey {
+	case "article.created", "article.updated", "article.deleted":
+	default:
 		return
 	}
 
-	var event articleCreatedEvent
+	var event articleEvent
 	if err := json.Unmarshal(body, &event); err != nil {
-		slog.Error("failed to unmarshal article event for tags", slog.Any("error", err))
+		slog.Error("failed to unmarshal article event for tags", slog.String("routing_key", routingKey), slog.Any("error", err))
+		return
+	}
+
+	deltas := tagDeltas(routingKey, event)
+	if len(deltas) == 0 {
 		return
 	}
 
 	m.writeMu.Lock()
 	defer m.writeMu.Unlock()
 
-	var current []domain.CountedTag
-	if ptr := m.snapshot.Load(); ptr != nil {
-		current = *ptr
+	ptr := m.snapshot.Load()
+	if ptr == nil {
+		return
 	}
+	current := *ptr
 
-	countMap := make(map[string]int, len(current)+len(event.Payload.TagList))
+	countMap := make(map[string]int, len(current)+len(deltas))
 	for _, t := range current {
 		countMap[t.Tag] = t.Count
 	}
 
-	for _, tag := range event.Payload.TagList {
-		if tag != "" {
-			countMap[tag]++
-		}
+	for tag, d := range deltas {
+		countMap[tag] += d
 	}
 
 	next := make([]domain.CountedTag, 0, len(countMap))
 	for tag, count := range countMap {
-		next = append(next, domain.CountedTag{Tag: tag, Count: count})
+		if count > 0 {
+			next = append(next, domain.CountedTag{Tag: tag, Count: count})
+		}
 	}
 	sortTags(next)
 	m.snapshot.Store(&next)
 
-	slog.Debug("tags updated from article.created", slog.Any("tags", event.Payload.TagList))
+	slog.Debug("tags updated from article event", slog.String("routing_key", routingKey), slog.Any("deltas", deltas))
 }
 
 func sortTags(tags []domain.CountedTag) {

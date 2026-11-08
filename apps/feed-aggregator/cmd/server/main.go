@@ -75,7 +75,8 @@ func main() {
 					Handler: func(routingKey string, body []byte) {
 						slog.Debug("handling article event", slog.String("routing_key", routingKey))
 						manageTags.HandleArticleEvent(routingKey, body)
-						if routingKey == "article.created" {
+						switch routingKey {
+						case "article.created", "article.updated", "article.deleted", "article.favorited", "article.unfavorited":
 							listPublicArticles.Purge()
 						}
 					},

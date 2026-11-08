@@ -1,6 +1,7 @@
 package com.github.guihigashi.conduit.article.service.application;
 
 import com.github.guihigashi.conduit.article.service.application.exception.ArticleNotFoundException;
+import com.github.guihigashi.conduit.article.service.application.port.ArticleEventPublisher;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.github.guihigashi.conduit.article.service.domain.Article;
 import org.springframework.stereotype.Service;
@@ -13,9 +14,11 @@ import java.util.UUID;
 public class DeleteArticleUseCase {
 
     private final ArticleRepository articleRepository;
+    private final ArticleEventPublisher eventPublisher;
 
-    public DeleteArticleUseCase(ArticleRepository articleRepository) {
+    public DeleteArticleUseCase(ArticleRepository articleRepository, ArticleEventPublisher eventPublisher) {
         this.articleRepository = articleRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -28,6 +31,7 @@ public class DeleteArticleUseCase {
         }
 
         articleRepository.deleteBySlug(slug);
+        eventPublisher.publishArticleDeleted(article);
     }
 
 }
