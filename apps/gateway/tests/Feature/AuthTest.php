@@ -1,5 +1,8 @@
 <?php
 
+use App\Domain\Contracts\EventPublisherInterface;
+use App\Domain\Profile\Contracts\SocialGraphServiceInterface;
+use App\Infrastructure\Messaging\InMemoryEventPublisher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use function Pest\Laravel\postJson;
@@ -7,6 +10,12 @@ use function Pest\Laravel\withHeader;
 
 // Automatically wipes the database between each test
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $mockSocial = Mockery::mock(SocialGraphServiceInterface::class);
+    $mockSocial->shouldReceive('upsertProfileProjection')->byDefault();
+    app()->instance(SocialGraphServiceInterface::class, $mockSocial);
+});
 
 // A quick helper function to register a user and grab the token for subsequent tests
 function authenticateAndGetToken(): string
@@ -41,7 +50,10 @@ it('registers a user and returns a token', function () {
     expect($response->json('user.token'))->toBeString()->not->toBeEmpty();
 });
 
-it('logs in a user', function () {
+it('logs in a user and publishes login event', function () {
+    $eventPublisher = new InMemoryEventPublisher;
+    app()->instance(EventPublisherInterface::class, $eventPublisher);
+
     authenticateAndGetToken(); // Sets up the user
 
     $response = postJson('/api/users/login', [
@@ -53,6 +65,13 @@ it('logs in a user', function () {
 
     $response->assertStatus(200)
         ->assertJsonPath('user.username', 'testuser');
+
+    expect($eventPublisher->count())->toBe(1);
+    $events = $eventPublisher->getEvents();
+    expect($events[0]['routing_key'])->toBe('user.logged_in');
+    expect($events[0]['payload']['event'])->toBe('UserLoggedIn');
+    expect($events[0]['payload']['data']['username'])->toBe('testuser');
+    expect($events[0]['payload']['data']['email'])->toBe('test@example.com');
 });
 
 it('gets the current user using the token', function () {

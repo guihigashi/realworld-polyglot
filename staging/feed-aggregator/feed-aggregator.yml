@@ -2,3 +2,6 @@ article:
   target: article-service:9092
 social:
   target: social-graph:9090
+rabbitmq:
+  uri: amqp://user:secret@rabbitmq:5672/
+  exchange: events
