@@ -64,6 +64,13 @@ func main() {
 						slog.Debug("handling user event", slog.String("routing_key", routingKey))
 					},
 				},
+				{
+					Queue:       "feed-aggregator.social-events",
+					RoutingKeys: []string{"social.*"},
+					Handler: func(routingKey string, body []byte) {
+						slog.Debug("handling social event", slog.String("routing_key", routingKey))
+					},
+				},
 			},
 		})
 		if err != nil {

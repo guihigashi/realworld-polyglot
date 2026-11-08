@@ -48,6 +48,8 @@ lazy val root = project
       "dev.zio" %% "zio-config-typesafe"       % zioConfigVersion,
       "dev.zio" %% "zio-logging"               % zioLoggingVersion,
       "dev.zio" %% "zio-logging-slf4j2-bridge" % zioLoggingVersion,
+      "dev.zio" %% "zio-amqp"                  % "1.0.1",
+      "dev.zio" %% "zio-json"                  % "1.1.2",
 
       "dev.zio"      %% "zio-interop-cats" % "23.1.0.14",
       "org.tpolecat" %% "skunk-core"       % "2.0.0-RC3",

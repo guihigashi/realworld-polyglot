@@ -3,6 +3,7 @@ package com.github.guihigashi.conduit.social.delivery
 import com.github.guihigashi.conduit.social.domain.RequestorId
 import com.github.guihigashi.conduit.social.domain.exceptions.ProfileNotFoundException
 import com.github.guihigashi.conduit.social.grpc.social_graph.*
+import com.github.guihigashi.conduit.social.infrastructure.messaging.SocialEventPublisher
 import com.github.guihigashi.conduit.social.infrastructure.repository.ProfileRepository
 import com.google.protobuf.empty.Empty
 import io.grpc.Metadata.{ASCII_STRING_MARSHALLER, Key}
@@ -12,7 +13,7 @@ import zio.*
 
 import java.util.UUID
 
-case class SocialGraphServiceImpl(profileRepository: ProfileRepository)
+case class SocialGraphServiceImpl(profileRepository: ProfileRepository, eventPublisher: SocialEventPublisher)
     extends ZioSocialGraph.ZSocialGraphService[AppContext]:
 
   override def getProfile(request: GetProfileRequest, context: AppContext): IO[StatusException, ProfileResponse] =
@@ -47,6 +48,14 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository)
           case e: NoSuchElementException => StatusException(Status.NOT_FOUND.withDescription(e.getMessage))
           case e                         => StatusException(Status.INTERNAL.withDescription(e.getMessage))
         }
+      followedIds <- profileRepository
+        .resolveIdsByUsernames(List(request.targetUsername))
+        .mapError(e => StatusException(Status.INTERNAL.withDescription(e.getMessage)))
+      _           <- followedIds.headOption.flatMap(_._2) match
+        case Some(targetId) =>
+          eventPublisher.publishUserFollowed(id, targetId, request.targetUsername)
+            .catchAll(e => ZIO.logError(s"Failed to publish user_followed event: ${e.getMessage}"))
+        case None => ZIO.unit
     yield ProfileResponse(
       username = profile._1,
       bio = profile._2,
@@ -57,6 +66,9 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository)
   override def unfollowUser(request: UnfollowRequest, context: AppContext): IO[StatusException, ProfileResponse] =
     for
       id <- context.requireRequestorId
+      unfollowedIds <- profileRepository
+        .resolveIdsByUsernames(List(request.targetUsername))
+        .mapError(e => StatusException(Status.INTERNAL.withDescription(e.getMessage)))
       _  <- profileRepository
         .unfollow(id, request.targetUsername)
         .mapError {
@@ -70,6 +82,11 @@ case class SocialGraphServiceImpl(profileRepository: ProfileRepository)
           case e: NoSuchElementException => StatusException(Status.NOT_FOUND.withDescription(e.getMessage))
           case e                         => StatusException(Status.INTERNAL.withDescription(e.getMessage))
         }
+      _ <- unfollowedIds.headOption.flatMap(_._2) match
+        case Some(targetId) =>
+          eventPublisher.publishUserUnfollowed(id, targetId, request.targetUsername)
+            .catchAll(e => ZIO.logError(s"Failed to publish user_unfollowed event: ${e.getMessage}"))
+        case None => ZIO.unit
     yield ProfileResponse(
       username = profile._1,
       bio = profile._2,
@@ -168,9 +185,10 @@ object SocialGraphServiceImpl:
         case None => ZIO.succeed(AppContext(None))
       }
 
-  val live: URLayer[ProfileRepository, ZioSocialGraph.RCSocialGraphService] =
+  val live: URLayer[ProfileRepository & SocialEventPublisher, ZioSocialGraph.RCSocialGraphService] =
     ZLayer {
       for
         profileRepository <- ZIO.service[ProfileRepository]
-      yield SocialGraphServiceImpl(profileRepository).transformContextZIO(findRequestorId)
+        eventPublisher    <- ZIO.service[SocialEventPublisher]
+      yield SocialGraphServiceImpl(profileRepository, eventPublisher).transformContextZIO(findRequestorId)
     }

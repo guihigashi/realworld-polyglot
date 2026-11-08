@@ -3,6 +3,7 @@ package com.github.guihigashi.conduit.social
 import com.github.guihigashi.conduit.social.delivery.SocialGraphServiceImpl
 import com.github.guihigashi.conduit.social.grpc.social_graph.*
 import com.github.guihigashi.conduit.social.infrastructure.db.SkunkSessionPool
+import com.github.guihigashi.conduit.social.infrastructure.messaging.SocialEventPublisher
 import com.github.guihigashi.conduit.social.infrastructure.repository.ProfileRepository
 import io.grpc.ServerBuilder
 import io.grpc.protobuf.services.{HealthStatusManager, ProtoReflectionServiceV1}
@@ -32,5 +33,6 @@ object Main extends ZIOAppDefault:
     .provide(
       SocialGraphServiceImpl.live,
       ProfileRepository.live,
-      SkunkSessionPool.live
+      SkunkSessionPool.live,
+      SocialEventPublisher.live
     )
