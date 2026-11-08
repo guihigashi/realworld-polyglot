@@ -50,6 +50,10 @@ class ArticleSummary extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string author_id = 9;</code>
      */
     protected $author_id = '';
+    /**
+     * Generated from protobuf field <code>string id = 10;</code>
+     */
+    protected $id = '';
 
     /**
      * Constructor.
@@ -66,6 +70,7 @@ class ArticleSummary extends \Google\Protobuf\Internal\Message
      *     @type bool $favorited
      *     @type int $favorites_count
      *     @type string $author_id
+     *     @type string $id
      * }
      */
     public function __construct($data = null)
@@ -267,6 +272,28 @@ class ArticleSummary extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, true);
         $this->author_id = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string id = 10;</code>
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Generated from protobuf field <code>string id = 10;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setId(string $var)
+    {
+        GPBUtil::checkString($var, true);
+        $this->id = $var;
 
         return $this;
     }

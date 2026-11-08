@@ -39,8 +39,7 @@ func (h *FeedHandler) GetTags(ctx context.Context, _ *emptypb.Empty) (*pbfeed.Ge
 	return res, nil
 }
 
-// ListArticles serves the public article listing. The requestor is intentionally ignored:
-// favorited and following are always false.
+// ListArticles serves the article listing, overlaying favorited and following when a requestor is present.
 func (h *FeedHandler) ListArticles(ctx context.Context, req *pbfeed.ListArticlesRequest) (*pbfeed.ListArticlesResponse, error) {
 	page, err := h.ListPublicArticles.Execute(ctx, usecase.ListArticlesQuery{
 		Tag:       req.GetTag(),
@@ -58,7 +57,7 @@ func (h *FeedHandler) ListArticles(ctx context.Context, req *pbfeed.ListArticles
 		ArticlesCount: int32(page.ArticlesCount),
 	}
 	for i := range page.Articles {
-		res.Articles = append(res.Articles, mapDomainToProto(&page.Articles[i], page.Profiles, false))
+		res.Articles = append(res.Articles, mapDomainToProto(&page.Articles[i], page.Profiles))
 	}
 
 	return res, nil
@@ -80,13 +79,13 @@ func (h *FeedHandler) GetFeed(ctx context.Context, req *pbfeed.GetFeedRequest) (
 	}
 
 	for i := range feed.Articles {
-		res.Articles = append(res.Articles, mapDomainToProto(&feed.Articles[i], feed.Profiles, true))
+		res.Articles = append(res.Articles, mapDomainToProto(&feed.Articles[i], feed.Profiles))
 	}
 
 	return res, nil
 }
 
-func mapDomainToProto(article *domain.Article, authors map[uuid.UUID]domain.Profile, following bool) *pbfeed.Article {
+func mapDomainToProto(article *domain.Article, authors map[uuid.UUID]domain.Profile) *pbfeed.Article {
 	a := &pbfeed.Article{
 		Slug:           article.Slug,
 		Title:          article.Title,
@@ -103,7 +102,7 @@ func mapDomainToProto(article *domain.Article, authors map[uuid.UUID]domain.Prof
 			Username:  authorProfile.Username,
 			Bio:       authorProfile.Bio,
 			Image:     authorProfile.Image,
-			Following: following,
+			Following: authorProfile.Following,
 		}
 	}
 

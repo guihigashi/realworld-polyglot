@@ -109,6 +109,7 @@ type ArticleSummary struct {
 	Favorited      bool                   `protobuf:"varint,7,opt,name=favorited,proto3" json:"favorited,omitempty"`
 	FavoritesCount int32                  `protobuf:"varint,8,opt,name=favorites_count,json=favoritesCount,proto3" json:"favorites_count,omitempty"`
 	AuthorId       string                 `protobuf:"bytes,9,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
+	Id             string                 `protobuf:"bytes,10,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -202,6 +203,13 @@ func (x *ArticleSummary) GetFavoritesCount() int32 {
 func (x *ArticleSummary) GetAuthorId() string {
 	if x != nil {
 		return x.AuthorId
+	}
+	return ""
+}
+
+func (x *ArticleSummary) GetId() string {
+	if x != nil {
+		return x.Id
 	}
 	return ""
 }
@@ -1308,7 +1316,7 @@ const file_article_proto_rawDesc = "" +
 	"\x04_tagB\f\n" +
 	"\n" +
 	"_author_idB\x12\n" +
-	"\x10_favorited_by_id\"\x99\x02\n" +
+	"\x10_favorited_by_id\"\xa9\x02\n" +
 	"\x0eArticleSummary\x12\x12\n" +
 	"\x04slug\x18\x01 \x01(\tR\x04slug\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
@@ -1320,7 +1328,9 @@ const file_article_proto_rawDesc = "" +
 	"updated_at\x18\x06 \x01(\tR\tupdatedAt\x12\x1c\n" +
 	"\tfavorited\x18\a \x01(\bR\tfavorited\x12'\n" +
 	"\x0ffavorites_count\x18\b \x01(\x05R\x0efavoritesCount\x12\x1b\n" +
-	"\tauthor_id\x18\t \x01(\tR\bauthorId\"\x8a\x01\n" +
+	"\tauthor_id\x18\t \x01(\tR\bauthorId\x12\x0e\n" +
+	"\x02id\x18\n" +
+	" \x01(\tR\x02id\"\x8a\x01\n" +
 	"\x14ListArticlesResponse\x12Q\n" +
 	"\barticles\x18\x01 \x03(\v25.com.github.guihigashi.conduit.article.ArticleSummaryR\barticles\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x05R\n" +

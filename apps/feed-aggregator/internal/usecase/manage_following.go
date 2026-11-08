@@ -10,6 +10,8 @@ import (
 
 	lru "github.com/hashicorp/golang-lru/v2"
 	"golang.org/x/sync/singleflight"
+
+	"github.com/guihigashi/conduit/feed/internal/appctx"
 )
 
 type FollowingStore interface {
@@ -58,8 +60,7 @@ func (m *ManageFollowing) GetFollowing(ctx context.Context, userId uuid.UUID) ([
 	}
 
 	v, err, _ := m.flight.Do(userId.String(), func() (any, error) {
-		// Shared among callers for the same user: keep ctx values (requestor id) but not the first caller's cancellation.
-		loadCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), loadTimeout)
+		loadCtx, cancel := context.WithTimeout(appctx.WithRequestorId(context.WithoutCancel(ctx), userId), loadTimeout)
 		defer cancel()
 
 		state := &loadState{}

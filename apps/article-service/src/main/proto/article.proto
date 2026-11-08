@@ -46,6 +46,7 @@ message ArticleSummary {
   bool favorited = 7;
   int32 favorites_count = 8;
   string author_id = 9;
+  string id = 10;
 }
 
 message ListArticlesResponse {

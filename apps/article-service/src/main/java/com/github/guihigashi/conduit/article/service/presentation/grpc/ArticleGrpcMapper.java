@@ -23,6 +23,7 @@ public class ArticleGrpcMapper {
 
     public static ArticleSummary toSummaryProto(com.github.guihigashi.conduit.article.service.domain.Article domain) {
         return ArticleSummary.newBuilder()
+                .setId(domain.id().toString())
                 .setSlug(domain.slug())
                 .setTitle(domain.title())
                 .setDescription(domain.description())

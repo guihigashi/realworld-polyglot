@@ -4,6 +4,7 @@ import (
 	"context"
 	"uuid"
 
+	"github.com/guihigashi/conduit/feed/internal/appctx"
 	"github.com/guihigashi/conduit/feed/internal/domain"
 	"github.com/guihigashi/conduit/feed/internal/generated/pbsocial"
 	"github.com/guihigashi/conduit/feed/internal/infrastructure/grpcutil"
@@ -36,6 +37,7 @@ func NewClient(target string) (*Client, error) {
 }
 
 func (c *Client) GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUID, error) {
+	ctx = appctx.WithRequestorId(ctx, userId)
 	resp, err := c.client.GetFollowing(ctx, &emptypb.Empty{})
 	if err != nil {
 		return nil, err

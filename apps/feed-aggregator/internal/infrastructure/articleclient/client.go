@@ -5,6 +5,7 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/guihigashi/conduit/feed/internal/appctx"
 	"github.com/guihigashi/conduit/feed/internal/domain"
 	"github.com/guihigashi/conduit/feed/internal/generated/pbarticle"
 	"github.com/guihigashi/conduit/feed/internal/infrastructure/grpcutil"
@@ -51,6 +52,7 @@ func (c *Client) GetTags(ctx context.Context) ([]domain.CountedTag, error) {
 }
 
 func (c *Client) UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error) {
+	ctx = appctx.WithRequestorId(ctx, userId)
 	response, err := c.client.UserFavoritedArticles(ctx, &emptypb.Empty{})
 	if err != nil {
 		return nil, err
@@ -92,7 +94,7 @@ func (c *Client) ListArticles(ctx context.Context, followingIds []uuid.UUID, lim
 	return articles, int(res.TotalCount), nil
 }
 
-// ListArticlesFiltered lists articles by the public ListArticles filters. No requestor is propagated.
+// ListArticlesFiltered lists articles by the ListArticles filters.
 func (c *Client) ListArticlesFiltered(ctx context.Context, tag *string, authorId, favoritedById *uuid.UUID, limit, offset int) ([]domain.Article, int, error) {
 	request := &pbarticle.ListArticlesRequest{
 		Tag:    tag,
@@ -130,8 +132,12 @@ func mapToDomain(as *pbarticle.ArticleSummary) domain.Article {
 	if err != nil {
 		panic(err)
 	}
+	id := uuid.Nil()
+	if as.Id != "" {
+		id = uuid.MustParse(as.Id)
+	}
 	return domain.Article{
-		Id:             uuid.Nil(),
+		Id:             id,
 		Slug:           as.Slug,
 		Title:          as.Title,
 		Description:    as.Description,
