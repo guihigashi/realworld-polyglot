@@ -16,7 +16,7 @@ class RabbitMqEventPublisher implements EventPublisherInterface
         private readonly int $port,
         private readonly string $user,
         private readonly string $password,
-        private readonly string $vhost = '/',
+        private readonly string $vhost = 'rwa',
         private readonly string $exchange = 'events',
     ) {}
 

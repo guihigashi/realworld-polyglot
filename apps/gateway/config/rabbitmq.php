@@ -5,6 +5,6 @@ return [
     'port' => (int) env('RABBITMQ_PORT', 5672),
     'user' => env('RABBITMQ_USER', 'user'),
     'password' => env('RABBITMQ_PASSWORD', 'secret'),
-    'vhost' => env('RABBITMQ_VHOST', '/'),
+    'vhost' => env('RABBITMQ_VHOST', 'rwa'),
     'exchange' => env('RABBITMQ_EXCHANGE', 'events'),
 ];

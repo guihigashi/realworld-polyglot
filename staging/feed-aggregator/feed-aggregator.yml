@@ -3,5 +3,5 @@ article:
 social:
   target: social-graph:9090
 rabbitmq:
-  uri: amqp://user:secret@rabbitmq:5672/
+  uri: amqp://user:secret@rabbitmq:5672/rwa
   exchange: events

@@ -9,7 +9,7 @@ import (
 )
 
 func TestConsumerReceivesMessage(t *testing.T) {
-	uri := "amqp://user:secret@localhost:5672/"
+	uri := "amqp://user:secret@localhost:5672/rwa"
 
 	// Verify RabbitMQ availability
 	testConn, err := amqp.Dial(uri)
@@ -18,11 +18,23 @@ func TestConsumerReceivesMessage(t *testing.T) {
 	}
 	_ = testConn.Close()
 
+	queueName := "test_feed_queue"
+	routingKey := "user.logged_in"
+	exchange := "test_feed_events"
+	received := make(chan []byte, 1)
+
 	cfg := Config{
-		URI:        uri,
-		Exchange:   "test_feed_events",
-		Queue:      "test_feed_queue",
-		RoutingKey: "user.logged_in",
+		URI:      uri,
+		Exchange: exchange,
+		Subscriptions: []Subscription{
+			{
+				Queue:       queueName,
+				RoutingKeys: []string{routingKey},
+				Handler: func(rk string, body []byte) {
+					received <- body
+				},
+			},
+		},
 	}
 
 	consumer, err := NewConsumer(cfg)
@@ -53,8 +65,8 @@ func TestConsumerReceivesMessage(t *testing.T) {
 
 	err = pubCh.PublishWithContext(
 		ctx,
-		cfg.Exchange,
-		cfg.RoutingKey,
+		exchange,
+		routingKey,
 		false,
 		false,
 		amqp.Publishing{
@@ -69,7 +81,16 @@ func TestConsumerReceivesMessage(t *testing.T) {
 	// Give the consumer a brief moment to process the message
 	time.Sleep(100 * time.Millisecond)
 
+	select {
+	case msg := <-received:
+		if len(msg) == 0 {
+			t.Fatal("expected non-empty message body in dedicated handler")
+		}
+	case <-time.After(1 * time.Second):
+		t.Fatal("timed out waiting for queue handler to be called")
+	}
+
 	// Clean up queue and exchange
-	_, _ = pubCh.QueueDelete(cfg.Queue, false, false, false)
-	_ = pubCh.ExchangeDelete(cfg.Exchange, false, false)
+	_, _ = pubCh.QueueDelete(queueName, false, false, false)
+	_ = pubCh.ExchangeDelete(exchange, false, false)
 }

@@ -24,11 +24,6 @@ func main() {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
 
-	viper.SetDefault("rabbitmq.uri", "amqp://user:secret@localhost:5672/")
-	viper.SetDefault("rabbitmq.exchange", "events")
-	viper.SetDefault("rabbitmq.queue", "feed-aggregator.user-events")
-	viper.SetDefault("rabbitmq.routing_key", "user.logged_in")
-
 	err := viper.ReadInConfig()
 	if err != nil {
 		slog.Error("failed to read config", slog.Any("error", err))
@@ -48,17 +43,31 @@ func main() {
 		os.Exit(1)
 	}
 
-	// RabbitMQ Event Consumer
+	// RabbitMQ Event Consumer (code-driven subscriptions over a single connection)
 	rabbitmqURI := viper.GetString("rabbitmq.uri")
 	if rabbitmqURI != "" {
 		consumer, err := rabbitmq.NewConsumer(rabbitmq.Config{
-			URI:        rabbitmqURI,
-			Exchange:   viper.GetString("rabbitmq.exchange"),
-			Queue:      viper.GetString("rabbitmq.queue"),
-			RoutingKey: viper.GetString("rabbitmq.routing_key"),
+			URI:      rabbitmqURI,
+			Exchange: viper.GetString("rabbitmq.exchange"),
+			Subscriptions: []rabbitmq.Subscription{
+				{
+					Queue:       "feed-aggregator.article-events",
+					RoutingKeys: []string{"article.*"},
+					Handler: func(routingKey string, body []byte) {
+						slog.Debug("handling article event", slog.String("routing_key", routingKey))
+					},
+				},
+				{
+					Queue:       "feed-aggregator.user-events",
+					RoutingKeys: []string{"user.*"},
+					Handler: func(routingKey string, body []byte) {
+						slog.Debug("handling user event", slog.String("routing_key", routingKey))
+					},
+				},
+			},
 		})
 		if err != nil {
-			slog.Error("failed to connect rabbitmq consumer", slog.Any("error", err))
+			slog.Error("failed to create rabbitmq consumer", slog.Any("error", err))
 			os.Exit(1)
 		}
 		defer consumer.Close()

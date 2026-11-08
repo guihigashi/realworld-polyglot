@@ -8,11 +8,18 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+type Handler func(routingKey string, body []byte)
+
+type Subscription struct {
+	Queue       string
+	RoutingKeys []string
+	Handler     Handler
+}
+
 type Config struct {
-	URI        string
-	Exchange   string
-	Queue      string
-	RoutingKey string
+	URI           string
+	Exchange      string
+	Subscriptions []Subscription
 }
 
 type Consumer struct {
@@ -49,33 +56,35 @@ func NewConsumer(cfg Config) (*Consumer, error) {
 		return nil, fmt.Errorf("failed to declare exchange: %w", err)
 	}
 
-	// Declare durable queue
-	q, err := ch.QueueDeclare(
-		cfg.Queue,
-		true,  // durable
-		false, // delete when unused
-		false, // exclusive
-		false, // no-wait
-		nil,
-	)
-	if err != nil {
-		_ = ch.Close()
-		_ = conn.Close()
-		return nil, fmt.Errorf("failed to declare queue: %w", err)
-	}
+	for _, sub := range cfg.Subscriptions {
+		q, err := ch.QueueDeclare(
+			sub.Queue,
+			true,  // durable
+			false, // delete when unused
+			false, // exclusive
+			false, // no-wait
+			nil,
+		)
+		if err != nil {
+			_ = ch.Close()
+			_ = conn.Close()
+			return nil, fmt.Errorf("failed to declare queue %s: %w", sub.Queue, err)
+		}
 
-	// Bind queue to exchange with routing key
-	err = ch.QueueBind(
-		q.Name,
-		cfg.RoutingKey,
-		cfg.Exchange,
-		false,
-		nil,
-	)
-	if err != nil {
-		_ = ch.Close()
-		_ = conn.Close()
-		return nil, fmt.Errorf("failed to bind queue to exchange: %w", err)
+		for _, rk := range sub.RoutingKeys {
+			err = ch.QueueBind(
+				q.Name,
+				rk,
+				cfg.Exchange,
+				false,
+				nil,
+			)
+			if err != nil {
+				_ = ch.Close()
+				_ = conn.Close()
+				return nil, fmt.Errorf("failed to bind queue %s to exchange with key %s: %w", sub.Queue, rk, err)
+			}
+		}
 	}
 
 	return &Consumer{
@@ -86,43 +95,48 @@ func NewConsumer(cfg Config) (*Consumer, error) {
 }
 
 func (c *Consumer) Start(ctx context.Context) error {
-	msgs, err := c.ch.Consume(
-		c.cfg.Queue,
-		"",    // consumer tag
-		true,  // auto-ack
-		false, // exclusive
-		false, // no-local
-		false, // no-wait
-		nil,   // args
-	)
-	if err != nil {
-		return fmt.Errorf("failed to register consumer: %w", err)
-	}
-
-	slog.Info("rabbitmq consumer started",
-		slog.String("queue", c.cfg.Queue),
-		slog.String("exchange", c.cfg.Exchange),
-		slog.String("routing_key", c.cfg.RoutingKey),
-	)
-
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				slog.Info("stopping rabbitmq consumer")
-				return
-			case d, ok := <-msgs:
-				if !ok {
-					slog.Warn("rabbitmq messages channel closed")
-					return
-				}
-				slog.Info("received event from rabbitmq",
-					slog.String("routing_key", d.RoutingKey),
-					slog.String("body", string(d.Body)),
-				)
-			}
+	for _, sub := range c.cfg.Subscriptions {
+		msgs, err := c.ch.Consume(
+			sub.Queue,
+			"",    // consumer tag
+			true,  // auto-ack
+			false, // exclusive
+			false, // no-local
+			false, // no-wait
+			nil,   // args
+		)
+		if err != nil {
+			return fmt.Errorf("failed to register consumer for %s: %w", sub.Queue, err)
 		}
-	}()
+
+		slog.Info("rabbitmq queue consumer started",
+			slog.String("queue", sub.Queue),
+			slog.String("exchange", c.cfg.Exchange),
+		)
+
+		go func(s Subscription, deliveries <-chan amqp.Delivery) {
+			for {
+				select {
+				case <-ctx.Done():
+					slog.Info("stopping rabbitmq consumer", slog.String("queue", s.Queue))
+					return
+				case d, ok := <-deliveries:
+					if !ok {
+						slog.Warn("rabbitmq messages channel closed", slog.String("queue", s.Queue))
+						return
+					}
+					slog.Info("received event from rabbitmq",
+						slog.String("queue", s.Queue),
+						slog.String("routing_key", d.RoutingKey),
+						slog.String("body", string(d.Body)),
+					)
+					if s.Handler != nil {
+						s.Handler(d.RoutingKey, d.Body)
+					}
+				}
+			}
+		}(sub, msgs)
+	}
 
 	return nil
 }

@@ -35,6 +35,7 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=user
       - RABBITMQ_DEFAULT_PASS=secret
+      - RABBITMQ_DEFAULT_VHOST=rwa
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
