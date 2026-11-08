@@ -92,6 +92,35 @@ func (c *Client) ListArticles(ctx context.Context, followingIds []uuid.UUID, lim
 	return articles, int(res.TotalCount), nil
 }
 
+// ListArticlesFiltered lists articles by the public ListArticles filters. No requestor is propagated.
+func (c *Client) ListArticlesFiltered(ctx context.Context, tag *string, authorId, favoritedById *uuid.UUID, limit, offset int) ([]domain.Article, int, error) {
+	request := &pbarticle.ListArticlesRequest{
+		Tag:    tag,
+		Limit:  int32(limit),
+		Offset: int32(offset),
+	}
+	if authorId != nil {
+		s := authorId.String()
+		request.AuthorId = &s
+	}
+	if favoritedById != nil {
+		s := favoritedById.String()
+		request.FavoritedById = &s
+	}
+
+	res, err := c.client.ListArticles(ctx, request)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	articles := make([]domain.Article, 0, len(res.GetArticles()))
+	for _, a := range res.GetArticles() {
+		articles = append(articles, mapToDomain(a))
+	}
+
+	return articles, int(res.GetTotalCount()), nil
+}
+
 func mapToDomain(as *pbarticle.ArticleSummary) domain.Article {
 	createdAt, err := time.Parse(time.RFC3339, as.CreatedAt)
 	if err != nil {

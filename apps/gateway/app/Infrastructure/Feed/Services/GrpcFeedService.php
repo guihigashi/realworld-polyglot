@@ -10,6 +10,8 @@ use Generated\Grpc\Feed\FeedServiceClient;
 use Generated\Grpc\Feed\GetFeedRequest;
 use Generated\Grpc\Feed\GetFeedResponse;
 use Generated\Grpc\Feed\GetTagsResponse;
+use Generated\Grpc\Feed\ListArticlesRequest;
+use Generated\Grpc\Feed\ListArticlesResponse;
 use Google\Protobuf\GPBEmpty;
 
 readonly class GrpcFeedService implements FeedServiceInterface
@@ -55,6 +57,36 @@ readonly class GrpcFeedService implements FeedServiceInterface
         );
     }
 
+    public function listArticles(?string $tag, ?string $author, ?string $favorited, int $limit, int $offset, ?string $requestorId): array
+    {
+        $request = (new ListArticlesRequest)
+            ->setLimit($limit)
+            ->setOffset($offset);
+
+        if ($tag !== null) {
+            $request->setTag($tag);
+        }
+        if ($author !== null) {
+            $request->setAuthor($author);
+        }
+        if ($favorited !== null) {
+            $request->setFavorited($favorited);
+        }
+
+        /** @var ListArticlesResponse $response */
+        [$response, $status] = $this->client->ListArticles(
+            $request, $this->metadataOfRequestor($requestorId))->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
+
+        return [
+            'articles' => array_map([$this, 'mapArticleResponse'], iterator_to_array($response->getArticles())),
+            'articlesCount' => $response->getArticlesCount(),
+        ];
+    }
+
     private function mapArticleResponse(Article $article): array
     {
         $articleArray = [
@@ -66,8 +98,6 @@ readonly class GrpcFeedService implements FeedServiceInterface
             'updatedAt' => $article->getUpdatedAt(),
             'favorited' => $article->getFavorited(),
             'favoritesCount' => $article->getFavoritesCount(),
-            'authorId' => $article->getAuthor(),
-
         ];
 
         $authorProto = $article->getAuthor();

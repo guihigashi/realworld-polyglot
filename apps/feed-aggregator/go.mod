@@ -4,9 +4,11 @@ go 1.27.0
 
 require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.4
+	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/rabbitmq/amqp091-go v1.16.0
 	github.com/samber/lo v1.53.0
 	github.com/spf13/viper v1.21.0
+	golang.org/x/sync v0.24.0
 	google.golang.org/grpc v1.85.0
 	google.golang.org/protobuf v1.36.12
 )

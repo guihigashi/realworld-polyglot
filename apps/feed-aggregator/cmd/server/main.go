@@ -46,6 +46,15 @@ func main() {
 
 	manageTags := usecase.NewManageTags(articleClient)
 
+	viper.SetDefault("articles.cache.size", 1000)
+	viper.SetDefault("articles.cache.ttl", 30*time.Second)
+	listPublicArticles := usecase.NewListPublicArticles(
+		articleClient,
+		socialClient,
+		viper.GetInt("articles.cache.size"),
+		viper.GetDuration("articles.cache.ttl"),
+	)
+
 	// RabbitMQ Event Consumer (code-driven subscriptions over a single connection)
 	rabbitmqURI := viper.GetString("rabbitmq.uri")
 	if rabbitmqURI != "" {
@@ -59,6 +68,9 @@ func main() {
 					Handler: func(routingKey string, body []byte) {
 						slog.Debug("handling article event", slog.String("routing_key", routingKey))
 						manageTags.HandleArticleEvent(routingKey, body)
+						if routingKey == "article.created" {
+							listPublicArticles.Purge()
+						}
 					},
 				},
 				{
@@ -105,7 +117,7 @@ func main() {
 		Social:   socialClient,
 		Articles: articleClient,
 	}
-	grpcServer := delivery.CreateGrpcServer(app, manageTags)
+	grpcServer := delivery.CreateGrpcServer(app, manageTags, listPublicArticles)
 
 	lis, err := net.Listen("tcp", ":9091")
 	if err != nil {

@@ -12,6 +12,7 @@ option php_metadata_namespace = "Generated\\Grpc\\Feed\\Metadata";
 service FeedService {
   rpc GetFeed (GetFeedRequest) returns (GetFeedResponse);
   rpc GetTags (google.protobuf.Empty) returns (GetTagsResponse);
+  rpc ListArticles (ListArticlesRequest) returns (ListArticlesResponse);
 }
 
 message GetFeedRequest {
@@ -50,4 +51,17 @@ message CountedTag {
 
 message GetTagsResponse {
   repeated CountedTag tags = 1;
+}
+
+message ListArticlesRequest {
+  optional string tag = 1;
+  optional string author = 2;
+  optional string favorited = 3;
+  int32 limit = 4;
+  int32 offset = 5;
+}
+
+message ListArticlesResponse {
+  repeated Article articles = 1;
+  int32 articles_count = 2;
 }

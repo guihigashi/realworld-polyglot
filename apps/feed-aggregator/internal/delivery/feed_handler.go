@@ -16,8 +16,9 @@ import (
 
 type FeedHandler struct {
 	pbfeed.UnimplementedFeedServiceServer
-	GenerateFeed *usecase.GenerateFeed
-	ManageTags   *usecase.ManageTags
+	GenerateFeed       *usecase.GenerateFeed
+	ManageTags         *usecase.ManageTags
+	ListPublicArticles *usecase.ListPublicArticles
 }
 
 func (h *FeedHandler) GetTags(ctx context.Context, _ *emptypb.Empty) (*pbfeed.GetTagsResponse, error) {
@@ -38,6 +39,31 @@ func (h *FeedHandler) GetTags(ctx context.Context, _ *emptypb.Empty) (*pbfeed.Ge
 	return res, nil
 }
 
+// ListArticles serves the public article listing. The requestor is intentionally ignored:
+// favorited and following are always false.
+func (h *FeedHandler) ListArticles(ctx context.Context, req *pbfeed.ListArticlesRequest) (*pbfeed.ListArticlesResponse, error) {
+	page, err := h.ListPublicArticles.Execute(ctx, usecase.ListArticlesQuery{
+		Tag:       req.GetTag(),
+		Author:    req.GetAuthor(),
+		Favorited: req.GetFavorited(),
+		Limit:     int(req.GetLimit()),
+		Offset:    int(req.GetOffset()),
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	res := &pbfeed.ListArticlesResponse{
+		Articles:      make([]*pbfeed.Article, 0, len(page.Articles)),
+		ArticlesCount: int32(page.ArticlesCount),
+	}
+	for i := range page.Articles {
+		res.Articles = append(res.Articles, mapDomainToProto(&page.Articles[i], page.Profiles, false))
+	}
+
+	return res, nil
+}
+
 func (h *FeedHandler) GetFeed(ctx context.Context, req *pbfeed.GetFeedRequest) (*pbfeed.GetFeedResponse, error) {
 	userId, ok := appctx.RequestorIdFromContext(ctx)
 	if !ok {
@@ -54,13 +80,13 @@ func (h *FeedHandler) GetFeed(ctx context.Context, req *pbfeed.GetFeedRequest) (
 	}
 
 	for i := range feed.Articles {
-		res.Articles = append(res.Articles, mapDomainToProto(&feed.Articles[i], feed.Profiles))
+		res.Articles = append(res.Articles, mapDomainToProto(&feed.Articles[i], feed.Profiles, true))
 	}
 
 	return res, nil
 }
 
-func mapDomainToProto(article *domain.Article, authors map[uuid.UUID]domain.Profile) *pbfeed.Article {
+func mapDomainToProto(article *domain.Article, authors map[uuid.UUID]domain.Profile, following bool) *pbfeed.Article {
 	a := &pbfeed.Article{
 		Slug:           article.Slug,
 		Title:          article.Title,
@@ -77,7 +103,7 @@ func mapDomainToProto(article *domain.Article, authors map[uuid.UUID]domain.Prof
 			Username:  authorProfile.Username,
 			Bio:       authorProfile.Bio,
 			Image:     authorProfile.Image,
-			Following: true,
+			Following: following,
 		}
 	}
 

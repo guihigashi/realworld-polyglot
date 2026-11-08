@@ -79,3 +79,26 @@ func (c *Client) GetProfilesByIds(ctx context.Context, userIds []uuid.UUID) (map
 
 	return m, nil
 }
+
+// ResolveIdsByUsernames returns username -> id for the usernames that exist; unknown usernames are omitted.
+func (c *Client) ResolveIdsByUsernames(ctx context.Context, usernames []string) (map[string]uuid.UUID, error) {
+	response, err := c.client.ResolveIdsByUsernames(ctx, &pbsocial.ResolveIdsByUsernamesRequest{Usernames: usernames})
+	if err != nil {
+		return nil, err
+	}
+
+	resolved := response.GetResolvedIds()
+	m := make(map[string]uuid.UUID, len(resolved))
+	for username, id := range resolved {
+		if id == "" {
+			continue
+		}
+		parsed, err := uuid.Parse(id)
+		if err != nil {
+			return nil, err
+		}
+		m[username] = parsed
+	}
+
+	return m, nil
+}

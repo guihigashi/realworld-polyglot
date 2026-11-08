@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-func CreateGrpcServer(generateFeed *usecase.GenerateFeed, manageTags *usecase.ManageTags) *grpc.Server {
+func CreateGrpcServer(generateFeed *usecase.GenerateFeed, manageTags *usecase.ManageTags, listPublicArticles *usecase.ListPublicArticles) *grpc.Server {
 	opts := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
 			recovery.UnaryServerInterceptor(),
@@ -22,8 +22,9 @@ func CreateGrpcServer(generateFeed *usecase.GenerateFeed, manageTags *usecase.Ma
 	s := grpc.NewServer(opts...)
 
 	pbfeed.RegisterFeedServiceServer(s, &FeedHandler{
-		GenerateFeed: generateFeed,
-		ManageTags:   manageTags,
+		GenerateFeed:       generateFeed,
+		ManageTags:         manageTags,
+		ListPublicArticles: listPublicArticles,
 	})
 
 	reflection.Register(s)
