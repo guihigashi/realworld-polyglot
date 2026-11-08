@@ -4,7 +4,7 @@ node = "lts"
 # --- Subtasks ---
 [tasks."dev:infra"]
 description = "Start Postgres and Redis containers"
-run = "podman compose up -d postgres redis"
+run = "podman compose up -d postgres redis rabbitmq"
 
 [tasks."dev:web"]
 description = "Start React web-client Vite dev server"

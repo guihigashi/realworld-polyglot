@@ -5,6 +5,9 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite"
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    outDir: "../gateway/public/dist",
+  },
   resolve: {
     tsconfigPaths: true,
   },
@@ -19,6 +22,12 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
   ],
   server: {
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:8000",
+        changeOrigin: true,
+      },
+    },
     watch: {
       ignored: ["**/playwright-report/**", "**/test-results/**"],
     },
