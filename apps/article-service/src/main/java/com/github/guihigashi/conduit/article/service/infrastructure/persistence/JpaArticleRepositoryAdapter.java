@@ -130,8 +130,13 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
     }
 
     @Override
-    public List<String> findAllTags() {
-        return articleRepository.findAllDistinctTags();
+    public List<com.github.guihigashi.conduit.article.service.domain.CountedTag> findAllTags() {
+        return articleRepository.findTagsWithCounts().stream()
+                .map(row -> new com.github.guihigashi.conduit.article.service.domain.CountedTag(
+                        (String) row[0],
+                        ((Number) row[1]).intValue()
+                ))
+                .toList();
     }
 
     @Override

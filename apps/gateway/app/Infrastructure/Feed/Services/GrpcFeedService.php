@@ -5,9 +5,12 @@ namespace App\Infrastructure\Feed\Services;
 use App\Domain\Feed\Contracts\FeedServiceInterface;
 use App\Infrastructure\Traits\RequestorMetadata;
 use Generated\Grpc\Feed\Article;
+use Generated\Grpc\Feed\CountedTag;
 use Generated\Grpc\Feed\FeedServiceClient;
 use Generated\Grpc\Feed\GetFeedRequest;
 use Generated\Grpc\Feed\GetFeedResponse;
+use Generated\Grpc\Feed\GetTagsResponse;
+use Google\Protobuf\GPBEmpty;
 
 readonly class GrpcFeedService implements FeedServiceInterface
 {
@@ -35,6 +38,21 @@ readonly class GrpcFeedService implements FeedServiceInterface
             'articles' => array_map([$this, 'mapArticleResponse'], iterator_to_array($response->getArticles())),
             'articlesCount' => $response->getArticlesCount(),
         ];
+    }
+
+    public function getTags(): array
+    {
+        /** @var GetTagsResponse $response */
+        [$response, $status] = $this->client->GetTags(new GPBEmpty)->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
+
+        return array_map(
+            fn (CountedTag $t) => $t->getTag(),
+            iterator_to_array($response->getTags())
+        );
     }
 
     private function mapArticleResponse(Article $article): array

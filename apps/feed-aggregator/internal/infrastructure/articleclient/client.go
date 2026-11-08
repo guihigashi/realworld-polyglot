@@ -35,6 +35,21 @@ func NewClient(target string) (*Client, error) {
 	}, nil
 }
 
+func (c *Client) GetTags(ctx context.Context) ([]domain.CountedTag, error) {
+	res, err := c.client.GetTags(ctx, &emptypb.Empty{})
+	if err != nil {
+		return nil, err
+	}
+	tags := make([]domain.CountedTag, len(res.GetTags()))
+	for i, t := range res.GetTags() {
+		tags[i] = domain.CountedTag{
+			Tag:   t.GetTag(),
+			Count: int(t.GetCount()),
+		}
+	}
+	return tags, nil
+}
+
 func (c *Client) UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error) {
 	response, err := c.client.UserFavoritedArticles(ctx, &emptypb.Empty{})
 	if err != nil {

@@ -11,11 +11,31 @@ import (
 	"github.com/guihigashi/conduit/feed/internal/usecase"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type FeedHandler struct {
 	pbfeed.UnimplementedFeedServiceServer
 	GenerateFeed *usecase.GenerateFeed
+	ManageTags   *usecase.ManageTags
+}
+
+func (h *FeedHandler) GetTags(ctx context.Context, _ *emptypb.Empty) (*pbfeed.GetTagsResponse, error) {
+	tags, err := h.ManageTags.GetTags(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	res := &pbfeed.GetTagsResponse{
+		Tags: make([]*pbfeed.CountedTag, len(tags)),
+	}
+	for i, t := range tags {
+		res.Tags[i] = &pbfeed.CountedTag{
+			Tag:   t.Tag,
+			Count: int32(t.Count),
+		}
+	}
+	return res, nil
 }
 
 func (h *FeedHandler) GetFeed(ctx context.Context, req *pbfeed.GetFeedRequest) (*pbfeed.GetFeedResponse, error) {

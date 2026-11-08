@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/guihigashi/conduit/feed/internal/delivery"
 	"github.com/guihigashi/conduit/feed/internal/infrastructure/articleclient"
@@ -43,6 +44,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	manageTags := usecase.NewManageTags(articleClient)
+
 	// RabbitMQ Event Consumer (code-driven subscriptions over a single connection)
 	rabbitmqURI := viper.GetString("rabbitmq.uri")
 	if rabbitmqURI != "" {
@@ -55,6 +58,7 @@ func main() {
 					RoutingKeys: []string{"article.*"},
 					Handler: func(routingKey string, body []byte) {
 						slog.Debug("handling article event", slog.String("routing_key", routingKey))
+						manageTags.HandleArticleEvent(routingKey, body)
 					},
 				},
 				{
@@ -88,11 +92,20 @@ func main() {
 		}
 	}
 
+	// Warm up tags from article-service in the background on startup
+	go func() {
+		warmCtx, warmCancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer warmCancel()
+		if err := manageTags.WarmUp(warmCtx); err != nil {
+			slog.Warn("initial tags warmup deferred (will warm on first request)", slog.Any("error", err))
+		}
+	}()
+
 	app := &usecase.GenerateFeed{
 		Social:   socialClient,
 		Articles: articleClient,
 	}
-	grpcServer := delivery.CreateGrpcServer(app)
+	grpcServer := delivery.CreateGrpcServer(app, manageTags)
 
 	lis, err := net.Listen("tcp", ":9091")
 	if err != nil {

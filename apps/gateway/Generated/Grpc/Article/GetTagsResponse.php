@@ -15,7 +15,7 @@ use Google\Protobuf\RepeatedField;
 class GetTagsResponse extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>repeated string tags = 1;</code>
+     * Generated from protobuf field <code>repeated .com.github.guihigashi.conduit.article.CountedTag tags = 1;</code>
      */
     private $tags;
 
@@ -25,7 +25,7 @@ class GetTagsResponse extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string[] $tags
+     *     @type \Generated\Grpc\Article\CountedTag[] $tags
      * }
      */
     public function __construct($data = null)
@@ -35,8 +35,8 @@ class GetTagsResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>repeated string tags = 1;</code>
-     * @return RepeatedField<string>
+     * Generated from protobuf field <code>repeated .com.github.guihigashi.conduit.article.CountedTag tags = 1;</code>
+     * @return RepeatedField<\Generated\Grpc\Article\CountedTag>
      */
     public function getTags()
     {
@@ -44,13 +44,13 @@ class GetTagsResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>repeated string tags = 1;</code>
-     * @param string[] $var
+     * Generated from protobuf field <code>repeated .com.github.guihigashi.conduit.article.CountedTag tags = 1;</code>
+     * @param \Generated\Grpc\Article\CountedTag[] $var
      * @return $this
      */
     public function setTags(array|RepeatedField $var)
     {
-        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Generated\Grpc\Article\CountedTag::class);
         $this->tags = $arr;
 
         return $this;

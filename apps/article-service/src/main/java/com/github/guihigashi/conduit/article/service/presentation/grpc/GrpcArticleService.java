@@ -319,7 +319,12 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
         try {
             var tags = getTagsUseCase.execute();
             var response = GetTagsResponse.newBuilder()
-                    .addAllTags(tags.stream().sorted().toList())
+                    .addAllTags(tags.stream()
+                            .map(t -> com.github.guihigashi.conduit.article.grpc.CountedTag.newBuilder()
+                                    .setTag(t.tag())
+                                    .setCount(t.count())
+                                    .build())
+                            .toList())
                     .build();
 
             responseObserver.onNext(response);

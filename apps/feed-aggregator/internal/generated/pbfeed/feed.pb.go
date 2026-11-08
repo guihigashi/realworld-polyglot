@@ -9,6 +9,7 @@ package pbfeed
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -301,12 +302,108 @@ func (x *GetFeedResponse) GetArticlesCount() int32 {
 	return 0
 }
 
+type CountedTag struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Tag           string                 `protobuf:"bytes,1,opt,name=tag,proto3" json:"tag,omitempty"`
+	Count         int32                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CountedTag) Reset() {
+	*x = CountedTag{}
+	mi := &file_feed_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CountedTag) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CountedTag) ProtoMessage() {}
+
+func (x *CountedTag) ProtoReflect() protoreflect.Message {
+	mi := &file_feed_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CountedTag.ProtoReflect.Descriptor instead.
+func (*CountedTag) Descriptor() ([]byte, []int) {
+	return file_feed_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CountedTag) GetTag() string {
+	if x != nil {
+		return x.Tag
+	}
+	return ""
+}
+
+func (x *CountedTag) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+type GetTagsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Tags          []*CountedTag          `protobuf:"bytes,1,rep,name=tags,proto3" json:"tags,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTagsResponse) Reset() {
+	*x = GetTagsResponse{}
+	mi := &file_feed_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTagsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTagsResponse) ProtoMessage() {}
+
+func (x *GetTagsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_feed_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTagsResponse.ProtoReflect.Descriptor instead.
+func (*GetTagsResponse) Descriptor() ([]byte, []int) {
+	return file_feed_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetTagsResponse) GetTags() []*CountedTag {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
 var File_feed_proto protoreflect.FileDescriptor
 
 const file_feed_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"feed.proto\x12\"com.github.guihigashi.conduit.feed\">\n" +
+	"feed.proto\x12\"com.github.guihigashi.conduit.feed\x1a\x1bgoogle/protobuf/empty.proto\">\n" +
 	"\x0eGetFeedRequest\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x16\n" +
 	"\x06offset\x18\x02 \x01(\x05R\x06offset\"\xb9\x02\n" +
@@ -329,9 +426,16 @@ const file_feed_proto_rawDesc = "" +
 	"\tfollowing\x18\x04 \x01(\bR\tfollowing\"\x81\x01\n" +
 	"\x0fGetFeedResponse\x12G\n" +
 	"\barticles\x18\x01 \x03(\v2+.com.github.guihigashi.conduit.feed.ArticleR\barticles\x12%\n" +
-	"\x0earticles_count\x18\x02 \x01(\x05R\rarticlesCount2\x81\x01\n" +
+	"\x0earticles_count\x18\x02 \x01(\x05R\rarticlesCount\"4\n" +
+	"\n" +
+	"CountedTag\x12\x10\n" +
+	"\x03tag\x18\x01 \x01(\tR\x03tag\x12\x14\n" +
+	"\x05count\x18\x02 \x01(\x05R\x05count\"U\n" +
+	"\x0fGetTagsResponse\x12B\n" +
+	"\x04tags\x18\x01 \x03(\v2..com.github.guihigashi.conduit.feed.CountedTagR\x04tags2\xd9\x01\n" +
 	"\vFeedService\x12r\n" +
-	"\aGetFeed\x122.com.github.guihigashi.conduit.feed.GetFeedRequest\x1a3.com.github.guihigashi.conduit.feed.GetFeedResponseBzZCgithub.com/guihigashi/conduit/feed/internal/generated/pbfeed;pbfeed\xca\x02\x13Generated\\Grpc\\Feed\xe2\x02\x1cGenerated\\Grpc\\Feed\\Metadatab\x06proto3"
+	"\aGetFeed\x122.com.github.guihigashi.conduit.feed.GetFeedRequest\x1a3.com.github.guihigashi.conduit.feed.GetFeedResponse\x12V\n" +
+	"\aGetTags\x12\x16.google.protobuf.Empty\x1a3.com.github.guihigashi.conduit.feed.GetTagsResponseBzZCgithub.com/guihigashi/conduit/feed/internal/generated/pbfeed;pbfeed\xca\x02\x13Generated\\Grpc\\Feed\xe2\x02\x1cGenerated\\Grpc\\Feed\\Metadatab\x06proto3"
 
 var (
 	file_feed_proto_rawDescOnce sync.Once
@@ -345,23 +449,29 @@ func file_feed_proto_rawDescGZIP() []byte {
 	return file_feed_proto_rawDescData
 }
 
-var file_feed_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_feed_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_feed_proto_goTypes = []any{
 	(*GetFeedRequest)(nil),  // 0: com.github.guihigashi.conduit.feed.GetFeedRequest
 	(*Article)(nil),         // 1: com.github.guihigashi.conduit.feed.Article
 	(*Author)(nil),          // 2: com.github.guihigashi.conduit.feed.Author
 	(*GetFeedResponse)(nil), // 3: com.github.guihigashi.conduit.feed.GetFeedResponse
+	(*CountedTag)(nil),      // 4: com.github.guihigashi.conduit.feed.CountedTag
+	(*GetTagsResponse)(nil), // 5: com.github.guihigashi.conduit.feed.GetTagsResponse
+	(*emptypb.Empty)(nil),   // 6: google.protobuf.Empty
 }
 var file_feed_proto_depIdxs = []int32{
 	2, // 0: com.github.guihigashi.conduit.feed.Article.author:type_name -> com.github.guihigashi.conduit.feed.Author
 	1, // 1: com.github.guihigashi.conduit.feed.GetFeedResponse.articles:type_name -> com.github.guihigashi.conduit.feed.Article
-	0, // 2: com.github.guihigashi.conduit.feed.FeedService.GetFeed:input_type -> com.github.guihigashi.conduit.feed.GetFeedRequest
-	3, // 3: com.github.guihigashi.conduit.feed.FeedService.GetFeed:output_type -> com.github.guihigashi.conduit.feed.GetFeedResponse
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	4, // 2: com.github.guihigashi.conduit.feed.GetTagsResponse.tags:type_name -> com.github.guihigashi.conduit.feed.CountedTag
+	0, // 3: com.github.guihigashi.conduit.feed.FeedService.GetFeed:input_type -> com.github.guihigashi.conduit.feed.GetFeedRequest
+	6, // 4: com.github.guihigashi.conduit.feed.FeedService.GetTags:input_type -> google.protobuf.Empty
+	3, // 5: com.github.guihigashi.conduit.feed.FeedService.GetFeed:output_type -> com.github.guihigashi.conduit.feed.GetFeedResponse
+	5, // 6: com.github.guihigashi.conduit.feed.FeedService.GetTags:output_type -> com.github.guihigashi.conduit.feed.GetTagsResponse
+	5, // [5:7] is the sub-list for method output_type
+	3, // [3:5] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_feed_proto_init() }
@@ -375,7 +485,7 @@ func file_feed_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_feed_proto_rawDesc), len(file_feed_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

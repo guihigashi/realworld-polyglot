@@ -30,4 +30,18 @@ class FeedServiceClient extends \Grpc\BaseStub {
         $metadata, $options);
     }
 
+    /**
+     * @param \Google\Protobuf\GPBEmpty $argument input argument
+     * @param array $metadata metadata
+     * @param array $options call options
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Feed\GetTagsResponse>
+     */
+    public function GetTags(\Google\Protobuf\GPBEmpty $argument,
+      $metadata = [], $options = []) {
+        return $this->_simpleRequest('/com.github.guihigashi.conduit.feed.FeedService/GetTags',
+        $argument,
+        ['\Generated\Grpc\Feed\GetTagsResponse', 'decode'],
+        $metadata, $options);
+    }
+
 }

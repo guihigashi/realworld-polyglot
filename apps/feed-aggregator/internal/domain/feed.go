@@ -25,3 +25,8 @@ type Profile struct {
 	Image     string
 	Following bool
 }
+
+type CountedTag struct {
+	Tag   string
+	Count int
+}

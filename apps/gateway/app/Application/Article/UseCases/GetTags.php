@@ -2,16 +2,16 @@
 
 namespace App\Application\Article\UseCases;
 
-use App\Domain\Article\Contracts\ArticleServiceInterface;
+use App\Domain\Feed\Contracts\FeedServiceInterface;
 
 class GetTags
 {
     public function __construct(
-        private readonly ArticleServiceInterface $articleService
+        private readonly FeedServiceInterface $feedService
     ) {}
 
     public function execute(): array
     {
-        return $this->articleService->getTags();
+        return $this->feedService->getTags();
     }
 }

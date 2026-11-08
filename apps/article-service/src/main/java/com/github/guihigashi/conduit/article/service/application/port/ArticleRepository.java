@@ -27,7 +27,7 @@ public interface ArticleRepository {
 
     void deleteBySlug(String slug);
 
-    List<String> findAllTags();
+    List<com.github.guihigashi.conduit.article.service.domain.CountedTag> findAllTags();
 
     Article favoriteArticle(String slug, UUID requestorId) throws ArticleNotFoundException;
 
