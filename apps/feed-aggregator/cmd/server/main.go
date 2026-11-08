@@ -55,6 +55,13 @@ func main() {
 		viper.GetDuration("articles.cache.ttl"),
 	)
 
+	viper.SetDefault("following.cache.size", 10000)
+	manageFollowing, err := usecase.NewManageFollowing(socialClient, viper.GetInt("following.cache.size"))
+	if err != nil {
+		slog.Error("failed to create following cache", slog.Any("error", err))
+		os.Exit(1)
+	}
+
 	// RabbitMQ Event Consumer (code-driven subscriptions over a single connection)
 	rabbitmqURI := viper.GetString("rabbitmq.uri")
 	if rabbitmqURI != "" {
@@ -85,6 +92,7 @@ func main() {
 					RoutingKeys: []string{"social.*"},
 					Handler: func(routingKey string, body []byte) {
 						slog.Debug("handling social event", slog.String("routing_key", routingKey))
+						manageFollowing.HandleSocialEvent(routingKey, body)
 					},
 				},
 			},
@@ -114,8 +122,9 @@ func main() {
 	}()
 
 	app := &usecase.GenerateFeed{
-		Social:   socialClient,
-		Articles: articleClient,
+		Following: manageFollowing,
+		Social:    socialClient,
+		Articles:  articleClient,
 	}
 	grpcServer := delivery.CreateGrpcServer(app, manageTags, listPublicArticles)
 

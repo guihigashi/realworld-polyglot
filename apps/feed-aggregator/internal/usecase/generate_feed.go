@@ -9,8 +9,10 @@ import (
 	"github.com/guihigashi/conduit/feed/internal/domain"
 )
 
-type Social interface {
+type Following interface {
 	GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUID, error)
+}
+type Social interface {
 	GetProfilesByIds(ctx context.Context, userIds []uuid.UUID) (map[uuid.UUID]domain.Profile, error)
 }
 type Articles interface {
@@ -19,8 +21,9 @@ type Articles interface {
 }
 
 type GenerateFeed struct {
-	Social   Social
-	Articles Articles
+	Following Following
+	Social    Social
+	Articles  Articles
 }
 
 type Feed struct {
@@ -30,7 +33,7 @@ type Feed struct {
 }
 
 func (f *GenerateFeed) Execute(ctx context.Context, userId uuid.UUID, limit, offset int) (*Feed, error) {
-	followingIds, err := f.Social.GetFollowing(ctx, userId)
+	followingIds, err := f.Following.GetFollowing(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
