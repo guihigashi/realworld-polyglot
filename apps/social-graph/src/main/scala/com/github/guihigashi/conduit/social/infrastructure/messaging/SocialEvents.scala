@@ -2,12 +2,14 @@ package com.github.guihigashi.conduit.social.infrastructure.messaging
 
 import com.github.guihigashi.conduit.social.domain.RequestorId
 import zio.json.*
+
 import java.time.Instant
 import java.util.UUID
 
 case class FollowEventPayload(
     followerId: RequestorId,
-    followedId: UUID
+    followedId: UUID,
+    version: Long
 )
 object FollowEventPayload:
   given JsonEncoder[FollowEventPayload] = DeriveJsonEncoder.gen[FollowEventPayload]

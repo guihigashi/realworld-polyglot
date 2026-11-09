@@ -36,11 +36,11 @@ func NewClient(target string) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUID, error) {
+func (c *Client) GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUID, int64, error) {
 	ctx = appctx.WithRequestorId(ctx, userId)
 	resp, err := c.client.GetFollowing(ctx, &emptypb.Empty{})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var followingIds []uuid.UUID
@@ -48,7 +48,7 @@ func (c *Client) GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUI
 		followingIds = append(followingIds, uuid.MustParse(id))
 	}
 
-	return followingIds, nil
+	return followingIds, resp.GetFollowsVersion(), nil
 }
 
 func (c *Client) GetProfilesByIds(ctx context.Context, userIds []uuid.UUID) (map[uuid.UUID]domain.Profile, error) {

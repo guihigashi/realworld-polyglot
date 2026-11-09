@@ -69,7 +69,7 @@ func (h *FeedHandler) GetFeed(ctx context.Context, req *pbfeed.GetFeedRequest) (
 		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
 	}
 
-	feed, err := h.GenerateFeed.Execute(ctx, userId, int(req.GetLimit()), int(req.GetOffset()))
+	feed, err := h.GenerateFeed.Execute(ctx, userId, int(req.GetLimit()), int(req.GetOffset()), req.GetMinFollowsVersion())
 	if err != nil {
 		return nil, err
 	}

@@ -310,7 +310,7 @@ func (l *ListPublicArticles) hydratePage(ctx context.Context, articles []domain.
 	}
 
 	if l.following != nil {
-		followingIds, err := l.following.GetFollowing(ctx, requestorId)
+		followingIds, err := l.following.GetFollowing(ctx, requestorId, 0)
 		if err != nil {
 			return nil, err
 		}

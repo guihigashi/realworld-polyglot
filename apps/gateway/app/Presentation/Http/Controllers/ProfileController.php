@@ -35,7 +35,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'profile' => $profile->toArray(),
-        ]);
+        ])->header('X-Follows-Version', (string) $profile->followsVersion);
     }
 
     public function unfollow(Request $request, string $username): JsonResponse
@@ -46,6 +46,6 @@ class ProfileController extends Controller
 
         return response()->json([
             'profile' => $profile->toArray(),
-        ]);
+        ])->header('X-Follows-Version', (string) $profile->followsVersion);
     }
 }

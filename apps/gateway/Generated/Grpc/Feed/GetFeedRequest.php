@@ -22,6 +22,10 @@ class GetFeedRequest extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>int32 offset = 2;</code>
      */
     protected $offset = 0;
+    /**
+     * Generated from protobuf field <code>optional int64 min_follows_version = 3;</code>
+     */
+    protected $min_follows_version = null;
 
     /**
      * Constructor.
@@ -31,6 +35,7 @@ class GetFeedRequest extends \Google\Protobuf\Internal\Message
      *
      *     @type int $limit
      *     @type int $offset
+     *     @type int|string $min_follows_version
      * }
      */
     public function __construct($data = null)
@@ -79,6 +84,38 @@ class GetFeedRequest extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkInt32($var);
         $this->offset = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>optional int64 min_follows_version = 3;</code>
+     * @return int|string
+     */
+    public function getMinFollowsVersion()
+    {
+        return isset($this->min_follows_version) ? $this->min_follows_version : GPBUtil::compatibleInt64(0, '0');
+    }
+
+    public function hasMinFollowsVersion()
+    {
+        return isset($this->min_follows_version);
+    }
+
+    public function clearMinFollowsVersion()
+    {
+        unset($this->min_follows_version);
+    }
+
+    /**
+     * Generated from protobuf field <code>optional int64 min_follows_version = 3;</code>
+     * @param int|string $var
+     * @return $this
+     */
+    public function setMinFollowsVersion(int|string $var)
+    {
+        GPBUtil::checkInt64($var);
+        $this->min_follows_version = $var;
 
         return $this;
     }

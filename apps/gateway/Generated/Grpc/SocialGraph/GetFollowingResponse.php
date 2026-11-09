@@ -18,6 +18,10 @@ class GetFollowingResponse extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string following_ids = 1;</code>
      */
     private $following_ids;
+    /**
+     * Generated from protobuf field <code>int64 follows_version = 2;</code>
+     */
+    protected $follows_version = 0;
 
     /**
      * Constructor.
@@ -26,6 +30,7 @@ class GetFollowingResponse extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string[] $following_ids
+     *     @type int|string $follows_version
      * }
      */
     public function __construct($data = null)
@@ -52,6 +57,28 @@ class GetFollowingResponse extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->following_ids = $arr;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>int64 follows_version = 2;</code>
+     * @return int|string
+     */
+    public function getFollowsVersion()
+    {
+        return $this->follows_version;
+    }
+
+    /**
+     * Generated from protobuf field <code>int64 follows_version = 2;</code>
+     * @param int|string $var
+     * @return $this
+     */
+    public function setFollowsVersion(int|string $var)
+    {
+        GPBUtil::checkInt64($var);
+        $this->follows_version = $var;
 
         return $this;
     }

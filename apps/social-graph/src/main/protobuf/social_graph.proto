@@ -32,6 +32,7 @@ message ProfileResponse {
   optional string bio = 2;
   optional string image = 3;
   bool following = 4;
+  int64 follows_version = 5;
 }
 
 message FollowRequest {
@@ -70,4 +71,5 @@ message ResolveIdsByUsernamesResponse {
 
 message GetFollowingResponse {
   repeated string following_ids = 1;
+  int64 follows_version = 2;
 }

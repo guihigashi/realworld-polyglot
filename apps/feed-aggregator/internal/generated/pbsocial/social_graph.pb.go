@@ -67,13 +67,14 @@ func (x *GetProfileRequest) GetTargetUsername() string {
 }
 
 type ProfileResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
-	Bio           *string                `protobuf:"bytes,2,opt,name=bio,proto3,oneof" json:"bio,omitempty"`
-	Image         *string                `protobuf:"bytes,3,opt,name=image,proto3,oneof" json:"image,omitempty"`
-	Following     bool                   `protobuf:"varint,4,opt,name=following,proto3" json:"following,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Username       string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Bio            *string                `protobuf:"bytes,2,opt,name=bio,proto3,oneof" json:"bio,omitempty"`
+	Image          *string                `protobuf:"bytes,3,opt,name=image,proto3,oneof" json:"image,omitempty"`
+	Following      bool                   `protobuf:"varint,4,opt,name=following,proto3" json:"following,omitempty"`
+	FollowsVersion int64                  `protobuf:"varint,5,opt,name=follows_version,json=followsVersion,proto3" json:"follows_version,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ProfileResponse) Reset() {
@@ -132,6 +133,13 @@ func (x *ProfileResponse) GetFollowing() bool {
 		return x.Following
 	}
 	return false
+}
+
+func (x *ProfileResponse) GetFollowsVersion() int64 {
+	if x != nil {
+		return x.FollowsVersion
+	}
+	return 0
 }
 
 type FollowRequest struct {
@@ -503,10 +511,11 @@ func (x *ResolveIdsByUsernamesResponse) GetResolvedIds() map[string]string {
 }
 
 type GetFollowingResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	FollowingIds  []string               `protobuf:"bytes,1,rep,name=following_ids,json=followingIds,proto3" json:"following_ids,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	FollowingIds   []string               `protobuf:"bytes,1,rep,name=following_ids,json=followingIds,proto3" json:"following_ids,omitempty"`
+	FollowsVersion int64                  `protobuf:"varint,2,opt,name=follows_version,json=followsVersion,proto3" json:"follows_version,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *GetFollowingResponse) Reset() {
@@ -546,18 +555,26 @@ func (x *GetFollowingResponse) GetFollowingIds() []string {
 	return nil
 }
 
+func (x *GetFollowingResponse) GetFollowsVersion() int64 {
+	if x != nil {
+		return x.FollowsVersion
+	}
+	return 0
+}
+
 var File_social_graph_proto protoreflect.FileDescriptor
 
 const file_social_graph_proto_rawDesc = "" +
 	"\n" +
 	"\x12social_graph.proto\x12$com.github.guihigashi.conduit.social\x1a\x1bgoogle/protobuf/empty.proto\"<\n" +
 	"\x11GetProfileRequest\x12'\n" +
-	"\x0ftarget_username\x18\x01 \x01(\tR\x0etargetUsername\"\x8f\x01\n" +
+	"\x0ftarget_username\x18\x01 \x01(\tR\x0etargetUsername\"\xb8\x01\n" +
 	"\x0fProfileResponse\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x15\n" +
 	"\x03bio\x18\x02 \x01(\tH\x00R\x03bio\x88\x01\x01\x12\x19\n" +
 	"\x05image\x18\x03 \x01(\tH\x01R\x05image\x88\x01\x01\x12\x1c\n" +
-	"\tfollowing\x18\x04 \x01(\bR\tfollowingB\x06\n" +
+	"\tfollowing\x18\x04 \x01(\bR\tfollowing\x12'\n" +
+	"\x0ffollows_version\x18\x05 \x01(\x03R\x0efollowsVersionB\x06\n" +
 	"\x04_bioB\b\n" +
 	"\x06_image\"8\n" +
 	"\rFollowRequest\x12'\n" +
@@ -583,9 +600,10 @@ const file_social_graph_proto_rawDesc = "" +
 	"\fresolved_ids\x18\x01 \x03(\v2T.com.github.guihigashi.conduit.social.ResolveIdsByUsernamesResponse.ResolvedIdsEntryR\vresolvedIds\x1a>\n" +
 	"\x10ResolvedIdsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\";\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"d\n" +
 	"\x14GetFollowingResponse\x12#\n" +
-	"\rfollowing_ids\x18\x01 \x03(\tR\ffollowingIds2\xb2\a\n" +
+	"\rfollowing_ids\x18\x01 \x03(\tR\ffollowingIds\x12'\n" +
+	"\x0ffollows_version\x18\x02 \x01(\x03R\x0efollowsVersion2\xb2\a\n" +
 	"\x12SocialGraphService\x12|\n" +
 	"\n" +
 	"GetProfile\x127.com.github.guihigashi.conduit.social.GetProfileRequest\x1a5.com.github.guihigashi.conduit.social.ProfileResponse\x12x\n" +

@@ -23,11 +23,12 @@ const (
 )
 
 type GetFeedRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        int32                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Limit             int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset            int32                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	MinFollowsVersion *int64                 `protobuf:"varint,3,opt,name=min_follows_version,json=minFollowsVersion,proto3,oneof" json:"min_follows_version,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *GetFeedRequest) Reset() {
@@ -70,6 +71,13 @@ func (x *GetFeedRequest) GetLimit() int32 {
 func (x *GetFeedRequest) GetOffset() int32 {
 	if x != nil {
 		return x.Offset
+	}
+	return 0
+}
+
+func (x *GetFeedRequest) GetMinFollowsVersion() int64 {
+	if x != nil && x.MinFollowsVersion != nil {
+		return *x.MinFollowsVersion
 	}
 	return 0
 }
@@ -531,10 +539,12 @@ var File_feed_proto protoreflect.FileDescriptor
 const file_feed_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"feed.proto\x12\"com.github.guihigashi.conduit.feed\x1a\x1bgoogle/protobuf/empty.proto\">\n" +
+	"feed.proto\x12\"com.github.guihigashi.conduit.feed\x1a\x1bgoogle/protobuf/empty.proto\"\x8b\x01\n" +
 	"\x0eGetFeedRequest\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x02 \x01(\x05R\x06offset\"\xb9\x02\n" +
+	"\x06offset\x18\x02 \x01(\x05R\x06offset\x123\n" +
+	"\x13min_follows_version\x18\x03 \x01(\x03H\x00R\x11minFollowsVersion\x88\x01\x01B\x16\n" +
+	"\x14_min_follows_version\"\xb9\x02\n" +
 	"\aArticle\x12\x12\n" +
 	"\x04slug\x18\x01 \x01(\tR\x04slug\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
@@ -626,6 +636,7 @@ func file_feed_proto_init() {
 	if File_feed_proto != nil {
 		return
 	}
+	file_feed_proto_msgTypes[0].OneofWrappers = []any{}
 	file_feed_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

@@ -1,6 +1,8 @@
 import { createApi, fetchBaseQuery, type TagDescription } from "@reduxjs/toolkit/query/react"
 import type { RootState } from "@/state/store.ts"
 
+let latestFollowsVersion: string | null = null
+
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
@@ -40,6 +42,17 @@ export const api = createApi({
     }),
     followUser: build.mutation<WrapProfile<Profile>, string>({
       query: (username) => ({ url: `/profiles/${username}/follow`, method: "POST" }),
+      async onQueryStarted(_arg, { queryFulfilled }) {
+        try {
+          const { meta } = await queryFulfilled
+          const v = meta?.response?.headers.get("x-follows-version")
+          if (v) {
+            latestFollowsVersion = v
+          }
+        } catch {
+          // ignore
+        }
+      },
       invalidatesTags: (_result, error, arg) =>
         error
           ? []
@@ -50,6 +63,17 @@ export const api = createApi({
     }),
     unfollowUser: build.mutation<WrapProfile<Profile>, string>({
       query: (username) => ({ url: `/profiles/${username}/follow`, method: "DELETE" }),
+      async onQueryStarted(_arg, { queryFulfilled }) {
+        try {
+          const { meta } = await queryFulfilled
+          const v = meta?.response?.headers.get("x-follows-version")
+          if (v) {
+            latestFollowsVersion = v
+          }
+        } catch {
+          // ignore
+        }
+      },
       invalidatesTags: (_result, error, arg) =>
         error
           ? []
@@ -85,7 +109,12 @@ export const api = createApi({
       },
     }),
     feedArticles: build.query<WrapArticles<ArticleSummary>, { limit?: number; offset?: number } | undefined>({
-      query: (params) => ({ url: "/articles/feed", method: "GET", params }),
+      query: (params) => ({
+        url: "/articles/feed",
+        method: "GET",
+        params,
+        headers: latestFollowsVersion ? { "X-Follows-Version": latestFollowsVersion } : undefined,
+      }),
       providesTags: (result, error) => {
         if (error) return []
 

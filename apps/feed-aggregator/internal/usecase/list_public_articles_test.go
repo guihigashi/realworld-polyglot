@@ -67,8 +67,8 @@ func (f *fakeSocialPort) GetProfilesByIds(_ context.Context, userIds []uuid.UUID
 	return out, nil
 }
 
-func (f *fakeSocialPort) GetFollowing(_ context.Context, userId uuid.UUID) ([]uuid.UUID, error) {
-	return f.following[userId], nil
+func (f *fakeSocialPort) GetFollowing(_ context.Context, userId uuid.UUID) ([]uuid.UUID, int64, error) {
+	return f.following[userId], 1, nil
 }
 
 func TestListPublicArticles_GranularEventsAndUserAggregation(t *testing.T) {
@@ -239,7 +239,7 @@ func TestListPublicArticles_GranularEventsAndUserAggregation(t *testing.T) {
 		Articles:       articlesPort,
 		NewestArticles: uc,
 	}
-	feed, err := genFeed.Execute(authCtx, viewer, 10, 0)
+	feed, err := genFeed.Execute(authCtx, viewer, 10, 0, 0)
 	if err != nil {
 		t.Fatalf("GenerateFeed.Execute: %v", err)
 	}

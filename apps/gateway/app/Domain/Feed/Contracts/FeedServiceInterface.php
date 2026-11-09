@@ -7,7 +7,7 @@ interface FeedServiceInterface
     /**
      * @return array{articles: iterable, articlesCount: int}
      */
-    public function getFeed(int $limit, int $offset, string $requestorId): array;
+    public function getFeed(int $limit, int $offset, string $requestorId, ?int $minFollowsVersion = null): array;
 
     public function getTags(): iterable;
 

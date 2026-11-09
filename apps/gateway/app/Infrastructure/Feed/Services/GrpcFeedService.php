@@ -22,11 +22,15 @@ readonly class GrpcFeedService implements FeedServiceInterface
         private FeedServiceClient $client
     ) {}
 
-    public function getFeed(int $limit, int $offset, string $requestorId): array
+    public function getFeed(int $limit, int $offset, string $requestorId, ?int $minFollowsVersion = null): array
     {
         $request = (new GetFeedRequest)
             ->setLimit($limit)
             ->setOffset($offset);
+
+        if ($minFollowsVersion !== null) {
+            $request->setMinFollowsVersion($minFollowsVersion);
+        }
 
         /** @var GetFeedResponse $response */
         [$response, $status] = $this->client->getFeed(

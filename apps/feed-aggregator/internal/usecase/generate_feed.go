@@ -10,7 +10,7 @@ import (
 )
 
 type Following interface {
-	GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUID, error)
+	GetFollowing(ctx context.Context, userId uuid.UUID, minVersion int64) ([]uuid.UUID, error)
 }
 
 type Social interface {
@@ -40,7 +40,7 @@ type Feed struct {
 	Profiles      map[uuid.UUID]domain.Profile
 }
 
-func (f *GenerateFeed) Execute(ctx context.Context, userId uuid.UUID, limit, offset int) (*Feed, error) {
+func (f *GenerateFeed) Execute(ctx context.Context, userId uuid.UUID, limit, offset int, minFollowsVersion int64) (*Feed, error) {
 	if offset < 0 {
 		offset = 0
 	}
@@ -48,7 +48,7 @@ func (f *GenerateFeed) Execute(ctx context.Context, userId uuid.UUID, limit, off
 		limit = defaultPageLimit
 	}
 
-	followingIds, err := f.Following.GetFollowing(ctx, userId)
+	followingIds, err := f.Following.GetFollowing(ctx, userId, minFollowsVersion)
 	if err != nil {
 		return nil, err
 	}
