@@ -38,7 +38,7 @@ depends = ["dev:article:run", "dev:article:watch"]
 [tasks."dev:social"]
 description = "Start Scala social graph service with hot reload"
 dir = "apps/social-graph"
-run = "sbt ~reStart"
+run = "sbt ~runReload"
 
 # --- Dev Up Orchestrator ---
 [tasks."dev:up"]
