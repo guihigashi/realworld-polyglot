@@ -2,6 +2,8 @@ package com.github.guihigashi.conduit.article.service.infrastructure.messaging;
 
 import com.github.guihigashi.conduit.article.service.application.port.ArticleEventPublisher;
 import com.github.guihigashi.conduit.article.service.domain.Article;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,8 @@ import java.util.UUID;
 
 @Component
 public class RabbitMqArticleEventPublisher implements ArticleEventPublisher {
+
+    private static final Logger log = LoggerFactory.getLogger(RabbitMqArticleEventPublisher.class);
 
     public static final String ROUTING_KEY_ARTICLE_CREATED = "article.created";
     public static final String ROUTING_KEY_ARTICLE_UPDATED = "article.updated";
@@ -143,11 +147,21 @@ public class RabbitMqArticleEventPublisher implements ArticleEventPublisher {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
-                    rabbitTemplate.convertAndSend(exchangeName, routingKey, event);
+                    publish(routingKey, event);
                 }
             });
             return;
         }
-        rabbitTemplate.convertAndSend(exchangeName, routingKey, event);
+        publish(routingKey, event);
+    }
+
+    private void publish(String routingKey, Object event) {
+        try {
+            rabbitTemplate.convertAndSend(exchangeName, routingKey, event);
+            log.info("published event to rabbitmq: exchange={}, routingKey={}, event={}", exchangeName, routingKey, event);
+        } catch (Exception e) {
+            log.error("failed to publish event to rabbitmq: exchange={}, routingKey={}", exchangeName, routingKey, e);
+            throw e;
+        }
     }
 }

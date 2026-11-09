@@ -3,6 +3,7 @@
 namespace App\Infrastructure\Messaging;
 
 use App\Domain\Contracts\EventPublisherInterface;
+use Illuminate\Support\Facades\Log;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -40,6 +41,12 @@ class RabbitMqEventPublisher implements EventPublisherInterface
         ]);
 
         $channel->basic_publish($msg, $this->exchange, $routingKey);
+
+        Log::info('published event to rabbitmq', [
+            'exchange' => $this->exchange,
+            'routing_key' => $routingKey,
+            'payload' => $payload,
+        ]);
     }
 
     private function getChannel(): AMQPChannel

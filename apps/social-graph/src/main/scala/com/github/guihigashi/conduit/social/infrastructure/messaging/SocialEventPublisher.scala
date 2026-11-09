@@ -53,10 +53,13 @@ object SocialEventPublisher:
             timestamp = now,
             payload = FollowEventPayload(followerId, followedId)
           )
+          val body = event.toJson
           channel.publish(
             exchange = ExchangeName(config.exchange),
-            body = event.toJson.getBytes("UTF-8"),
+            body = body.getBytes("UTF-8"),
             routingKey = RoutingKey(routingKey),
             props = jsonProps
+          ) *> ZIO.logInfo(
+            s"published event to rabbitmq: exchange=${config.exchange}, routing_key=$routingKey, body=$body"
           )
     }
