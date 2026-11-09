@@ -4,6 +4,9 @@ namespace App\Domain\Feed\Contracts;
 
 interface FeedServiceInterface
 {
+    /**
+     * @return array{articles: iterable, articlesCount: int}
+     */
     public function getFeed(int $limit, int $offset, string $requestorId): array;
 
     public function getTags(): iterable;
@@ -11,7 +14,7 @@ interface FeedServiceInterface
     /**
      * Article listing with authors already hydrated. The requestor is currently ignored by the feed-aggregator.
      *
-     * @return array{articles: array, articlesCount: int}
+     * @return array{articles: iterable, articlesCount: int}
      */
     public function listArticles(?string $tag, ?string $author, ?string $favorited, int $limit, int $offset, ?string $requestorId): array;
 }

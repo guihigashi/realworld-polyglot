@@ -37,7 +37,11 @@ readonly class GrpcFeedService implements FeedServiceInterface
         }
 
         return [
-            'articles' => array_map([$this, 'mapArticleResponse'], iterator_to_array($response->getArticles())),
+            'articles' => (function () use ($response) {
+                foreach ($response->getArticles() as $article) {
+                    yield $this->mapArticleResponse($article);
+                }
+            })(),
             'articlesCount' => $response->getArticlesCount(),
         ];
     }
@@ -84,7 +88,11 @@ readonly class GrpcFeedService implements FeedServiceInterface
         }
 
         return [
-            'articles' => array_map([$this, 'mapArticleResponse'], iterator_to_array($response->getArticles())),
+            'articles' => (function () use ($response) {
+                foreach ($response->getArticles() as $article) {
+                    yield $this->mapArticleResponse($article);
+                }
+            })(),
             'articlesCount' => $response->getArticlesCount(),
         ];
     }

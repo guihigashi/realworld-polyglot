@@ -4,6 +4,7 @@ namespace App\Presentation\Http\Controllers;
 
 use App\Application\Feed\UseCases\GetFeed;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 
 readonly class FeedController
 {
@@ -11,7 +12,7 @@ readonly class FeedController
         private GetFeed $getFeedUseCase
     ) {}
 
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): StreamedJsonResponse
     {
         $requestorId = $request->attributes->get('auth_user_id');
 
@@ -21,6 +22,6 @@ readonly class FeedController
             $requestorId
         );
 
-        return response()->json($articles);
+        return response()->streamJson($articles);
     }
 }
