@@ -10,7 +10,7 @@ class GetTags
         private readonly FeedServiceInterface $feedService
     ) {}
 
-    public function execute(): array
+    public function execute(): iterable
     {
         return $this->feedService->getTags();
     }

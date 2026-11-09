@@ -3,7 +3,7 @@
 namespace App\Presentation\Http\Controllers;
 
 use App\Application\Article\UseCases\GetTags;
-use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 
 readonly class TagController
 {
@@ -11,9 +11,9 @@ readonly class TagController
         private GetTags $getTagsUseCase
     ) {}
 
-    public function index(): JsonResponse
+    public function index(): StreamedJsonResponse
     {
-        return response()->json([
+        return response()->streamJson([
             'tags' => $this->getTagsUseCase->execute(),
         ]);
     }

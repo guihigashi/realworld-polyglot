@@ -6,7 +6,7 @@ interface FeedServiceInterface
 {
     public function getFeed(int $limit, int $offset, string $requestorId): array;
 
-    public function getTags(): array;
+    public function getTags(): iterable;
 
     /**
      * Article listing with authors already hydrated. The requestor is currently ignored by the feed-aggregator.
