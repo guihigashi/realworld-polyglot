@@ -945,23 +945,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-router-devtools@npm:^1.167.1":
-  version: 1.167.1
-  resolution: "@tanstack/react-router-devtools@npm:1.167.1"
-  dependencies:
-    "@tanstack/router-devtools-core": "npm:1.168.1"
-  peerDependencies:
-    "@tanstack/react-router": ^1.170.19
-    "@tanstack/router-core": ^1.171.16
-    react: ">=18.0.0 || >=19.0.0"
-    react-dom: ">=18.0.0 || >=19.0.0"
-  peerDependenciesMeta:
-    "@tanstack/router-core":
-      optional: true
-  checksum: 10c0/bd9932994a2606c04ffe0e3720a1c3adcf795af60dfedac53beb58d5201e183d653232a32d74cbf2be475e0633aefa9521d80f62cb4f1a55304daf7a507512dc
-  languageName: node
-  linkType: hard
-
 "@tanstack/react-router@npm:^1.170.32":
   version: 1.170.32
   resolution: "@tanstack/react-router@npm:1.170.32"
@@ -999,22 +982,6 @@ __metadata:
     seroval: "npm:^1.6.2"
     seroval-plugins: "npm:^1.6.2"
   checksum: 10c0/408bd236312fd040a3ecb2a0e1dba25ca428c6a7a86749a76596c3a11710f8b19a0002f103f513a702cd19c70b1130bf9a2a220c1d83668228ed5ea769d8782d
-  languageName: node
-  linkType: hard
-
-"@tanstack/router-devtools-core@npm:1.168.1":
-  version: 1.168.1
-  resolution: "@tanstack/router-devtools-core@npm:1.168.1"
-  dependencies:
-    clsx: "npm:^2.1.1"
-    goober: "npm:^2.1.16"
-  peerDependencies:
-    "@tanstack/router-core": ^1.171.16
-    csstype: ^3.0.10
-  peerDependenciesMeta:
-    csstype:
-      optional: true
-  checksum: 10c0/fc03eb1347a173bfa5add5bb433f62e65ea018fca64dc929d05b72b38c7f133927726e8d3f9bc934fe0d49b838e014e14eecb27e00b14f32a412c1277492105f
   languageName: node
   linkType: hard
 
@@ -1901,15 +1868,6 @@ __metadata:
   version: 2.0.0
   resolution: "github-slugger@npm:2.0.0"
   checksum: 10c0/21b912b6b1e48f1e5a50b2292b48df0ff6abeeb0691b161b3d93d84f4ae6b1acd6ae23702e914af7ea5d441c096453cf0f621b72d57893946618d21dd1a1c486
-  languageName: node
-  linkType: hard
-
-"goober@npm:^2.1.16":
-  version: 2.1.19
-  resolution: "goober@npm:2.1.19"
-  peerDependencies:
-    csstype: ^3.0.10
-  checksum: 10c0/f6a01f2e8abfef571ac539f96e650dcde964e7c0bef6c9055a8c8e110624ccd7b51ab90706a806ca570a56141ea689d355fb1cec3ee9209499c249638883990d
   languageName: node
   linkType: hard
 
@@ -3371,6 +3329,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-loading-skeleton@npm:^3.5.0":
+  version: 3.5.0
+  resolution: "react-loading-skeleton@npm:3.5.0"
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: 10c0/a081f561c9700fead6ba98b91e3fe77a36a680e3fd69dbf4eecbaa5fabcb7173049c6d6fb7487355331a770bed432356edaa147702f3d46ddf0d6caa623e779f
+  languageName: node
+  linkType: hard
+
 "react-markdown@npm:^10.1.0, react-markdown@npm:~10.1.0":
   version: 10.1.0
   resolution: "react-markdown@npm:10.1.0"
@@ -4247,7 +4214,6 @@ __metadata:
     "@reduxjs/toolkit": "npm:^2.12.0"
     "@rolldown/plugin-babel": "npm:^0.2.3"
     "@tanstack/react-router": "npm:^1.170.32"
-    "@tanstack/react-router-devtools": "npm:^1.167.1"
     "@tanstack/router-plugin": "npm:^1.168.35"
     "@types/babel__core": "npm:^7.20.5"
     "@types/node": "npm:^24.13.3"
@@ -4265,6 +4231,7 @@ __metadata:
     react: "npm:^19.2.8"
     react-dom: "npm:^19.2.8"
     react-hook-form: "npm:^7.87.0"
+    react-loading-skeleton: "npm:^3.5.0"
     react-markdown: "npm:^10.1.0"
     react-redux: "npm:^9.3.0"
     react-syntax-highlighter: "npm:^16.1.2"

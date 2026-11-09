@@ -1,5 +1,4 @@
 import { createRootRouteWithContext, Link, Outlet } from "@tanstack/react-router"
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 import type { RootState } from "@/state/store.ts"
 import { useAppSelector } from "@/state/hooks.ts"
 import ProfileAvatar from "@/components/profile-avatar.tsx"
@@ -95,7 +94,6 @@ function RootLayout() {
           <span className="attribution">An interactive learning project. Code &amp; design licensed under MIT.</span>
         </div>
       </footer>
-      <TanStackRouterDevtools />
     </>
   )
 }

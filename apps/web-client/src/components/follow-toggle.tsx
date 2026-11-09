@@ -11,11 +11,13 @@ export default function FollowToggle({ profile, onSuccess, variant }: FollowTogg
   const { username, following } = profile
   const label = following ? ` Unfollow ${username}` : ` Follow ${username}`
 
-  const [followUserMutation] = api.useFollowUserMutation()
-  const [unfollowUserMutation] = api.useUnfollowUserMutation()
+  const [followUserMutation, { isLoading: followUserLoading }] = api.useFollowUserMutation()
+  const [unfollowUserMutation, { isLoading: unfollowUserLoading }] = api.useUnfollowUserMutation()
+  const isLoading = followUserLoading || unfollowUserLoading
 
   return (
     <button
+      disabled={isLoading}
       className={clsx(
         "btn btn-sm",
         following ? "btn-secondary" : "btn-outline-secondary",
@@ -34,7 +36,7 @@ export default function FollowToggle({ profile, onSuccess, variant }: FollowTogg
         }
       }}
     >
-      <i className="ion-plus-round" />
+      <i className={clsx(isLoading ? "ion-load-c" : "ion-plus-round")} />
       {label}
     </button>
   )

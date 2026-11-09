@@ -83,18 +83,17 @@ body {
 }
 
 /* Main content area grows to push footer down */
-app-root {
+#root {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
-app-root > *:not(app-layout-footer) {
+#root > *:not(footer) {
   flex-shrink: 0;
 }
 
-app-root > app-layout-footer,
-app-root > footer {
+#root > footer {
   margin-top: auto;
 }
 
@@ -1128,6 +1127,20 @@ footer .attribution {
   list-style: disc;
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ion-load-c {
+  display: inline-block;
+  animation: spin 1s infinite linear;
+}
+
 /* ============================================================================
  * BANNER
  * ============================================================================ */
@@ -1176,9 +1189,7 @@ footer .attribution {
   border-radius: 30px;
 }
 
-.article-meta .btn + .btn,
-.article-meta app-follow-button + app-favorite-button,
-.article-meta app-favorite-button {
+.article-meta .btn + .btn {
   margin-left: 0.5rem;
 }
 

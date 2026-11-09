@@ -6,6 +6,7 @@ import { useAppSelector } from "@/state/hooks.ts"
 import { useEffect } from "react"
 import { makeConduitDebug, verifyStoredToken } from "@/state/authSlice.ts"
 import "@/styles.css"
+import 'react-loading-skeleton/dist/skeleton.css'
 
 const router = createRouter({
   routeTree,
@@ -41,7 +42,23 @@ function InnerApp() {
   }, [auth])
 
   if (auth.status === "loading") {
-    return <div>Loading application...</div>
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "1.25rem",
+        }}
+      >
+        <h1 className="logo-font" style={{ fontSize: "2.75rem", margin: 0, color: "var(--brand)" }}>
+          conduit
+        </h1>
+        <i className="ion-load-c" style={{ fontSize: "2rem", color: "var(--brand)" }} />
+      </div>
+    )
   }
 
   return <RouterProvider router={router} context={{ auth }} />

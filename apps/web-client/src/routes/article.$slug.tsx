@@ -141,7 +141,6 @@ function ArticleMeta({ article, userIsOwner }: { article: Article; userIsOwner: 
           }}
         />
       )}
-      &nbsp;
       <FavoriteToggle className="btn btn-sm btn-outline-primary" article={article} />
       {userIsOwner && (
         <>

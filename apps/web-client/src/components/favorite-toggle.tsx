@@ -10,11 +10,13 @@ type FavoriteToggleProps = {
 export default function FavoriteToggle({ article, variant = "with-label", className }: FavoriteToggleProps) {
   const { slug, favorited, favoritesCount } = article
 
-  const [favorite] = api.useFavoriteArticleMutation()
-  const [unfavorite] = api.useUnfavoriteArticleMutation()
+  const [favorite, { isLoading: isFavoriting }] = api.useFavoriteArticleMutation()
+  const [unfavorite, { isLoading: isUnfavoriting }] = api.useUnfavoriteArticleMutation()
+  const isLoading = isFavoriting || isUnfavoriting
 
   return (
     <button
+      disabled={isLoading}
       className={clsx("btn btn-sm", favorited ? "btn-primary" : "btn-outline-primary", className)}
       onClick={async () => {
         try {
@@ -28,7 +30,7 @@ export default function FavoriteToggle({ article, variant = "with-label", classN
         }
       }}
     >
-      <i className="ion-heart" />
+      <i className={clsx(isLoading ? "ion-load-c" : "ion-heart")} />
       {variant === "icon-only" ? (
         <>&nbsp; {favoritesCount}</>
       ) : (

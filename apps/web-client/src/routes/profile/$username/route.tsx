@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet } from "@tanstack/react-router"
 import { api } from "@/state/api.ts"
 import ProfileAvatar from "@/components/profile-avatar.tsx"
 import FollowToggle from "@/components/follow-toggle.tsx"
+import Skeleton from "react-loading-skeleton"
 
 export const Route = createFileRoute("/profile/$username")({
   component: ProfileLayout,
@@ -37,7 +38,17 @@ function ProfileLayout() {
                     </Link>
                   )}
                 </>
-              ) : null}
+              ) : (
+                <>
+                  <Skeleton className="user-img" />
+                  <h4>
+                    <Skeleton />
+                  </h4>
+                  <p>
+                    <Skeleton />
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
