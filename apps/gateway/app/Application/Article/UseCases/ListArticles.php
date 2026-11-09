@@ -2,76 +2,26 @@
 
 namespace App\Application\Article\UseCases;
 
-use App\Domain\Article\Contracts\ArticleServiceInterface;
-use App\Domain\Profile\Contracts\SocialGraphServiceInterface;
+use App\Domain\Feed\Contracts\FeedServiceInterface;
 
 readonly class ListArticles
 {
     public function __construct(
-        private ArticleServiceInterface $articleService,
-        private SocialGraphServiceInterface $socialGraphService
+        private FeedServiceInterface $feedService
     ) {}
 
+    /**
+     * Public article listing served (and cached) by the feed-aggregator.
+     * The requestor is forwarded, but the feed-aggregator currently ignores it: favorited/following are always false.
+     */
     public function execute(
         ?string $tag,
         ?string $author,
         ?string $favoritedBy,
         int $limit,
         int $offset,
-        ?string $requestorId
+        ?string $requestorId,
     ): array {
-        [$authorId, $favoritedById] = $this->resolveIds($author, $favoritedBy);
-
-        $paginatedArticles = $this->articleService->listArticles(
-            $tag,
-            $authorId,
-            $favoritedById,
-            $limit,
-            $offset,
-            $requestorId
-        );
-
-        $paginatedArticles['articles'] = $this->resolveAuthors($paginatedArticles['articles'], $requestorId);
-
-        return $paginatedArticles;
-    }
-
-    private function resolveIds(?string $author, ?string $favoritedBy): array
-    {
-        $usernames = array_values(array_filter([$author, $favoritedBy], fn ($val) => $val !== null));
-
-        if (empty($usernames)) {
-            return [null, null];
-        }
-
-        $resolved = $this->socialGraphService->resolveIdsByUsernames($usernames);
-
-        $resolveOrNull = function (?string $username) use ($resolved): ?string {
-            return ($username !== null && isset($resolved[$username]) && $resolved[$username] !== '')
-                ? $resolved[$username]
-                : null;
-        };
-
-        return [
-            $resolveOrNull($author),
-            $resolveOrNull($favoritedBy),
-        ];
-    }
-
-    private function resolveAuthors(array $articles, ?string $requestorId): array
-    {
-        $ids = collect($articles)->pluck('authorId')->unique()->toArray();
-
-        $profiles = $this->socialGraphService->getProfilesByIds($ids, $requestorId);
-
-        $newArticles = [];
-
-        foreach ($articles as $article) {
-            $article['author'] = $profiles[$article['authorId']];
-            unset($article['authorId']);
-            $newArticles[] = $article;
-        }
-
-        return $newArticles;
+        return $this->feedService->listArticles($tag, $author, $favoritedBy, $limit, $offset, $requestorId);
     }
 }

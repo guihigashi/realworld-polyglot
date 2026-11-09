@@ -1,5 +1,6 @@
 package com.github.guihigashi.conduit.article.service;
 
+import com.github.guihigashi.conduit.article.service.application.port.ArticleEventPublisher;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.github.guihigashi.conduit.article.service.application.port.CommentRepository;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,9 @@ class ArticleServiceApplicationTests {
 
     @MockitoBean
     private CommentRepository commentRepository;
+
+    @MockitoBean
+    private ArticleEventPublisher articleEventPublisher;
 
     @Test
     void contextLoads() {

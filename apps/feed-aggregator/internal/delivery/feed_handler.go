@@ -11,11 +11,56 @@ import (
 	"github.com/guihigashi/conduit/feed/internal/usecase"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type FeedHandler struct {
 	pbfeed.UnimplementedFeedServiceServer
-	GenerateFeed *usecase.GenerateFeed
+	GenerateFeed       *usecase.GenerateFeed
+	ManageTags         *usecase.ManageTags
+	ListPublicArticles *usecase.ListPublicArticles
+}
+
+func (h *FeedHandler) GetTags(ctx context.Context, _ *emptypb.Empty) (*pbfeed.GetTagsResponse, error) {
+	tags, err := h.ManageTags.GetTags(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	res := &pbfeed.GetTagsResponse{
+		Tags: make([]*pbfeed.CountedTag, len(tags)),
+	}
+	for i, t := range tags {
+		res.Tags[i] = &pbfeed.CountedTag{
+			Tag:   t.Tag,
+			Count: int32(t.Count),
+		}
+	}
+	return res, nil
+}
+
+// ListArticles serves the article listing, overlaying favorited and following when a requestor is present.
+func (h *FeedHandler) ListArticles(ctx context.Context, req *pbfeed.ListArticlesRequest) (*pbfeed.ListArticlesResponse, error) {
+	page, err := h.ListPublicArticles.Execute(ctx, usecase.ListArticlesQuery{
+		Tag:       req.GetTag(),
+		Author:    req.GetAuthor(),
+		Favorited: req.GetFavorited(),
+		Limit:     int(req.GetLimit()),
+		Offset:    int(req.GetOffset()),
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	res := &pbfeed.ListArticlesResponse{
+		Articles:      make([]*pbfeed.Article, 0, len(page.Articles)),
+		ArticlesCount: int32(page.ArticlesCount),
+	}
+	for i := range page.Articles {
+		res.Articles = append(res.Articles, mapDomainToProto(&page.Articles[i], page.Profiles))
+	}
+
+	return res, nil
 }
 
 func (h *FeedHandler) GetFeed(ctx context.Context, req *pbfeed.GetFeedRequest) (*pbfeed.GetFeedResponse, error) {
@@ -24,7 +69,7 @@ func (h *FeedHandler) GetFeed(ctx context.Context, req *pbfeed.GetFeedRequest) (
 		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
 	}
 
-	feed, err := h.GenerateFeed.Execute(ctx, userId, int(req.GetLimit()), int(req.GetOffset()))
+	feed, err := h.GenerateFeed.Execute(ctx, userId, int(req.GetLimit()), int(req.GetOffset()), req.GetMinFollowsVersion())
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +102,7 @@ func mapDomainToProto(article *domain.Article, authors map[uuid.UUID]domain.Prof
 			Username:  authorProfile.Username,
 			Bio:       authorProfile.Bio,
 			Image:     authorProfile.Image,
-			Following: true,
+			Following: authorProfile.Following,
 		}
 	}
 

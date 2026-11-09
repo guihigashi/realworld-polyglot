@@ -8,7 +8,8 @@ class Profile
         public string $username,
         public ?string $bio,
         public ?string $image,
-        public bool $following
+        public bool $following,
+        public int $followsVersion = 0
     ) {}
 
     public function toArray(): array

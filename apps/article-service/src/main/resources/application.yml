@@ -16,11 +16,17 @@ spring:
       max-lifetime: 1800000
       auto-commit: false
       leak-detection-threshold: 30000
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:user}
+    password: ${RABBITMQ_PASSWORD:secret}
+    virtual-host: ${RABBITMQ_VHOST:rwa}
   jpa:
     hibernate:
       ddl-auto: update
     open-in-view: false
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -30,3 +36,6 @@ spring:
   grpc:
     server:
       port: 9092
+app:
+  rabbitmq:
+    exchange: ${RABBITMQ_EXCHANGE:events}

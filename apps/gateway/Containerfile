@@ -1,3 +1,19 @@
+# -------------------------------------------------------------------
+# Stage 1: Build the Vite SPA frontend
+# -------------------------------------------------------------------
+FROM docker.io/library/node:24-alpine AS frontend
+WORKDIR /workspace/apps/web-client
+RUN corepack enable
+
+COPY apps/web-client/package.json apps/web-client/yarn.lock apps/web-client/.yarnrc.yml ./
+RUN yarn install --immutable
+
+COPY apps/web-client/ .
+RUN yarn build
+
+# -------------------------------------------------------------------
+# Stage 2: Gateway PHP Runtime
+# -------------------------------------------------------------------
 FROM docker.io/library/php:8.5-zts
 
 RUN apt-get update && apt-get install -y \
@@ -22,7 +38,8 @@ COPY --from=docker.io/library/composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-COPY . .
+COPY apps/gateway/ .
+COPY --from=frontend /workspace/apps/gateway/public/dist/ /app/public/dist/
 
 VOLUME /app/storage/logs
 

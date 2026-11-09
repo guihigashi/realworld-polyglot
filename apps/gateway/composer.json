@@ -17,7 +17,8 @@
         "grpc/grpc": "^1.82",
         "laravel/framework": "^13.8",
         "laravel/octane": "*",
-        "laravel/tinker": "^3.0"
+        "laravel/tinker": "^3.0",
+        "php-amqplib/php-amqplib": "^3.7"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

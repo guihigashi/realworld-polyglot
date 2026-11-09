@@ -46,6 +46,7 @@ message ArticleSummary {
   bool favorited = 7;
   int32 favorites_count = 8;
   string author_id = 9;
+  string id = 10;
 }
 
 message ListArticlesResponse {
@@ -135,8 +136,13 @@ message UnfavoriteArticleRequest {
   string slug = 1;
 }
 
+message CountedTag {
+  string tag = 1;
+  int32 count = 2;
+}
+
 message GetTagsResponse {
-  repeated string tags = 1;
+  repeated CountedTag tags = 1;
 }
 
 message GetArticlesFeedRequest {

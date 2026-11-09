@@ -1,6 +1,7 @@
 package com.github.guihigashi.conduit.article.service.application;
 
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
+import com.github.guihigashi.conduit.article.service.domain.CountedTag;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public class GetTagsUseCase {
         this.repository = repository;
     }
 
-    public List<String> execute() {
+    public List<CountedTag> execute() {
         return repository.findAllTags();
     }
 }

@@ -16,6 +16,12 @@ spring:
       max-lifetime: 1800000
       auto-commit: false
       leak-detection-threshold: 30000
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: user
+    password: secret
+    virtual-host: rwa
   jpa:
     hibernate:
       ddl-auto: none
@@ -31,3 +37,6 @@ spring:
     server:
       address: 0.0.0.0
       port: 9092
+app:
+  rabbitmq:
+    exchange: events

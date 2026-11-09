@@ -7,6 +7,7 @@ use App\Domain\Auth\Contracts\JwtDecoderInterface;
 use App\Domain\Auth\Contracts\JwtGeneratorInterface;
 use App\Domain\Auth\Contracts\PasswordHasherInterface;
 use App\Domain\Auth\Contracts\UserRepositoryInterface;
+use App\Domain\Contracts\EventPublisherInterface;
 use App\Domain\Feed\Contracts\FeedServiceInterface;
 use App\Domain\Profile\Contracts\SocialGraphServiceInterface;
 use App\Infrastructure\Article\Services\GrpcArticleService;
@@ -16,6 +17,7 @@ use App\Infrastructure\Auth\Providers\LaravelPasswordHasher;
 use App\Infrastructure\Auth\Repositories\EloquentUserRepository;
 use App\Infrastructure\Feed\Services\GrpcFeedService;
 use App\Infrastructure\Grpc\TimeoutInterceptor;
+use App\Infrastructure\Messaging\RabbitMqEventPublisher;
 use App\Infrastructure\Profile\Services\GrpcSocialGraphService;
 use App\Presentation\Http\Middleware\RequestDurationMiddleware;
 use Generated\Grpc\Article\ArticleServiceClient;
@@ -72,6 +74,19 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(SocialGraphServiceInterface::class, GrpcSocialGraphService::class);
         $this->app->bind(ArticleServiceInterface::class, GrpcArticleService::class);
         $this->app->bind(FeedServiceInterface::class, GrpcFeedService::class);
+
+        $this->app->bind(EventPublisherInterface::class, function () {
+            $config = config('rabbitmq');
+
+            return new RabbitMqEventPublisher(
+                host: $config['host'],
+                port: $config['port'],
+                user: $config['user'],
+                password: $config['password'],
+                vhost: $config['vhost'],
+                exchange: $config['exchange'],
+            );
+        });
     }
 
     /**

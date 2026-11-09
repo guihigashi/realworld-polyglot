@@ -22,6 +22,9 @@ public interface SpringDataArticleRepository extends JpaRepository<ArticleEntity
     @Query("select distinct t.name from ArticleEntity a join a.tagList t")
     List<String> findAllDistinctTags();
 
+    @Query("select t.name, count(a.id) from ArticleEntity a join a.tagList t group by t.name order by count(a.id) desc, t.name asc")
+    List<Object[]> findTagsWithCounts();
+
     @Query("""
             select count (distinct a.id)
             from ArticleEntity a

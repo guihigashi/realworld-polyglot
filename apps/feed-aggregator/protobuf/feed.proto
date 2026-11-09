@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package com.github.guihigashi.conduit.feed;
 
+import "google/protobuf/empty.proto";
+
 option go_package = "github.com/guihigashi/conduit/feed/internal/generated/pbfeed;pbfeed";
 
 option php_namespace = "Generated\\Grpc\\Feed";
@@ -9,11 +11,14 @@ option php_metadata_namespace = "Generated\\Grpc\\Feed\\Metadata";
 
 service FeedService {
   rpc GetFeed (GetFeedRequest) returns (GetFeedResponse);
+  rpc GetTags (google.protobuf.Empty) returns (GetTagsResponse);
+  rpc ListArticles (ListArticlesRequest) returns (ListArticlesResponse);
 }
 
 message GetFeedRequest {
   int32 limit = 1;
   int32 offset = 2;
+  optional int64 min_follows_version = 3;
 }
 
 message Article {
@@ -36,6 +41,28 @@ message Author {
 }
 
 message GetFeedResponse {
+  repeated Article articles = 1;
+  int32 articles_count = 2;
+}
+
+message CountedTag {
+  string tag = 1;
+  int32 count = 2;
+}
+
+message GetTagsResponse {
+  repeated CountedTag tags = 1;
+}
+
+message ListArticlesRequest {
+  optional string tag = 1;
+  optional string author = 2;
+  optional string favorited = 3;
+  int32 limit = 4;
+  int32 offset = 5;
+}
+
+message ListArticlesResponse {
   repeated Article articles = 1;
   int32 articles_count = 2;
 }

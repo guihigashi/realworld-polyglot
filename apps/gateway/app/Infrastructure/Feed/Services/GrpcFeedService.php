@@ -8,6 +8,11 @@ use Generated\Grpc\Feed\Article;
 use Generated\Grpc\Feed\FeedServiceClient;
 use Generated\Grpc\Feed\GetFeedRequest;
 use Generated\Grpc\Feed\GetFeedResponse;
+use Generated\Grpc\Feed\GetTagsResponse;
+use Generated\Grpc\Feed\ListArticlesRequest;
+use Generated\Grpc\Feed\ListArticlesResponse;
+use Generator;
+use Google\Protobuf\GPBEmpty;
 
 readonly class GrpcFeedService implements FeedServiceInterface
 {
@@ -17,11 +22,15 @@ readonly class GrpcFeedService implements FeedServiceInterface
         private FeedServiceClient $client
     ) {}
 
-    public function getFeed(int $limit, int $offset, string $requestorId): array
+    public function getFeed(int $limit, int $offset, string $requestorId, ?int $minFollowsVersion = null): array
     {
         $request = (new GetFeedRequest)
             ->setLimit($limit)
             ->setOffset($offset);
+
+        if ($minFollowsVersion !== null) {
+            $request->setMinFollowsVersion($minFollowsVersion);
+        }
 
         /** @var GetFeedResponse $response */
         [$response, $status] = $this->client->getFeed(
@@ -32,7 +41,62 @@ readonly class GrpcFeedService implements FeedServiceInterface
         }
 
         return [
-            'articles' => array_map([$this, 'mapArticleResponse'], iterator_to_array($response->getArticles())),
+            'articles' => (function () use ($response) {
+                foreach ($response->getArticles() as $article) {
+                    yield $this->mapArticleResponse($article);
+                }
+            })(),
+            'articlesCount' => $response->getArticlesCount(),
+        ];
+    }
+
+    /**
+     * @return Generator<string>
+     */
+    public function getTags(): Generator
+    {
+        /** @var GetTagsResponse $response */
+        [$response, $status] = $this->client->GetTags(new GPBEmpty)->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
+
+        foreach ($response->getTags() as $tag) {
+            yield $tag->getTag();
+        }
+    }
+
+    public function listArticles(?string $tag, ?string $author, ?string $favorited, int $limit, int $offset, ?string $requestorId): array
+    {
+        $request = (new ListArticlesRequest)
+            ->setLimit($limit)
+            ->setOffset($offset);
+
+        if ($tag !== null) {
+            $request->setTag($tag);
+        }
+        if ($author !== null) {
+            $request->setAuthor($author);
+        }
+        if ($favorited !== null) {
+            $request->setFavorited($favorited);
+        }
+
+        /** @var ListArticlesResponse $response */
+        [$response, $status] = $this->client->ListArticles(
+            $request, $this->metadataOfRequestor($requestorId))->wait();
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
+
+        return [
+            'articles' => (function () use ($response) {
+                foreach ($response->getArticles() as $article) {
+                    yield $this->mapArticleResponse($article);
+                }
+            })(),
             'articlesCount' => $response->getArticlesCount(),
         ];
     }
@@ -48,8 +112,6 @@ readonly class GrpcFeedService implements FeedServiceInterface
             'updatedAt' => $article->getUpdatedAt(),
             'favorited' => $article->getFavorited(),
             'favoritesCount' => $article->getFavoritesCount(),
-            'authorId' => $article->getAuthor(),
-
         ];
 
         $authorProto = $article->getAuthor();

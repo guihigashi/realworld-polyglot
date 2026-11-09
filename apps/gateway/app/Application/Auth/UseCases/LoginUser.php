@@ -5,13 +5,16 @@ namespace App\Application\Auth\UseCases;
 use App\Domain\Auth\Contracts\JwtGeneratorInterface;
 use App\Domain\Auth\Contracts\PasswordHasherInterface;
 use App\Domain\Auth\Contracts\UserRepositoryInterface;
+use App\Domain\Auth\Events\UserLoggedIn;
+use App\Domain\Contracts\EventPublisherInterface;
 
 class LoginUser
 {
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
         private readonly PasswordHasherInterface $passwordHasher,
-        private readonly JwtGeneratorInterface $jwtGenerator
+        private readonly JwtGeneratorInterface $jwtGenerator,
+        private readonly EventPublisherInterface $eventPublisher,
     ) {}
 
     public function execute(string $email, string $password): array
@@ -23,6 +26,9 @@ class LoginUser
         }
 
         $token = $this->jwtGenerator->generateForUser($user);
+
+        $event = new UserLoggedIn($user);
+        $this->eventPublisher->publish($event->eventName(), $event->toArray());
 
         return [
             'email' => $user->getEmail(),

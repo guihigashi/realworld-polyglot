@@ -153,7 +153,8 @@ readonly class GrpcSocialGraphService implements SocialGraphServiceInterface
             username: $response->getUsername(),
             bio: $response->hasBio() ? $response->getBio() : null,
             image: $response->hasImage() ? $response->getImage() : null,
-            following: $response->getFollowing()
+            following: $response->getFollowing(),
+            followsVersion: (int) $response->getFollowsVersion()
         );
     }
 }

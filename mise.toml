@@ -4,7 +4,7 @@ node = "lts"
 # --- Subtasks ---
 [tasks."dev:infra"]
 description = "Start Postgres and Redis containers"
-run = "podman compose up -d postgres redis"
+run = "podman compose up -d postgres redis rabbitmq"
 
 [tasks."dev:web"]
 description = "Start React web-client Vite dev server"
@@ -38,7 +38,7 @@ depends = ["dev:article:run", "dev:article:watch"]
 [tasks."dev:social"]
 description = "Start Scala social graph service with hot reload"
 dir = "apps/social-graph"
-run = "sbt ~reStart"
+run = "sbt ~runReload"
 
 # --- Dev Up Orchestrator ---
 [tasks."dev:up"]

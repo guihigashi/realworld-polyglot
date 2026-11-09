@@ -3,6 +3,7 @@ package com.github.guihigashi.conduit.article.service.application;
 
 import com.github.guihigashi.conduit.article.service.application.exception.ArticleNotFoundException;
 import com.github.guihigashi.conduit.article.service.application.exception.DuplicateSlugException;
+import com.github.guihigashi.conduit.article.service.application.port.ArticleEventPublisher;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
 import com.github.guihigashi.conduit.article.service.domain.Article;
 import org.springframework.stereotype.Service;
@@ -18,9 +19,11 @@ public class UpdateArticleUseCase {
     private static final int MAX_ATTEMPTS = 5;
 
     private final ArticleRepository articleRepository;
+    private final ArticleEventPublisher eventPublisher;
 
-    public UpdateArticleUseCase(ArticleRepository articleRepository) {
+    public UpdateArticleUseCase(ArticleRepository articleRepository, ArticleEventPublisher eventPublisher) {
         this.articleRepository = articleRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public Article execute(String slug, String title, String description, String body, List<String> tagList, UUID authorId) {
@@ -37,7 +40,9 @@ public class UpdateArticleUseCase {
 
         for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
             try {
-                return articleRepository.save(updatedArticle);
+                var saved = articleRepository.save(updatedArticle);
+                eventPublisher.publishArticleUpdated(article, saved);
+                return saved;
             } catch (DuplicateSlugException e) {
                 if (attempt == MAX_ATTEMPTS - 1) {
                     throw new IllegalStateException("Failed to generate a unique slug after " + MAX_ATTEMPTS + " attempts");

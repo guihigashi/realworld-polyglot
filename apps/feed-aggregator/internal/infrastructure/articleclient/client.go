@@ -5,6 +5,7 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/guihigashi/conduit/feed/internal/appctx"
 	"github.com/guihigashi/conduit/feed/internal/domain"
 	"github.com/guihigashi/conduit/feed/internal/generated/pbarticle"
 	"github.com/guihigashi/conduit/feed/internal/infrastructure/grpcutil"
@@ -35,7 +36,23 @@ func NewClient(target string) (*Client, error) {
 	}, nil
 }
 
+func (c *Client) GetTags(ctx context.Context) ([]domain.CountedTag, error) {
+	res, err := c.client.GetTags(ctx, &emptypb.Empty{})
+	if err != nil {
+		return nil, err
+	}
+	tags := make([]domain.CountedTag, len(res.GetTags()))
+	for i, t := range res.GetTags() {
+		tags[i] = domain.CountedTag{
+			Tag:   t.GetTag(),
+			Count: int(t.GetCount()),
+		}
+	}
+	return tags, nil
+}
+
 func (c *Client) UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error) {
+	ctx = appctx.WithRequestorId(ctx, userId)
 	response, err := c.client.UserFavoritedArticles(ctx, &emptypb.Empty{})
 	if err != nil {
 		return nil, err
@@ -77,6 +94,35 @@ func (c *Client) ListArticles(ctx context.Context, followingIds []uuid.UUID, lim
 	return articles, int(res.TotalCount), nil
 }
 
+// ListArticlesFiltered lists articles by the ListArticles filters.
+func (c *Client) ListArticlesFiltered(ctx context.Context, tag *string, authorId, favoritedById *uuid.UUID, limit, offset int) ([]domain.Article, int, error) {
+	request := &pbarticle.ListArticlesRequest{
+		Tag:    tag,
+		Limit:  int32(limit),
+		Offset: int32(offset),
+	}
+	if authorId != nil {
+		s := authorId.String()
+		request.AuthorId = &s
+	}
+	if favoritedById != nil {
+		s := favoritedById.String()
+		request.FavoritedById = &s
+	}
+
+	res, err := c.client.ListArticles(ctx, request)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	articles := make([]domain.Article, 0, len(res.GetArticles()))
+	for _, a := range res.GetArticles() {
+		articles = append(articles, mapToDomain(a))
+	}
+
+	return articles, int(res.GetTotalCount()), nil
+}
+
 func mapToDomain(as *pbarticle.ArticleSummary) domain.Article {
 	createdAt, err := time.Parse(time.RFC3339, as.CreatedAt)
 	if err != nil {
@@ -86,8 +132,12 @@ func mapToDomain(as *pbarticle.ArticleSummary) domain.Article {
 	if err != nil {
 		panic(err)
 	}
+	id := uuid.Nil()
+	if as.Id != "" {
+		id = uuid.MustParse(as.Id)
+	}
 	return domain.Article{
-		Id:             uuid.Nil(),
+		Id:             id,
 		Slug:           as.Slug,
 		Title:          as.Title,
 		Description:    as.Description,

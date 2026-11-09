@@ -4,6 +4,7 @@ namespace App\Presentation\Http\Controllers;
 
 use App\Application\Feed\UseCases\GetFeed;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 
 readonly class FeedController
 {
@@ -11,16 +12,18 @@ readonly class FeedController
         private GetFeed $getFeedUseCase
     ) {}
 
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): StreamedJsonResponse
     {
         $requestorId = $request->attributes->get('auth_user_id');
+        $minFollowsVersion = $request->header('X-Follows-Version');
 
         $articles = $this->getFeedUseCase->execute(
             $request->query('limit', 20),
             $request->query('offset', 0),
-            $requestorId
+            $requestorId,
+            $minFollowsVersion !== null ? (int) $minFollowsVersion : null
         );
 
-        return response()->json($articles);
+        return response()->streamJson($articles);
     }
 }

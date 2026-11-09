@@ -10,6 +10,7 @@ use App\Application\Article\UseCases\UpdateArticle;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\StreamedJsonResponse;
 
 readonly class ArticleController
 {
@@ -21,7 +22,7 @@ readonly class ArticleController
         private DeleteArticle $deleteArticleUseCase,
     ) {}
 
-    public function index(Request $request)
+    public function index(Request $request): StreamedJsonResponse
     {
         $requestorId = $request->attributes->get('auth_user_id');
 
@@ -34,7 +35,7 @@ readonly class ArticleController
             requestorId: $requestorId
         );
 
-        return response()->json($paginatedArticles);
+        return response()->streamJson($paginatedArticles);
     }
 
     public function show(Request $request, string $slug): JsonResponse

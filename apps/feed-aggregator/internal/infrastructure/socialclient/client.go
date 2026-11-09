@@ -4,6 +4,7 @@ import (
 	"context"
 	"uuid"
 
+	"github.com/guihigashi/conduit/feed/internal/appctx"
 	"github.com/guihigashi/conduit/feed/internal/domain"
 	"github.com/guihigashi/conduit/feed/internal/generated/pbsocial"
 	"github.com/guihigashi/conduit/feed/internal/infrastructure/grpcutil"
@@ -35,10 +36,11 @@ func NewClient(target string) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUID, error) {
+func (c *Client) GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUID, int64, error) {
+	ctx = appctx.WithRequestorId(ctx, userId)
 	resp, err := c.client.GetFollowing(ctx, &emptypb.Empty{})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var followingIds []uuid.UUID
@@ -46,7 +48,7 @@ func (c *Client) GetFollowing(ctx context.Context, userId uuid.UUID) ([]uuid.UUI
 		followingIds = append(followingIds, uuid.MustParse(id))
 	}
 
-	return followingIds, nil
+	return followingIds, resp.GetFollowsVersion(), nil
 }
 
 func (c *Client) GetProfilesByIds(ctx context.Context, userIds []uuid.UUID) (map[uuid.UUID]domain.Profile, error) {
@@ -75,6 +77,29 @@ func (c *Client) GetProfilesByIds(ctx context.Context, userIds []uuid.UUID) (map
 			Image:     profile.GetImage(),
 			Following: profile.GetFollowing(),
 		}
+	}
+
+	return m, nil
+}
+
+// ResolveIdsByUsernames returns username -> id for the usernames that exist; unknown usernames are omitted.
+func (c *Client) ResolveIdsByUsernames(ctx context.Context, usernames []string) (map[string]uuid.UUID, error) {
+	response, err := c.client.ResolveIdsByUsernames(ctx, &pbsocial.ResolveIdsByUsernamesRequest{Usernames: usernames})
+	if err != nil {
+		return nil, err
+	}
+
+	resolved := response.GetResolvedIds()
+	m := make(map[string]uuid.UUID, len(resolved))
+	for username, id := range resolved {
+		if id == "" {
+			continue
+		}
+		parsed, err := uuid.Parse(id)
+		if err != nil {
+			return nil, err
+		}
+		m[username] = parsed
 	}
 
 	return m, nil

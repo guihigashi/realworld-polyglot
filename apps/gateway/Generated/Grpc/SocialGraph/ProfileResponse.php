@@ -30,6 +30,10 @@ class ProfileResponse extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>bool following = 4;</code>
      */
     protected $following = false;
+    /**
+     * Generated from protobuf field <code>int64 follows_version = 5;</code>
+     */
+    protected $follows_version = 0;
 
     /**
      * Constructor.
@@ -41,6 +45,7 @@ class ProfileResponse extends \Google\Protobuf\Internal\Message
      *     @type string $bio
      *     @type string $image
      *     @type bool $following
+     *     @type int|string $follows_version
      * }
      */
     public function __construct($data = null)
@@ -152,6 +157,28 @@ class ProfileResponse extends \Google\Protobuf\Internal\Message
     public function setFollowing(bool $var)
     {
         $this->following = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>int64 follows_version = 5;</code>
+     * @return int|string
+     */
+    public function getFollowsVersion()
+    {
+        return $this->follows_version;
+    }
+
+    /**
+     * Generated from protobuf field <code>int64 follows_version = 5;</code>
+     * @param int|string $var
+     * @return $this
+     */
+    public function setFollowsVersion(int|string $var)
+    {
+        GPBUtil::checkInt64($var);
+        $this->follows_version = $var;
 
         return $this;
     }
