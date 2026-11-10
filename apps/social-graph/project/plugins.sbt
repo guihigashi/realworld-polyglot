@@ -1,4 +1,3 @@
-addDependencyTreePlugin
 addSbtPlugin("com.jamesward" % "sbt-reload" % "0.0.8")
 addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.1.0-RC2")
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.11.7")
