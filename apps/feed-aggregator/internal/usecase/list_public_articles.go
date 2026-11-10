@@ -75,6 +75,10 @@ func (s *articlesSnapshot) isComplete() bool {
 	return len(s.articles) >= s.totalCount
 }
 
+type EventPublisher interface {
+	Publish(ctx context.Context, routingKey string, event any) error
+}
+
 // ListPublicArticles keeps a bounded window of the N newest articles (ordered by CreatedAt DESC) in memory,
 // updated granularly from article.* RabbitMQ events.
 //
@@ -87,9 +91,14 @@ type ListPublicArticles struct {
 	following Following
 	favorites Favorites
 	maxSize   int
+	publisher EventPublisher
 
 	writeMu  sync.Mutex
 	snapshot atomic.Pointer[articlesSnapshot]
+}
+
+func (l *ListPublicArticles) SetPublisher(p EventPublisher) {
+	l.publisher = p
 }
 
 func NewListPublicArticles(
@@ -456,6 +465,27 @@ func (l *ListPublicArticles) HandleArticleEvent(routingKey string, body []byte) 
 			articles:   next,
 			totalCount: current.totalCount + 1,
 		})
+
+		if l.publisher != nil {
+			go func(slug string, articleId uuid.UUID, ts time.Time) {
+				pubCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+				defer cancel()
+				err := l.publisher.Publish(pubCtx, "read.article-created", map[string]any{
+					"eventId":   uuid.New(),
+					"eventType": "read.article-created",
+					"timestamp": ts,
+					"payload": map[string]any{
+						"articleId": articleId,
+						"slug":      slug,
+					},
+				})
+				if err != nil {
+					slog.Error("failed to publish read.article-created", slog.Any("error", err), slog.String("slug", slug))
+				} else {
+					slog.Info("published read.article-created", slog.String("slug", slug))
+				}
+			}(created.Slug, created.Id, created.CreatedAt)
+		}
 
 	case "article.updated":
 		var event articleUpdatedEvent

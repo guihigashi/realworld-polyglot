@@ -1,0 +1,6 @@
+.air.toml
+.env
+events-hub
+events-hub.iml
+events-hub.yml
+/tmp

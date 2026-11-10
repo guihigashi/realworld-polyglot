@@ -5,6 +5,7 @@ import { routeTree } from "@/routeTree.gen.ts"
 import { useAppSelector } from "@/state/hooks.ts"
 import { useEffect } from "react"
 import { makeConduitDebug, verifyStoredToken } from "@/state/authSlice.ts"
+import { useRealtimeEvents } from "@/utils/useRealtimeEvents.ts"
 import "@/styles.css"
 import 'react-loading-skeleton/dist/skeleton.css'
 
@@ -30,6 +31,7 @@ if (typeof window !== "undefined") {
 
 function InnerApp() {
   const auth = useAppSelector((state) => state.auth)
+  useRealtimeEvents()
 
   useEffect(() => {
     window.__conduit_debug__ = makeConduitDebug(auth)

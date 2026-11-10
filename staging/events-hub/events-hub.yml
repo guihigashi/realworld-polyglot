@@ -1,0 +1,9 @@
+server:
+  port: 8085
+
+jwt:
+  secret: "base64:cZnVVujUapknriqXT+/wCRfEKVWHfi30OTmlhW1qsV4="
+
+rabbitmq:
+  uri: amqp://user:secret@rabbitmq:5672/rwa
+  exchange: events

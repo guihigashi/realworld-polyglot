@@ -120,6 +120,17 @@ services:
         condition: service_healthy
       feed-aggregator:
         condition: service_healthy
+  events-hub:
+    image: ghcr.io/guihigashi/realworld-polyglot/events-hub:latest
+    build:
+      context: ./apps/events-hub
+      dockerfile: ./cmd/server/Containerfile
+    ports:
+      - "8085:8085"
+    volumes:
+      - ./staging/events-hub/events-hub.yml:/app/events-hub.yml:z
+    depends_on:
+      <<: *infra_deps
 volumes:
   postgres_data:
   redis_data:

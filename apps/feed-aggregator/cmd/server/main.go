@@ -71,12 +71,22 @@ func main() {
 		viper.GetInt("articles.cache.size"),
 	)
 
-	// RabbitMQ Event Consumer (code-driven subscriptions over a single connection)
+	// RabbitMQ Event Consumer & Publisher (code-driven subscriptions and invalidation publishing)
 	rabbitmqURI := viper.GetString("rabbitmq.uri")
 	if rabbitmqURI != "" {
+		rabbitExchange := viper.GetString("rabbitmq.exchange")
+		publisher, err := rabbitmq.NewPublisher(rabbitmqURI, rabbitExchange)
+		if err != nil {
+			slog.Error("failed to create rabbitmq publisher", slog.Any("error", err))
+		} else {
+			defer publisher.Close()
+			listPublicArticles.SetPublisher(publisher)
+			slog.Info("rabbitmq publisher initialized for feed-aggregator")
+		}
+
 		consumer, err := rabbitmq.NewConsumer(rabbitmq.Config{
 			URI:      rabbitmqURI,
-			Exchange: viper.GetString("rabbitmq.exchange"),
+			Exchange: rabbitExchange,
 			Subscriptions: []rabbitmq.Subscription{
 				{
 					Queue:       "feed-aggregator.article-events",
