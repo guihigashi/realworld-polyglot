@@ -110,6 +110,7 @@ type ArticleSummary struct {
 	FavoritesCount int32                  `protobuf:"varint,8,opt,name=favorites_count,json=favoritesCount,proto3" json:"favorites_count,omitempty"`
 	AuthorId       string                 `protobuf:"bytes,9,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
 	Id             string                 `protobuf:"bytes,10,opt,name=id,proto3" json:"id,omitempty"`
+	Version        int64                  `protobuf:"varint,11,opt,name=version,proto3" json:"version,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -212,6 +213,13 @@ func (x *ArticleSummary) GetId() string {
 		return x.Id
 	}
 	return ""
+}
+
+func (x *ArticleSummary) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
 }
 
 type ListArticlesResponse struct {
@@ -322,6 +330,7 @@ type Article struct {
 	Favorited      bool                   `protobuf:"varint,8,opt,name=favorited,proto3" json:"favorited,omitempty"`
 	FavoritesCount int32                  `protobuf:"varint,9,opt,name=favorites_count,json=favoritesCount,proto3" json:"favorites_count,omitempty"`
 	AuthorId       string                 `protobuf:"bytes,10,opt,name=author_id,json=authorId,proto3" json:"author_id,omitempty"`
+	Version        int64                  `protobuf:"varint,11,opt,name=version,proto3" json:"version,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -426,11 +435,19 @@ func (x *Article) GetAuthorId() string {
 	return ""
 }
 
+func (x *Article) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
 type ArticleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Article       *Article               `protobuf:"bytes,1,opt,name=article,proto3" json:"article,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Article          *Article               `protobuf:"bytes,1,opt,name=article,proto3" json:"article,omitempty"`
+	FavoritesVersion int64                  `protobuf:"varint,2,opt,name=favorites_version,json=favoritesVersion,proto3" json:"favorites_version,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ArticleResponse) Reset() {
@@ -468,6 +485,13 @@ func (x *ArticleResponse) GetArticle() *Article {
 		return x.Article
 	}
 	return nil
+}
+
+func (x *ArticleResponse) GetFavoritesVersion() int64 {
+	if x != nil {
+		return x.FavoritesVersion
+	}
+	return 0
 }
 
 type CreateArticleRequest struct {
@@ -1259,10 +1283,11 @@ func (x *GetArticlesFeedRequest) GetOffset() int32 {
 }
 
 type UserFavoritedArticlesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ArticlesIds   []string               `protobuf:"bytes,1,rep,name=articlesIds,proto3" json:"articlesIds,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ArticlesIds      []string               `protobuf:"bytes,1,rep,name=articlesIds,proto3" json:"articlesIds,omitempty"`
+	FavoritesVersion int64                  `protobuf:"varint,2,opt,name=favorites_version,json=favoritesVersion,proto3" json:"favorites_version,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *UserFavoritedArticlesResponse) Reset() {
@@ -1302,6 +1327,13 @@ func (x *UserFavoritedArticlesResponse) GetArticlesIds() []string {
 	return nil
 }
 
+func (x *UserFavoritedArticlesResponse) GetFavoritesVersion() int64 {
+	if x != nil {
+		return x.FavoritesVersion
+	}
+	return 0
+}
+
 var File_article_proto protoreflect.FileDescriptor
 
 const file_article_proto_rawDesc = "" +
@@ -1316,7 +1348,7 @@ const file_article_proto_rawDesc = "" +
 	"\x04_tagB\f\n" +
 	"\n" +
 	"_author_idB\x12\n" +
-	"\x10_favorited_by_id\"\xa9\x02\n" +
+	"\x10_favorited_by_id\"\xc3\x02\n" +
 	"\x0eArticleSummary\x12\x12\n" +
 	"\x04slug\x18\x01 \x01(\tR\x04slug\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
@@ -1330,13 +1362,14 @@ const file_article_proto_rawDesc = "" +
 	"\x0ffavorites_count\x18\b \x01(\x05R\x0efavoritesCount\x12\x1b\n" +
 	"\tauthor_id\x18\t \x01(\tR\bauthorId\x12\x0e\n" +
 	"\x02id\x18\n" +
-	" \x01(\tR\x02id\"\x8a\x01\n" +
+	" \x01(\tR\x02id\x12\x18\n" +
+	"\aversion\x18\v \x01(\x03R\aversion\"\x8a\x01\n" +
 	"\x14ListArticlesResponse\x12Q\n" +
 	"\barticles\x18\x01 \x03(\v25.com.github.guihigashi.conduit.article.ArticleSummaryR\barticles\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x05R\n" +
 	"totalCount\"'\n" +
 	"\x11GetArticleRequest\x12\x12\n" +
-	"\x04slug\x18\x01 \x01(\tR\x04slug\"\xa6\x02\n" +
+	"\x04slug\x18\x01 \x01(\tR\x04slug\"\xc0\x02\n" +
 	"\aArticle\x12\x12\n" +
 	"\x04slug\x18\x01 \x01(\tR\x04slug\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
@@ -1350,9 +1383,11 @@ const file_article_proto_rawDesc = "" +
 	"\tfavorited\x18\b \x01(\bR\tfavorited\x12'\n" +
 	"\x0ffavorites_count\x18\t \x01(\x05R\x0efavoritesCount\x12\x1b\n" +
 	"\tauthor_id\x18\n" +
-	" \x01(\tR\bauthorId\"[\n" +
+	" \x01(\tR\bauthorId\x12\x18\n" +
+	"\aversion\x18\v \x01(\x03R\aversion\"\x88\x01\n" +
 	"\x0fArticleResponse\x12H\n" +
-	"\aarticle\x18\x01 \x01(\v2..com.github.guihigashi.conduit.article.ArticleR\aarticle\"}\n" +
+	"\aarticle\x18\x01 \x01(\v2..com.github.guihigashi.conduit.article.ArticleR\aarticle\x12+\n" +
+	"\x11favorites_version\x18\x02 \x01(\x03R\x10favoritesVersion\"}\n" +
 	"\x14CreateArticleRequest\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x12\n" +
@@ -1405,9 +1440,10 @@ const file_article_proto_rawDesc = "" +
 	"\x16GetArticlesFeedRequest\x12#\n" +
 	"\rfollowing_ids\x18\x01 \x03(\tR\ffollowingIds\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x03 \x01(\x05R\x06offset\"A\n" +
+	"\x06offset\x18\x03 \x01(\x05R\x06offset\"n\n" +
 	"\x1dUserFavoritedArticlesResponse\x12 \n" +
-	"\varticlesIds\x18\x01 \x03(\tR\varticlesIds2\xfb\f\n" +
+	"\varticlesIds\x18\x01 \x03(\tR\varticlesIds\x12+\n" +
+	"\x11favorites_version\x18\x02 \x01(\x03R\x10favoritesVersion2\xfb\f\n" +
 	"\x0eArticleService\x12\x87\x01\n" +
 	"\fListArticles\x12:.com.github.guihigashi.conduit.article.ListArticlesRequest\x1a;.com.github.guihigashi.conduit.article.ListArticlesResponse\x12~\n" +
 	"\n" +

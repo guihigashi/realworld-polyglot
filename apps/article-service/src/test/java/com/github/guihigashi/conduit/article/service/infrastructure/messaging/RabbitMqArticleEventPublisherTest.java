@@ -65,5 +65,83 @@ class RabbitMqArticleEventPublisherTest {
         assertThat(event.payload().title()).isEqualTo("Test Title");
         assertThat(event.payload().tagList()).containsExactly("tag1", "tag2");
         assertThat(event.payload().authorId()).isEqualTo(authorId);
+        assertThat(event.payload().version()).isEqualTo(1L);
+    }
+
+    @Test
+    void shouldPublishCommentAddedEvent() {
+        RabbitMqArticleEventPublisher publisher = new RabbitMqArticleEventPublisher(rabbitTemplate, "events");
+        UUID authorId = UUID.randomUUID();
+        OffsetDateTime now = OffsetDateTime.now();
+
+        var comment = new com.github.guihigashi.conduit.article.service.domain.Comment(
+                42L, now, now, "Great article!", authorId
+        );
+
+        publisher.publishCommentAdded(comment, "test-slug");
+
+        ArgumentCaptor<CommentAddedEvent> eventCaptor = ArgumentCaptor.forClass(CommentAddedEvent.class);
+        verify(rabbitTemplate).convertAndSend(
+                eq("events"),
+                eq(RabbitMqArticleEventPublisher.ROUTING_KEY_ARTICLE_COMMENT_ADDED),
+                eventCaptor.capture()
+        );
+
+        CommentAddedEvent event = eventCaptor.getValue();
+        assertThat(event.eventType()).isEqualTo("article.comment-added");
+        assertThat(event.payload().commentId()).isEqualTo(42L);
+        assertThat(event.payload().slug()).isEqualTo("test-slug");
+        assertThat(event.payload().body()).isEqualTo("Great article!");
+        assertThat(event.payload().authorId()).isEqualTo(authorId);
+    }
+
+    @Test
+    void shouldPublishCommentDeletedEvent() {
+        RabbitMqArticleEventPublisher publisher = new RabbitMqArticleEventPublisher(rabbitTemplate, "events");
+        UUID authorId = UUID.randomUUID();
+
+        publisher.publishCommentDeleted(42L, "test-slug", authorId);
+
+        ArgumentCaptor<CommentDeletedEvent> eventCaptor = ArgumentCaptor.forClass(CommentDeletedEvent.class);
+        verify(rabbitTemplate).convertAndSend(
+                eq("events"),
+                eq(RabbitMqArticleEventPublisher.ROUTING_KEY_ARTICLE_COMMENT_DELETED),
+                eventCaptor.capture()
+        );
+
+        CommentDeletedEvent event = eventCaptor.getValue();
+        assertThat(event.eventType()).isEqualTo("article.comment-deleted");
+        assertThat(event.payload().commentId()).isEqualTo(42L);
+        assertThat(event.payload().slug()).isEqualTo("test-slug");
+        assertThat(event.payload().authorId()).isEqualTo(authorId);
+    }
+
+    @Test
+    void shouldPublishArticleFavoritedEventWithVersion() {
+        RabbitMqArticleEventPublisher publisher = new RabbitMqArticleEventPublisher(rabbitTemplate, "events");
+        UUID articleId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+        UUID authorId = UUID.randomUUID();
+        OffsetDateTime now = OffsetDateTime.now();
+
+        Article article = new Article(
+                articleId, "slug", "Title", "Desc", "Body", List.of(), now, now, true, 5, authorId, 1L
+        );
+
+        publisher.publishArticleFavorited(article, userId, 7L);
+
+        ArgumentCaptor<ArticleFavoriteEvent> eventCaptor = ArgumentCaptor.forClass(ArticleFavoriteEvent.class);
+        verify(rabbitTemplate).convertAndSend(
+                eq("events"),
+                eq(RabbitMqArticleEventPublisher.ROUTING_KEY_ARTICLE_FAVORITED),
+                eventCaptor.capture()
+        );
+
+        ArticleFavoriteEvent event = eventCaptor.getValue();
+        assertThat(event.eventType()).isEqualTo("article.favorited");
+        assertThat(event.payload().articleId()).isEqualTo(articleId);
+        assertThat(event.payload().userId()).isEqualTo(userId);
+        assertThat(event.payload().favoritesCount()).isEqualTo(5);
+        assertThat(event.payload().version()).isEqualTo(7L);
     }
 }

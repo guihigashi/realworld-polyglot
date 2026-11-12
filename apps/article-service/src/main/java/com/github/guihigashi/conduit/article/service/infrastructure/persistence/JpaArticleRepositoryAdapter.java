@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
+import com.github.guihigashi.conduit.article.service.domain.FavoritedArticleResult;
+import com.github.guihigashi.conduit.article.service.domain.UserFavoritesResult;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,10 +22,16 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
 
     private final SpringDataArticleRepository articleRepository;
     private final SpringDataTagRepository tagRepository;
+    private final SpringDataUserFavoritesVersionRepository userFavoritesVersionRepository;
 
-    public JpaArticleRepositoryAdapter(SpringDataArticleRepository articleRepository, SpringDataTagRepository tagRepository) {
+    public JpaArticleRepositoryAdapter(
+            SpringDataArticleRepository articleRepository,
+            SpringDataTagRepository tagRepository,
+            SpringDataUserFavoritesVersionRepository userFavoritesVersionRepository
+    ) {
         this.articleRepository = articleRepository;
         this.tagRepository = tagRepository;
+        this.userFavoritesVersionRepository = userFavoritesVersionRepository;
     }
 
     @Override
@@ -141,26 +149,34 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
 
     @Override
     @Transactional
-    public Article favoriteArticle(String slug, UUID requestorId) {
+    public FavoritedArticleResult favoriteArticle(String slug, UUID requestorId) {
         ArticleEntity entity = articleRepository.findBySlug(slug)
                 .orElseThrow(() -> new ArticleNotFoundException(slug));
 
-        entity.addFavorite(requestorId);
+        boolean changed = entity.addFavorite(requestorId);
+        long version = getFavoritesVersion(requestorId);
+        if (changed) {
+            version = incrementFavoritesVersion(requestorId);
+            entity = articleRepository.save(entity);
+        }
 
-        var saved = articleRepository.save(entity);
-        return mapToDomain(saved, requestorId);
+        return new FavoritedArticleResult(mapToDomain(entity, requestorId), version, changed);
     }
 
     @Override
     @Transactional
-    public Article unfavoriteArticle(String slug, UUID requestorId) {
+    public FavoritedArticleResult unfavoriteArticle(String slug, UUID requestorId) {
         ArticleEntity entity = articleRepository.findBySlug(slug)
                 .orElseThrow(() -> new ArticleNotFoundException(slug));
 
-        entity.removeFavorite(requestorId);
+        boolean changed = entity.removeFavorite(requestorId);
+        long version = getFavoritesVersion(requestorId);
+        if (changed) {
+            version = incrementFavoritesVersion(requestorId);
+            entity = articleRepository.save(entity);
+        }
 
-        var saved = articleRepository.save(entity);
-        return mapToDomain(saved, requestorId);
+        return new FavoritedArticleResult(mapToDomain(entity, requestorId), version, changed);
     }
 
     @Override
@@ -206,6 +222,26 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
         return articleRepository.findFavoritedArticleIdsByUserId(userId);
     }
 
+    @Override
+    public UserFavoritesResult findUserFavoritedArticles(UUID userId) {
+        List<UUID> ids = articleRepository.findFavoritedArticleIdsByUserId(userId);
+        long version = getFavoritesVersion(userId);
+        return new UserFavoritesResult(ids, version);
+    }
+
+    private long incrementFavoritesVersion(UUID userId) {
+        UserFavoritesVersionEntity entity = userFavoritesVersionRepository.findById(userId)
+                .orElseGet(() -> new UserFavoritesVersionEntity(userId, 0L));
+        entity.setVersion(entity.getVersion() + 1);
+        return userFavoritesVersionRepository.saveAndFlush(entity).getVersion();
+    }
+
+    private long getFavoritesVersion(UUID userId) {
+        return userFavoritesVersionRepository.findById(userId)
+                .map(UserFavoritesVersionEntity::getVersion)
+                .orElse(1L);
+    }
+
     private Article mapToDomain(ArticleEntity entity, UUID currentUserId) {
         boolean isFavorited = currentUserId != null &&
                 entity.getFavoritedBy().contains(currentUserId);
@@ -223,7 +259,8 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
                 entity.getUpdatedAt(),
                 isFavorited,
                 entity.getFavoritedBy().size(),
-                entity.getAuthorId()
+                entity.getAuthorId(),
+                entity.getVersion() != null ? entity.getVersion() : 1L
         );
     }
 
@@ -241,7 +278,8 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
                 projection.updatedAt(),
                 isFavorited,
                 favoritedBy.size(),
-                projection.authorId()
+                projection.authorId(),
+                projection.version() != null ? projection.version() : 1L
         );
     }
 }

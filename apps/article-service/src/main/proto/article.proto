@@ -47,6 +47,7 @@ message ArticleSummary {
   int32 favorites_count = 8;
   string author_id = 9;
   string id = 10;
+  int64 version = 11;
 }
 
 message ListArticlesResponse {
@@ -69,10 +70,12 @@ message Article {
   bool favorited = 8;
   int32 favorites_count = 9;
   string author_id = 10;
+  int64 version = 11;
 }
 
 message ArticleResponse {
   Article article = 1;
+  int64 favorites_version = 2;
 }
 
 message CreateArticleRequest {
@@ -153,4 +156,5 @@ message GetArticlesFeedRequest {
 
 message UserFavoritedArticlesResponse {
   repeated string articlesIds = 1;
+  int64 favorites_version = 2;
 }

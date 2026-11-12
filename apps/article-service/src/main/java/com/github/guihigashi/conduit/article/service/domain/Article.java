@@ -15,8 +15,25 @@ public record Article(
         OffsetDateTime updatedAt,
         boolean favorited,
         int favoritesCount,
-        UUID authorId
+        UUID authorId,
+        long version
 ) {
+    public Article(
+            UUID id,
+            String slug,
+            String title,
+            String description,
+            String body,
+            List<String> tagList,
+            OffsetDateTime createdAt,
+            OffsetDateTime updatedAt,
+            boolean favorited,
+            int favoritesCount,
+            UUID authorId
+    ) {
+        this(id, slug, title, description, body, tagList, createdAt, updatedAt, favorited, favoritesCount, authorId, 1L);
+    }
+
     public Article {
         if (title == null || title.isBlank()) throw new IllegalArgumentException("Title cannot be empty");
         if (authorId == null) throw new IllegalArgumentException("AuthorId cannot be empty");
@@ -51,7 +68,8 @@ public record Article(
                 updatedAt,
                 this.favorited,
                 this.favoritesCount,
-                this.authorId
+                this.authorId,
+                this.version
         );
     }
 
@@ -69,7 +87,8 @@ public record Article(
                 updatedAt,
                 favorited,
                 favoritesCount,
-                authorId
+                authorId,
+                version
         );
     }
 

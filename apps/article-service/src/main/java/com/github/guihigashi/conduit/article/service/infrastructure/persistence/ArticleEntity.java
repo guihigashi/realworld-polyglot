@@ -39,6 +39,11 @@ public class ArticleEntity {
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
 
+    @Version
+    @ColumnDefault("1")
+    @Column(name = "version", nullable = false)
+    private Long version = 1L;
+
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "article_tags", joinColumns = @JoinColumn(name = "article_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<TagEntity> tagList = new HashSet<>();
@@ -128,11 +133,19 @@ public class ArticleEntity {
         this.favoritedBy = favoritedByUsers;
     }
 
-    public void addFavorite(UUID userId) {
-        this.favoritedBy.add(userId);
+    public Long getVersion() {
+        return version;
     }
 
-    public void removeFavorite(UUID userId) {
-        this.favoritedBy.remove(userId);
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public boolean addFavorite(UUID userId) {
+        return this.favoritedBy.add(userId);
+    }
+
+    public boolean removeFavorite(UUID userId) {
+        return this.favoritedBy.remove(userId);
     }
 }

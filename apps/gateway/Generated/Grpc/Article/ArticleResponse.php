@@ -18,6 +18,10 @@ class ArticleResponse extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.com.github.guihigashi.conduit.article.Article article = 1;</code>
      */
     protected $article = null;
+    /**
+     * Generated from protobuf field <code>int64 favorites_version = 2;</code>
+     */
+    protected $favorites_version = 0;
 
     /**
      * Constructor.
@@ -26,6 +30,7 @@ class ArticleResponse extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type \Generated\Grpc\Article\Article $article
+     *     @type int|string $favorites_version
      * }
      */
     public function __construct($data = null)
@@ -61,6 +66,28 @@ class ArticleResponse extends \Google\Protobuf\Internal\Message
     public function setArticle(\Generated\Grpc\Article\Article|null $var)
     {
         $this->article = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>int64 favorites_version = 2;</code>
+     * @return int|string
+     */
+    public function getFavoritesVersion()
+    {
+        return $this->favorites_version;
+    }
+
+    /**
+     * Generated from protobuf field <code>int64 favorites_version = 2;</code>
+     * @param int|string $var
+     * @return $this
+     */
+    public function setFavoritesVersion(int|string $var)
+    {
+        GPBUtil::checkInt64($var);
+        $this->favorites_version = $var;
 
         return $this;
     }

@@ -24,6 +24,7 @@ public record ArticleUpdatedEvent(
             List<String> tagList,
             List<String> previousTagList,
             UUID authorId,
-            OffsetDateTime updatedAt
+            OffsetDateTime updatedAt,
+            long version
     ) {}
 }

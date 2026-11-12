@@ -10,6 +10,18 @@ public record ArticleSummaryProjection(
         String description,
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt,
-        UUID authorId
+        UUID authorId,
+        Long version
 ) {
+    public ArticleSummaryProjection(
+            UUID id,
+            String slug,
+            String title,
+            String description,
+            OffsetDateTime createdAt,
+            OffsetDateTime updatedAt,
+            UUID authorId
+    ) {
+        this(id, slug, title, description, createdAt, updatedAt, authorId, 1L);
+    }
 }

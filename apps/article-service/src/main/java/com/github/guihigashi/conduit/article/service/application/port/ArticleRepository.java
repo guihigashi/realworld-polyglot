@@ -3,7 +3,9 @@ package com.github.guihigashi.conduit.article.service.application.port;
 import com.github.guihigashi.conduit.article.service.application.exception.ArticleNotFoundException;
 import com.github.guihigashi.conduit.article.service.application.exception.DuplicateSlugException;
 import com.github.guihigashi.conduit.article.service.domain.Article;
+import com.github.guihigashi.conduit.article.service.domain.FavoritedArticleResult;
 import com.github.guihigashi.conduit.article.service.domain.PaginatedArticles;
+import com.github.guihigashi.conduit.article.service.domain.UserFavoritesResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,11 +31,13 @@ public interface ArticleRepository {
 
     List<com.github.guihigashi.conduit.article.service.domain.CountedTag> findAllTags();
 
-    Article favoriteArticle(String slug, UUID requestorId) throws ArticleNotFoundException;
+    FavoritedArticleResult favoriteArticle(String slug, UUID requestorId) throws ArticleNotFoundException;
 
-    Article unfavoriteArticle(String slug, UUID requestorId) throws ArticleNotFoundException;
+    FavoritedArticleResult unfavoriteArticle(String slug, UUID requestorId) throws ArticleNotFoundException;
 
     PaginatedArticles getArticlesFeed(List<UUID> userIds, int limit, int offset, UUID requestorId);
 
     List<UUID> findUserFavoritedArticlesIds(UUID userId);
+
+    UserFavoritesResult findUserFavoritedArticles(UUID userId);
 }

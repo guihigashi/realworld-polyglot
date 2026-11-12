@@ -1,6 +1,7 @@
 package com.github.guihigashi.conduit.article.service.application.port;
 
 import com.github.guihigashi.conduit.article.service.domain.Article;
+import com.github.guihigashi.conduit.article.service.domain.Comment;
 
 import java.util.UUID;
 
@@ -11,7 +12,11 @@ public interface ArticleEventPublisher {
 
     void publishArticleDeleted(Article article);
 
-    void publishArticleFavorited(Article article, UUID userId);
+    void publishArticleFavorited(Article article, UUID userId, long version);
 
-    void publishArticleUnfavorited(Article article, UUID userId);
+    void publishArticleUnfavorited(Article article, UUID userId, long version);
+
+    void publishCommentAdded(Comment comment, String articleSlug);
+
+    void publishCommentDeleted(Long commentId, String articleSlug, UUID authorId);
 }

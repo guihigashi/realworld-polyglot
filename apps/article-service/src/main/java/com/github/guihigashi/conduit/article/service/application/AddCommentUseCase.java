@@ -1,5 +1,6 @@
 package com.github.guihigashi.conduit.article.service.application;
 
+import com.github.guihigashi.conduit.article.service.application.port.ArticleEventPublisher;
 import com.github.guihigashi.conduit.article.service.application.port.CommentRepository;
 import com.github.guihigashi.conduit.article.service.domain.Comment;
 import org.springframework.stereotype.Service;
@@ -12,9 +13,11 @@ import java.util.UUID;
 public class AddCommentUseCase {
 
     private final CommentRepository commentRepository;
+    private final ArticleEventPublisher eventPublisher;
 
-    public AddCommentUseCase(CommentRepository commentRepository) {
+    public AddCommentUseCase(CommentRepository commentRepository, ArticleEventPublisher eventPublisher) {
         this.commentRepository = commentRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public Comment execute(String slug, String body, UUID authorId) {
@@ -26,6 +29,8 @@ public class AddCommentUseCase {
                 authorId
         );
 
-        return commentRepository.save(slug, comment);
+        var saved = commentRepository.save(slug, comment);
+        eventPublisher.publishCommentAdded(saved, slug);
+        return saved;
     }
 }

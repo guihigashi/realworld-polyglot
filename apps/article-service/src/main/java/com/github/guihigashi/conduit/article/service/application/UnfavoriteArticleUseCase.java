@@ -2,7 +2,7 @@ package com.github.guihigashi.conduit.article.service.application;
 
 import com.github.guihigashi.conduit.article.service.application.port.ArticleEventPublisher;
 import com.github.guihigashi.conduit.article.service.application.port.ArticleRepository;
-import com.github.guihigashi.conduit.article.service.domain.Article;
+import com.github.guihigashi.conduit.article.service.domain.FavoritedArticleResult;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -18,9 +18,11 @@ public class UnfavoriteArticleUseCase {
         this.eventPublisher = eventPublisher;
     }
 
-    public Article execute(String slug, UUID requestorId) {
-        var article = articleRepository.unfavoriteArticle(slug, requestorId);
-        eventPublisher.publishArticleUnfavorited(article, requestorId);
-        return article;
+    public FavoritedArticleResult execute(String slug, UUID requestorId) {
+        var result = articleRepository.unfavoriteArticle(slug, requestorId);
+        if (result.changed()) {
+            eventPublisher.publishArticleUnfavorited(result.article(), requestorId, result.favoritesVersion());
+        }
+        return result;
     }
 }

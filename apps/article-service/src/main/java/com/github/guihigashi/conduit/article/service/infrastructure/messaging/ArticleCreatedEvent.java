@@ -20,6 +20,7 @@ public record ArticleCreatedEvent(
             List<String> tagList,
             UUID authorId,
             OffsetDateTime createdAt,
-            OffsetDateTime updatedAt
+            OffsetDateTime updatedAt,
+            long version
     ) {}
 }

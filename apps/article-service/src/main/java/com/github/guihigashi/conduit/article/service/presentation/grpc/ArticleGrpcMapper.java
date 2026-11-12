@@ -18,6 +18,7 @@ public class ArticleGrpcMapper {
                 .setFavorited(domain.favorited())
                 .setFavoritesCount(domain.favoritesCount())
                 .setAuthorId(domain.authorId().toString())
+                .setVersion(domain.version())
                 .build();
     }
 
@@ -33,6 +34,7 @@ public class ArticleGrpcMapper {
                 .setFavorited(domain.favorited())
                 .setFavoritesCount(domain.favoritesCount())
                 .setAuthorId(domain.authorId().toString())
+                .setVersion(domain.version())
                 .build();
     }
 }

@@ -275,10 +275,11 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
                 return;
             }
 
-            var article = favoriteArticleUseCase.execute(request.getSlug(), UUID.fromString(requestorId));
+            var result = favoriteArticleUseCase.execute(request.getSlug(), UUID.fromString(requestorId));
 
             var response = ArticleResponse.newBuilder()
-                    .setArticle(ArticleGrpcMapper.toProto(article))
+                    .setArticle(ArticleGrpcMapper.toProto(result.article()))
+                    .setFavoritesVersion(result.favoritesVersion())
                     .build();
 
             responseObserver.onNext(response);
@@ -299,10 +300,11 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
                 return;
             }
 
-            var article = unfavoriteArticleUseCase.execute(request.getSlug(), UUID.fromString(requestorId));
+            var result = unfavoriteArticleUseCase.execute(request.getSlug(), UUID.fromString(requestorId));
 
             var response = ArticleResponse.newBuilder()
-                    .setArticle(ArticleGrpcMapper.toProto(article))
+                    .setArticle(ArticleGrpcMapper.toProto(result.article()))
+                    .setFavoritesVersion(result.favoritesVersion())
                     .build();
 
             responseObserver.onNext(response);
@@ -378,14 +380,15 @@ public class GrpcArticleService extends ArticleServiceGrpc.ArticleServiceImplBas
                 return;
             }
 
-            List<UUID> articlesIds = userFavoritedArticlesUseCase.execute(UUID.fromString(requestorId));
+            var result = userFavoritedArticlesUseCase.execute(UUID.fromString(requestorId));
 
             UserFavoritedArticlesResponse response = UserFavoritedArticlesResponse.newBuilder()
                     .addAllArticlesIds(
-                            articlesIds.stream()
+                            result.articleIds().stream()
                                     .map(UUID::toString)
                                     .toList()
                     )
+                    .setFavoritesVersion(result.favoritesVersion())
                     .build();
 
             responseObserver.onNext(response);

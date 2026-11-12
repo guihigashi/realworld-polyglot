@@ -18,6 +18,10 @@ class UserFavoritedArticlesResponse extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string articlesIds = 1;</code>
      */
     private $articlesIds;
+    /**
+     * Generated from protobuf field <code>int64 favorites_version = 2;</code>
+     */
+    protected $favorites_version = 0;
 
     /**
      * Constructor.
@@ -26,6 +30,7 @@ class UserFavoritedArticlesResponse extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string[] $articlesIds
+     *     @type int|string $favorites_version
      * }
      */
     public function __construct($data = null)
@@ -52,6 +57,28 @@ class UserFavoritedArticlesResponse extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->articlesIds = $arr;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>int64 favorites_version = 2;</code>
+     * @return int|string
+     */
+    public function getFavoritesVersion()
+    {
+        return $this->favorites_version;
+    }
+
+    /**
+     * Generated from protobuf field <code>int64 favorites_version = 2;</code>
+     * @param int|string $var
+     * @return $this
+     */
+    public function setFavoritesVersion(int|string $var)
+    {
+        GPBUtil::checkInt64($var);
+        $this->favorites_version = $var;
 
         return $this;
     }

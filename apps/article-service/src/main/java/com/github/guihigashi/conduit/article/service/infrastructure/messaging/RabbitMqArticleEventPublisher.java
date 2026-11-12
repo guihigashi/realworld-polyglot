@@ -23,6 +23,8 @@ public class RabbitMqArticleEventPublisher implements ArticleEventPublisher {
     public static final String ROUTING_KEY_ARTICLE_DELETED = "article.deleted";
     public static final String ROUTING_KEY_ARTICLE_FAVORITED = "article.favorited";
     public static final String ROUTING_KEY_ARTICLE_UNFAVORITED = "article.unfavorited";
+    public static final String ROUTING_KEY_ARTICLE_COMMENT_ADDED = "article.comment-added";
+    public static final String ROUTING_KEY_ARTICLE_COMMENT_DELETED = "article.comment-deleted";
 
     private final RabbitTemplate rabbitTemplate;
     private final String exchangeName;
@@ -46,7 +48,8 @@ public class RabbitMqArticleEventPublisher implements ArticleEventPublisher {
                 article.tagList(),
                 article.authorId(),
                 article.createdAt(),
-                article.updatedAt()
+                article.updatedAt(),
+                article.version()
         );
 
         var event = new ArticleCreatedEvent(
@@ -71,7 +74,8 @@ public class RabbitMqArticleEventPublisher implements ArticleEventPublisher {
                 updated.tagList(),
                 previous.tagList(),
                 updated.authorId(),
-                updated.updatedAt()
+                updated.updatedAt(),
+                updated.version()
         );
 
         var event = new ArticleUpdatedEvent(
@@ -108,23 +112,67 @@ public class RabbitMqArticleEventPublisher implements ArticleEventPublisher {
     }
 
     @Override
-    public void publishArticleFavorited(Article article, UUID userId) {
-        sendFavoriteEvent(ROUTING_KEY_ARTICLE_FAVORITED, article, userId);
+    public void publishArticleFavorited(Article article, UUID userId, long version) {
+        sendFavoriteEvent(ROUTING_KEY_ARTICLE_FAVORITED, article, userId, version);
     }
 
     @Override
-    public void publishArticleUnfavorited(Article article, UUID userId) {
-        sendFavoriteEvent(ROUTING_KEY_ARTICLE_UNFAVORITED, article, userId);
+    public void publishArticleUnfavorited(Article article, UUID userId, long version) {
+        sendFavoriteEvent(ROUTING_KEY_ARTICLE_UNFAVORITED, article, userId, version);
     }
 
-    private void sendFavoriteEvent(String routingKey, Article article, UUID userId) {
+    @Override
+    public void publishCommentAdded(com.github.guihigashi.conduit.article.service.domain.Comment comment, String articleSlug) {
+        var now = OffsetDateTime.now();
+        var payload = new CommentAddedEvent.Payload(
+                comment.id(),
+                articleSlug,
+                comment.authorId(),
+                comment.body(),
+                comment.createdAt()
+        );
+
+        var event = new CommentAddedEvent(
+                UUID.randomUUID(),
+                ROUTING_KEY_ARTICLE_COMMENT_ADDED,
+                comment.authorId(),
+                now,
+                payload
+        );
+
+        send(ROUTING_KEY_ARTICLE_COMMENT_ADDED, event);
+    }
+
+    @Override
+    public void publishCommentDeleted(Long commentId, String articleSlug, UUID authorId) {
+        var now = OffsetDateTime.now();
+        var payload = new CommentDeletedEvent.Payload(
+                commentId,
+                articleSlug,
+                authorId,
+                now
+        );
+
+        var event = new CommentDeletedEvent(
+                UUID.randomUUID(),
+                ROUTING_KEY_ARTICLE_COMMENT_DELETED,
+                authorId,
+                now,
+                payload
+        );
+
+        send(ROUTING_KEY_ARTICLE_COMMENT_DELETED, event);
+    }
+
+    private void sendFavoriteEvent(String routingKey, Article article, UUID userId, long version) {
         var now = OffsetDateTime.now();
         var payload = new ArticleFavoriteEvent.Payload(
                 article.id(),
                 article.slug(),
                 userId,
                 article.favoritesCount(),
-                now
+                now,
+                version
         );
 
         var event = new ArticleFavoriteEvent(

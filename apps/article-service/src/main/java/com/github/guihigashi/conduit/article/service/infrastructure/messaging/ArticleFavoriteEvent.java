@@ -18,6 +18,7 @@ public record ArticleFavoriteEvent(
             String slug,
             UUID userId,
             int favoritesCount,
-            OffsetDateTime occurredAt
+            OffsetDateTime occurredAt,
+            long version
     ) {}
 }

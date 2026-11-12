@@ -49,7 +49,7 @@ public interface SpringDataArticleRepository extends JpaRepository<ArticleEntity
 
     @Query("""
                 SELECT DISTINCT new com.github.guihigashi.conduit.article.service.infrastructure.persistence.ArticleSummaryProjection(
-                    a.id, a.slug, a.title, a.description, a.createdAt, a.updatedAt, a.authorId
+                    a.id, a.slug, a.title, a.description, a.createdAt, a.updatedAt, a.authorId, a.version
                 )
                 FROM ArticleEntity a
                 LEFT JOIN a.tagList t
@@ -67,7 +67,7 @@ public interface SpringDataArticleRepository extends JpaRepository<ArticleEntity
 
     @Query("""
             select distinct new com.github.guihigashi.conduit.article.service.infrastructure.persistence.ArticleSummaryProjection(
-                    a.id, a.slug, a.title, a.description, a.createdAt, a.updatedAt, a.authorId
+                    a.id, a.slug, a.title, a.description, a.createdAt, a.updatedAt, a.authorId, a.version
             )
             from ArticleEntity a
             where a.authorId in :userIds
