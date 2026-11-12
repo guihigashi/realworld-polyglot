@@ -44,7 +44,7 @@ export function useRealtimeEvents() {
               ])
             )
           } else if (data.resource === "profiles") {
-            dispatch(api.util.invalidateTags(["Profile"]))
+            dispatch(api.util.invalidateTags(["Profile", "ArticleSummary"]))
           }
         } catch (err) {
           console.error("[Realtime] Failed to parse invalidation event payload:", err)
