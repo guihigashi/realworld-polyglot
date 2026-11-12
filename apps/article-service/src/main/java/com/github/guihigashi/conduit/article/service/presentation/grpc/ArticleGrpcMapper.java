@@ -19,6 +19,7 @@ public class ArticleGrpcMapper {
                 .setFavoritesCount(domain.favoritesCount())
                 .setAuthorId(domain.authorId().toString())
                 .setVersion(domain.version())
+                .setId(domain.id().toString())
                 .build();
     }
 

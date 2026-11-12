@@ -21,6 +21,7 @@ public record ArticleUpdatedEvent(
             String previousSlug,
             String title,
             String description,
+            String body,
             List<String> tagList,
             List<String> previousTagList,
             UUID authorId,

@@ -26,6 +26,7 @@ const (
 // PublicArticlesArticles is the article-service port needed to list articles by filter.
 type PublicArticlesArticles interface {
 	ListArticlesFiltered(ctx context.Context, tag *string, authorId, favoritedById *uuid.UUID, limit, offset int) ([]domain.Article, int, error)
+	GetArticle(ctx context.Context, slug string) (*domain.Article, error)
 }
 
 // PublicArticlesSocial is the social-graph port needed to resolve usernames and hydrate authors.
@@ -201,6 +202,76 @@ func (l *ListPublicArticles) ListByAuthors(ctx context.Context, authorIds []uuid
 	}
 
 	return sliceArticles(matched, offset, limit), len(matched), true, nil
+}
+
+func (l *ListPublicArticles) GetArticle(ctx context.Context, slug string, minFavoritesVersion, minFollowsVersion int64) (*domain.Article, *domain.Profile, error) {
+	snap, err := l.getOrWarmSnapshot(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var article domain.Article
+	foundInSnap := false
+	idx := findArticleIndex(snap.articles, uuid.Nil(), slug, "")
+	if idx >= 0 && snap.articles[idx].Body != "" {
+		article = snap.articles[idx]
+		foundInSnap = true
+	}
+
+	if !foundInSnap {
+		fetched, err := l.articles.GetArticle(ctx, slug)
+		if err != nil {
+			return nil, nil, err
+		}
+		article = *fetched
+		if idx >= 0 {
+			l.writeMu.Lock()
+			current := l.snapshot.Load()
+			if current != nil {
+				cIdx := findArticleIndex(current.articles, uuid.Nil(), slug, "")
+				if cIdx >= 0 {
+					next := slices.Clone(current.articles)
+					next[cIdx].Body = article.Body
+					if article.Id != uuid.Nil() {
+						next[cIdx].Id = article.Id
+					}
+					l.snapshot.Store(&articlesSnapshot{articles: next, totalCount: current.totalCount})
+				}
+			}
+			l.writeMu.Unlock()
+		}
+	}
+
+	profiles, err := l.social.GetProfilesByIds(ctx, []uuid.UUID{article.AuthorId})
+	if err != nil {
+		return nil, nil, err
+	}
+	profile := profiles[article.AuthorId]
+	profile.Following = false
+
+	requestorId, loggedIn := appctx.RequestorIdFromContext(ctx)
+	if !loggedIn {
+		article.Favorited = false
+		return &article, &profile, nil
+	}
+
+	if l.following != nil {
+		followingIds, err := l.following.GetFollowing(ctx, requestorId, minFollowsVersion)
+		if err != nil {
+			return nil, nil, err
+		}
+		profile.Following = slices.Contains(followingIds, article.AuthorId)
+	}
+
+	if l.favorites != nil {
+		favoritedIds, err := l.favorites.GetFavorited(ctx, requestorId, minFavoritesVersion)
+		if err != nil {
+			return nil, nil, err
+		}
+		_, article.Favorited = favoritedIds[article.Id]
+	}
+
+	return &article, &profile, nil
 }
 
 func (l *ListPublicArticles) Execute(ctx context.Context, q ListArticlesQuery) (*ArticlesPage, error) {
@@ -382,6 +453,7 @@ type articleCreatedEvent struct {
 		Slug        string    `json:"slug"`
 		Title       string    `json:"title"`
 		Description string    `json:"description"`
+		Body        string    `json:"body"`
 		TagList     []string  `json:"tagList"`
 		AuthorId    uuid.UUID `json:"authorId"`
 		CreatedAt   time.Time `json:"createdAt"`
@@ -396,6 +468,7 @@ type articleUpdatedEvent struct {
 		PreviousSlug string    `json:"previousSlug"`
 		Title        string    `json:"title"`
 		Description  string    `json:"description"`
+		Body         string    `json:"body"`
 		TagList      []string  `json:"tagList"`
 		AuthorId     uuid.UUID `json:"authorId"`
 		UpdatedAt    time.Time `json:"updatedAt"`
@@ -454,6 +527,7 @@ func (l *ListPublicArticles) HandleArticleEvent(routingKey string, body []byte) 
 			Slug:           p.Slug,
 			Title:          p.Title,
 			Description:    p.Description,
+			Body:           p.Body,
 			TagList:        normalizeTagList(p.TagList),
 			CreatedAt:      p.CreatedAt.UTC(),
 			UpdatedAt:      p.UpdatedAt.UTC(),
@@ -488,6 +562,9 @@ func (l *ListPublicArticles) HandleArticleEvent(routingKey string, body []byte) 
 		updated.Slug = p.Slug
 		updated.Title = p.Title
 		updated.Description = p.Description
+		if p.Body != "" {
+			updated.Body = p.Body
+		}
 		updated.TagList = normalizeTagList(p.TagList)
 		updated.UpdatedAt = p.UpdatedAt.UTC()
 		next[idx] = updated

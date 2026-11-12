@@ -115,3 +115,76 @@ it('returns X-Favorites-Version header on favorite article', function () {
         ->assertHeader('X-Favorites-Version', '7');
     expect($response->json('article.favorited'))->toBeTrue();
 });
+
+it('retrieves single article from feed service with author profile and body', function () {
+    $feedService = Mockery::mock(FeedServiceInterface::class);
+    $feedService->shouldReceive('getArticle')
+        ->once()
+        ->with('dragon-slug', null, null, null)
+        ->andReturn([
+            'slug' => 'dragon-slug',
+            'title' => 'Dragon Title',
+            'description' => 'Dragon Desc',
+            'body' => 'Dragon Body Content',
+            'tagList' => ['dragons'],
+            'createdAt' => '2026-11-09T00:00:00.000Z',
+            'updatedAt' => '2026-11-09T00:00:00.000Z',
+            'favorited' => false,
+            'favoritesCount' => 0,
+            'author' => [
+                'username' => 'hiccup',
+                'bio' => 'Dragon trainer',
+                'image' => null,
+                'following' => false,
+            ],
+        ]);
+    app()->instance(FeedServiceInterface::class, $feedService);
+
+    $response = $this->get('/api/articles/dragon-slug');
+
+    $response->assertOk()
+        ->assertJson([
+            'article' => [
+                'slug' => 'dragon-slug',
+                'title' => 'Dragon Title',
+                'body' => 'Dragon Body Content',
+                'author' => [
+                    'username' => 'hiccup',
+                ],
+            ],
+        ]);
+});
+
+it('forwards X-Favorites-Version and X-Follows-Version headers to feed service on get article', function () {
+    $feedService = Mockery::mock(FeedServiceInterface::class);
+    $feedService->shouldReceive('getArticle')
+        ->once()
+        ->with('dragon-slug', null, 42, 15)
+        ->andReturn([
+            'slug' => 'dragon-slug',
+            'title' => 'Dragon Title',
+            'description' => 'Dragon Desc',
+            'body' => 'Dragon Body Content',
+            'tagList' => ['dragons'],
+            'createdAt' => '2026-11-09T00:00:00.000Z',
+            'updatedAt' => '2026-11-09T00:00:00.000Z',
+            'favorited' => true,
+            'favoritesCount' => 1,
+            'author' => [
+                'username' => 'hiccup',
+                'bio' => null,
+                'image' => null,
+                'following' => true,
+            ],
+        ]);
+    app()->instance(FeedServiceInterface::class, $feedService);
+
+    $response = $this->withHeader('X-Favorites-Version', '42')
+        ->withHeader('X-Follows-Version', '15')
+        ->get('/api/articles/dragon-slug');
+
+    $response->assertOk()
+        ->assertJsonPath('article.favorited', true)
+        ->assertJsonPath('article.author.following', true);
+});
+

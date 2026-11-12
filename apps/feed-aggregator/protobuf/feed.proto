@@ -13,6 +13,7 @@ service FeedService {
   rpc GetFeed (GetFeedRequest) returns (GetFeedResponse);
   rpc GetTags (google.protobuf.Empty) returns (GetTagsResponse);
   rpc ListArticles (ListArticlesRequest) returns (ListArticlesResponse);
+  rpc GetArticle (GetArticleRequest) returns (GetArticleResponse);
 }
 
 message GetFeedRequest {
@@ -32,6 +33,7 @@ message Article {
   bool favorited = 7;
   int32 favorites_count = 8;
   Author author = 9;
+  string body = 10;
 }
 
 message Author {
@@ -67,4 +69,14 @@ message ListArticlesRequest {
 message ListArticlesResponse {
   repeated Article articles = 1;
   int32 articles_count = 2;
+}
+
+message GetArticleRequest {
+  string slug = 1;
+  optional int64 min_favorites_version = 2;
+  optional int64 min_follows_version = 3;
+}
+
+message GetArticleResponse {
+  Article article = 1;
 }

@@ -101,6 +101,7 @@ type Article struct {
 	Favorited      bool                   `protobuf:"varint,7,opt,name=favorited,proto3" json:"favorited,omitempty"`
 	FavoritesCount int32                  `protobuf:"varint,8,opt,name=favorites_count,json=favoritesCount,proto3" json:"favorites_count,omitempty"`
 	Author         *Author                `protobuf:"bytes,9,opt,name=author,proto3" json:"author,omitempty"`
+	Body           string                 `protobuf:"bytes,10,opt,name=body,proto3" json:"body,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -196,6 +197,13 @@ func (x *Article) GetAuthor() *Author {
 		return x.Author
 	}
 	return nil
+}
+
+func (x *Article) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
 }
 
 type Author struct {
@@ -550,6 +558,110 @@ func (x *ListArticlesResponse) GetArticlesCount() int32 {
 	return 0
 }
 
+type GetArticleRequest struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Slug                string                 `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
+	MinFavoritesVersion *int64                 `protobuf:"varint,2,opt,name=min_favorites_version,json=minFavoritesVersion,proto3,oneof" json:"min_favorites_version,omitempty"`
+	MinFollowsVersion   *int64                 `protobuf:"varint,3,opt,name=min_follows_version,json=minFollowsVersion,proto3,oneof" json:"min_follows_version,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *GetArticleRequest) Reset() {
+	*x = GetArticleRequest{}
+	mi := &file_feed_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetArticleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetArticleRequest) ProtoMessage() {}
+
+func (x *GetArticleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_feed_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetArticleRequest.ProtoReflect.Descriptor instead.
+func (*GetArticleRequest) Descriptor() ([]byte, []int) {
+	return file_feed_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetArticleRequest) GetSlug() string {
+	if x != nil {
+		return x.Slug
+	}
+	return ""
+}
+
+func (x *GetArticleRequest) GetMinFavoritesVersion() int64 {
+	if x != nil && x.MinFavoritesVersion != nil {
+		return *x.MinFavoritesVersion
+	}
+	return 0
+}
+
+func (x *GetArticleRequest) GetMinFollowsVersion() int64 {
+	if x != nil && x.MinFollowsVersion != nil {
+		return *x.MinFollowsVersion
+	}
+	return 0
+}
+
+type GetArticleResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Article       *Article               `protobuf:"bytes,1,opt,name=article,proto3" json:"article,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetArticleResponse) Reset() {
+	*x = GetArticleResponse{}
+	mi := &file_feed_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetArticleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetArticleResponse) ProtoMessage() {}
+
+func (x *GetArticleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_feed_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetArticleResponse.ProtoReflect.Descriptor instead.
+func (*GetArticleResponse) Descriptor() ([]byte, []int) {
+	return file_feed_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetArticleResponse) GetArticle() *Article {
+	if x != nil {
+		return x.Article
+	}
+	return nil
+}
+
 var File_feed_proto protoreflect.FileDescriptor
 
 const file_feed_proto_rawDesc = "" +
@@ -562,7 +674,7 @@ const file_feed_proto_rawDesc = "" +
 	"\x13min_follows_version\x18\x03 \x01(\x03H\x00R\x11minFollowsVersion\x88\x01\x01\x127\n" +
 	"\x15min_favorites_version\x18\x04 \x01(\x03H\x01R\x13minFavoritesVersion\x88\x01\x01B\x16\n" +
 	"\x14_min_follows_versionB\x18\n" +
-	"\x16_min_favorites_version\"\xb9\x02\n" +
+	"\x16_min_favorites_version\"\xcd\x02\n" +
 	"\aArticle\x12\x12\n" +
 	"\x04slug\x18\x01 \x01(\tR\x04slug\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
@@ -574,7 +686,9 @@ const file_feed_proto_rawDesc = "" +
 	"updated_at\x18\x06 \x01(\tR\tupdatedAt\x12\x1c\n" +
 	"\tfavorited\x18\a \x01(\bR\tfavorited\x12'\n" +
 	"\x0ffavorites_count\x18\b \x01(\x05R\x0efavoritesCount\x12B\n" +
-	"\x06author\x18\t \x01(\v2*.com.github.guihigashi.conduit.feed.AuthorR\x06author\"j\n" +
+	"\x06author\x18\t \x01(\v2*.com.github.guihigashi.conduit.feed.AuthorR\x06author\x12\x12\n" +
+	"\x04body\x18\n" +
+	" \x01(\tR\x04body\"j\n" +
 	"\x06Author\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x10\n" +
 	"\x03bio\x18\x02 \x01(\tR\x03bio\x12\x14\n" +
@@ -603,11 +717,21 @@ const file_feed_proto_rawDesc = "" +
 	"\x16_min_favorites_version\"\x86\x01\n" +
 	"\x14ListArticlesResponse\x12G\n" +
 	"\barticles\x18\x01 \x03(\v2+.com.github.guihigashi.conduit.feed.ArticleR\barticles\x12%\n" +
-	"\x0earticles_count\x18\x02 \x01(\x05R\rarticlesCount2\xdd\x02\n" +
+	"\x0earticles_count\x18\x02 \x01(\x05R\rarticlesCount\"\xc7\x01\n" +
+	"\x11GetArticleRequest\x12\x12\n" +
+	"\x04slug\x18\x01 \x01(\tR\x04slug\x127\n" +
+	"\x15min_favorites_version\x18\x02 \x01(\x03H\x00R\x13minFavoritesVersion\x88\x01\x01\x123\n" +
+	"\x13min_follows_version\x18\x03 \x01(\x03H\x01R\x11minFollowsVersion\x88\x01\x01B\x18\n" +
+	"\x16_min_favorites_versionB\x16\n" +
+	"\x14_min_follows_version\"[\n" +
+	"\x12GetArticleResponse\x12E\n" +
+	"\aarticle\x18\x01 \x01(\v2+.com.github.guihigashi.conduit.feed.ArticleR\aarticle2\xda\x03\n" +
 	"\vFeedService\x12r\n" +
 	"\aGetFeed\x122.com.github.guihigashi.conduit.feed.GetFeedRequest\x1a3.com.github.guihigashi.conduit.feed.GetFeedResponse\x12V\n" +
 	"\aGetTags\x12\x16.google.protobuf.Empty\x1a3.com.github.guihigashi.conduit.feed.GetTagsResponse\x12\x81\x01\n" +
-	"\fListArticles\x127.com.github.guihigashi.conduit.feed.ListArticlesRequest\x1a8.com.github.guihigashi.conduit.feed.ListArticlesResponseBzZCgithub.com/guihigashi/conduit/feed/internal/generated/pbfeed;pbfeed\xca\x02\x13Generated\\Grpc\\Feed\xe2\x02\x1cGenerated\\Grpc\\Feed\\Metadatab\x06proto3"
+	"\fListArticles\x127.com.github.guihigashi.conduit.feed.ListArticlesRequest\x1a8.com.github.guihigashi.conduit.feed.ListArticlesResponse\x12{\n" +
+	"\n" +
+	"GetArticle\x125.com.github.guihigashi.conduit.feed.GetArticleRequest\x1a6.com.github.guihigashi.conduit.feed.GetArticleResponseBzZCgithub.com/guihigashi/conduit/feed/internal/generated/pbfeed;pbfeed\xca\x02\x13Generated\\Grpc\\Feed\xe2\x02\x1cGenerated\\Grpc\\Feed\\Metadatab\x06proto3"
 
 var (
 	file_feed_proto_rawDescOnce sync.Once
@@ -621,7 +745,7 @@ func file_feed_proto_rawDescGZIP() []byte {
 	return file_feed_proto_rawDescData
 }
 
-var file_feed_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_feed_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_feed_proto_goTypes = []any{
 	(*GetFeedRequest)(nil),       // 0: com.github.guihigashi.conduit.feed.GetFeedRequest
 	(*Article)(nil),              // 1: com.github.guihigashi.conduit.feed.Article
@@ -631,24 +755,29 @@ var file_feed_proto_goTypes = []any{
 	(*GetTagsResponse)(nil),      // 5: com.github.guihigashi.conduit.feed.GetTagsResponse
 	(*ListArticlesRequest)(nil),  // 6: com.github.guihigashi.conduit.feed.ListArticlesRequest
 	(*ListArticlesResponse)(nil), // 7: com.github.guihigashi.conduit.feed.ListArticlesResponse
-	(*emptypb.Empty)(nil),        // 8: google.protobuf.Empty
+	(*GetArticleRequest)(nil),    // 8: com.github.guihigashi.conduit.feed.GetArticleRequest
+	(*GetArticleResponse)(nil),   // 9: com.github.guihigashi.conduit.feed.GetArticleResponse
+	(*emptypb.Empty)(nil),        // 10: google.protobuf.Empty
 }
 var file_feed_proto_depIdxs = []int32{
-	2, // 0: com.github.guihigashi.conduit.feed.Article.author:type_name -> com.github.guihigashi.conduit.feed.Author
-	1, // 1: com.github.guihigashi.conduit.feed.GetFeedResponse.articles:type_name -> com.github.guihigashi.conduit.feed.Article
-	4, // 2: com.github.guihigashi.conduit.feed.GetTagsResponse.tags:type_name -> com.github.guihigashi.conduit.feed.CountedTag
-	1, // 3: com.github.guihigashi.conduit.feed.ListArticlesResponse.articles:type_name -> com.github.guihigashi.conduit.feed.Article
-	0, // 4: com.github.guihigashi.conduit.feed.FeedService.GetFeed:input_type -> com.github.guihigashi.conduit.feed.GetFeedRequest
-	8, // 5: com.github.guihigashi.conduit.feed.FeedService.GetTags:input_type -> google.protobuf.Empty
-	6, // 6: com.github.guihigashi.conduit.feed.FeedService.ListArticles:input_type -> com.github.guihigashi.conduit.feed.ListArticlesRequest
-	3, // 7: com.github.guihigashi.conduit.feed.FeedService.GetFeed:output_type -> com.github.guihigashi.conduit.feed.GetFeedResponse
-	5, // 8: com.github.guihigashi.conduit.feed.FeedService.GetTags:output_type -> com.github.guihigashi.conduit.feed.GetTagsResponse
-	7, // 9: com.github.guihigashi.conduit.feed.FeedService.ListArticles:output_type -> com.github.guihigashi.conduit.feed.ListArticlesResponse
-	7, // [7:10] is the sub-list for method output_type
-	4, // [4:7] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	2,  // 0: com.github.guihigashi.conduit.feed.Article.author:type_name -> com.github.guihigashi.conduit.feed.Author
+	1,  // 1: com.github.guihigashi.conduit.feed.GetFeedResponse.articles:type_name -> com.github.guihigashi.conduit.feed.Article
+	4,  // 2: com.github.guihigashi.conduit.feed.GetTagsResponse.tags:type_name -> com.github.guihigashi.conduit.feed.CountedTag
+	1,  // 3: com.github.guihigashi.conduit.feed.ListArticlesResponse.articles:type_name -> com.github.guihigashi.conduit.feed.Article
+	1,  // 4: com.github.guihigashi.conduit.feed.GetArticleResponse.article:type_name -> com.github.guihigashi.conduit.feed.Article
+	0,  // 5: com.github.guihigashi.conduit.feed.FeedService.GetFeed:input_type -> com.github.guihigashi.conduit.feed.GetFeedRequest
+	10, // 6: com.github.guihigashi.conduit.feed.FeedService.GetTags:input_type -> google.protobuf.Empty
+	6,  // 7: com.github.guihigashi.conduit.feed.FeedService.ListArticles:input_type -> com.github.guihigashi.conduit.feed.ListArticlesRequest
+	8,  // 8: com.github.guihigashi.conduit.feed.FeedService.GetArticle:input_type -> com.github.guihigashi.conduit.feed.GetArticleRequest
+	3,  // 9: com.github.guihigashi.conduit.feed.FeedService.GetFeed:output_type -> com.github.guihigashi.conduit.feed.GetFeedResponse
+	5,  // 10: com.github.guihigashi.conduit.feed.FeedService.GetTags:output_type -> com.github.guihigashi.conduit.feed.GetTagsResponse
+	7,  // 11: com.github.guihigashi.conduit.feed.FeedService.ListArticles:output_type -> com.github.guihigashi.conduit.feed.ListArticlesResponse
+	9,  // 12: com.github.guihigashi.conduit.feed.FeedService.GetArticle:output_type -> com.github.guihigashi.conduit.feed.GetArticleResponse
+	9,  // [9:13] is the sub-list for method output_type
+	5,  // [5:9] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_feed_proto_init() }
@@ -658,13 +787,14 @@ func file_feed_proto_init() {
 	}
 	file_feed_proto_msgTypes[0].OneofWrappers = []any{}
 	file_feed_proto_msgTypes[6].OneofWrappers = []any{}
+	file_feed_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_feed_proto_rawDesc), len(file_feed_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

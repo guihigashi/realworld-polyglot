@@ -71,6 +71,7 @@ message Article {
   int32 favorites_count = 9;
   string author_id = 10;
   int64 version = 11;
+  string id = 12;
 }
 
 message ArticleResponse {

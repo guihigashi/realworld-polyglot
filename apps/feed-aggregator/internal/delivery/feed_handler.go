@@ -64,6 +64,23 @@ func (h *FeedHandler) ListArticles(ctx context.Context, req *pbfeed.ListArticles
 	return res, nil
 }
 
+func (h *FeedHandler) GetArticle(ctx context.Context, req *pbfeed.GetArticleRequest) (*pbfeed.GetArticleResponse, error) {
+	article, profile, err := h.ListPublicArticles.GetArticle(ctx, req.GetSlug(), req.GetMinFavoritesVersion(), req.GetMinFollowsVersion())
+	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			return nil, status.Error(codes.NotFound, "article not found")
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	profiles := map[uuid.UUID]domain.Profile{
+		article.AuthorId: *profile,
+	}
+	return &pbfeed.GetArticleResponse{
+		Article: mapDomainToProto(article, profiles),
+	}, nil
+}
+
 func (h *FeedHandler) GetFeed(ctx context.Context, req *pbfeed.GetFeedRequest) (*pbfeed.GetFeedResponse, error) {
 	userId, ok := appctx.RequestorIdFromContext(ctx)
 	if !ok {
@@ -96,6 +113,7 @@ func mapDomainToProto(article *domain.Article, authors map[uuid.UUID]domain.Prof
 		UpdatedAt:      article.UpdatedAt.Format(time.RFC3339),
 		Favorited:      article.Favorited,
 		FavoritesCount: int32(article.FavoritesCount),
+		Body:           article.Body,
 	}
 
 	if authorProfile, ok := authors[article.AuthorId]; ok {

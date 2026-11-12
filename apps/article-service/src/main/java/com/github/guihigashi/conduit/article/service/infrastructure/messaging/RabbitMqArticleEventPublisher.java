@@ -71,6 +71,7 @@ public class RabbitMqArticleEventPublisher implements ArticleEventPublisher {
                 previous.slug(),
                 updated.title(),
                 updated.description(),
+                updated.body(),
                 updated.tagList(),
                 previous.tagList(),
                 updated.authorId(),

@@ -2,28 +2,16 @@
 
 namespace App\Application\Article\UseCases;
 
-use App\Domain\Article\Contracts\ArticleServiceInterface;
-use App\Domain\Profile\Contracts\SocialGraphServiceInterface;
+use App\Domain\Feed\Contracts\FeedServiceInterface;
 
 readonly class GetArticle
 {
     public function __construct(
-        private ArticleServiceInterface $articleService,
-        private SocialGraphServiceInterface $socialGraphService
+        private FeedServiceInterface $feedService
     ) {}
 
-    public function execute(string $slug, ?string $requestorId): array
+    public function execute(string $slug, ?string $requestorId, ?int $minFavoritesVersion = null, ?int $minFollowsVersion = null): array
     {
-        $article = $this->articleService->getArticle($slug, $requestorId);
-
-        // Gateway Aggregation: Hydrate the author profile from the Social Graph Service
-        if (! empty($article['authorId'])) {
-            $profiles = $this->socialGraphService->getProfilesByIds([$article['authorId']], $requestorId);
-
-            $article['author'] = $profiles[$article['authorId']];
-        }
-        unset($article['authorId']);
-
-        return $article;
+        return $this->feedService->getArticle($slug, $requestorId, $minFavoritesVersion, $minFollowsVersion);
     }
 }

@@ -58,6 +58,10 @@ class Article extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>int64 version = 11;</code>
      */
     protected $version = 0;
+    /**
+     * Generated from protobuf field <code>string id = 12;</code>
+     */
+    protected $id = '';
 
     /**
      * Constructor.
@@ -76,6 +80,7 @@ class Article extends \Google\Protobuf\Internal\Message
      *     @type int $favorites_count
      *     @type string $author_id
      *     @type int|string $version
+     *     @type string $id
      * }
      */
     public function __construct($data = null)
@@ -321,6 +326,28 @@ class Article extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkInt64($var);
         $this->version = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string id = 12;</code>
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Generated from protobuf field <code>string id = 12;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setId(string $var)
+    {
+        GPBUtil::checkString($var, true);
+        $this->id = $var;
 
         return $this;
     }

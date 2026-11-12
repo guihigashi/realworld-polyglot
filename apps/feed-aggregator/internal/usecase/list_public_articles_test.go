@@ -9,15 +9,28 @@ import (
 
 	"github.com/guihigashi/conduit/feed/internal/appctx"
 	"github.com/guihigashi/conduit/feed/internal/domain"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type fakeArticlesPort struct {
 	filteredCalls int
 	feedCalls     int
 	favCalls      int
+	getCalls      int
 	articles      []domain.Article
 	totalCount    int
 	favoritedBy   map[uuid.UUID]map[uuid.UUID]struct{}
+}
+
+func (f *fakeArticlesPort) GetArticle(_ context.Context, slug string) (*domain.Article, error) {
+	f.getCalls++
+	for _, a := range f.articles {
+		if a.Slug == slug {
+			return &a, nil
+		}
+	}
+	return nil, status.Error(codes.NotFound, "article not found")
 }
 
 func (f *fakeArticlesPort) ListArticlesFiltered(_ context.Context, _ *string, _, _ *uuid.UUID, limit, offset int) ([]domain.Article, int, error) {
@@ -358,3 +371,87 @@ func (v *versionedFavStore) UserFavoritedArticles(ctx context.Context, userId uu
 	favs, _, err := v.port.UserFavoritedArticles(ctx, userId)
 	return favs, *v.version, err
 }
+
+func TestListPublicArticles_GetArticle(t *testing.T) {
+	authorId := uuid.New()
+	readerId := uuid.New()
+	artId := uuid.New()
+
+	base := &fakeArticlesPort{
+		articles: []domain.Article{
+			{
+				Id:          artId,
+				Slug:        "cached-slug",
+				Title:       "Cached Title",
+				Description: "Cached Desc",
+				Body:        "Cached Body Content",
+				TagList:     []string{"go"},
+				CreatedAt:   time.Now().UTC(),
+				UpdatedAt:   time.Now().UTC(),
+				AuthorId:    authorId,
+			},
+		},
+		totalCount: 1,
+		favoritedBy: map[uuid.UUID]map[uuid.UUID]struct{}{
+			readerId: {artId: {}},
+		},
+	}
+	social := &fakeSocialPort{
+		profiles: map[uuid.UUID]domain.Profile{
+			authorId: {Id: authorId, Username: "author1"},
+		},
+		following: map[uuid.UUID][]uuid.UUID{
+			readerId: {authorId},
+		},
+	}
+
+	favCache, _ := NewManageFavorites(base, 100)
+	followCache, _ := NewManageFollowing(social, 100)
+	usecase := NewListPublicArticles(base, social, followCache, favCache, 10)
+
+	// Context with logged-in user
+	ctx := appctx.WithRequestorId(context.Background(), readerId)
+
+	// 1. Get article from memory/cache
+	art, profile, err := usecase.GetArticle(ctx, "cached-slug", 0, 0)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if art.Slug != "cached-slug" || art.Body != "Cached Body Content" {
+		t.Errorf("expected slug and body, got %v / %v", art.Slug, art.Body)
+	}
+	if !art.Favorited {
+		t.Errorf("expected article to be favorited by reader")
+	}
+	if !profile.Following {
+		t.Errorf("expected author to be followed by reader")
+	}
+
+	// 2. Fallback to article-service when not found in snapshot
+	uncachedId := uuid.New()
+	base.articles = append(base.articles, domain.Article{
+		Id:          uncachedId,
+		Slug:        "uncached-slug",
+		Title:       "Uncached",
+		Description: "Uncached Desc",
+		Body:        "Fresh Body From Service",
+		CreatedAt:   time.Now().UTC(),
+		UpdatedAt:   time.Now().UTC(),
+		AuthorId:    authorId,
+	})
+
+	art2, _, err := usecase.GetArticle(ctx, "uncached-slug", 0, 0)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if art2.Slug != "uncached-slug" || art2.Body != "Fresh Body From Service" {
+		t.Errorf("expected fetched article, got %v / %v", art2.Slug, art2.Body)
+	}
+
+	// 3. Not found returns error
+	_, _, err = usecase.GetArticle(ctx, "nonexistent-slug", 0, 0)
+	if err == nil {
+		t.Fatalf("expected error for nonexistent slug")
+	}
+}
+

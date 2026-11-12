@@ -123,6 +123,45 @@ func (c *Client) ListArticlesFiltered(ctx context.Context, tag *string, authorId
 	return articles, int(res.GetTotalCount()), nil
 }
 
+func (c *Client) GetArticle(ctx context.Context, slug string) (*domain.Article, error) {
+	res, err := c.client.GetArticle(ctx, &pbarticle.GetArticleRequest{
+		Slug: slug,
+	})
+	if err != nil {
+		return nil, err
+	}
+	art := res.GetArticle()
+	createdAt, err := time.Parse(time.RFC3339, art.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	var updatedAt time.Time
+	if art.UpdatedAt != "" {
+		updatedAt, _ = time.Parse(time.RFC3339, art.UpdatedAt)
+	}
+	var articleId uuid.UUID
+	if art.Id != "" {
+		articleId, _ = uuid.Parse(art.Id)
+	}
+	var authorId uuid.UUID
+	if art.AuthorId != "" {
+		authorId, _ = uuid.Parse(art.AuthorId)
+	}
+	return &domain.Article{
+		Id:             articleId,
+		Slug:           art.Slug,
+		Title:          art.Title,
+		Description:    art.Description,
+		Body:           art.Body,
+		TagList:        art.TagList,
+		CreatedAt:      createdAt,
+		UpdatedAt:      updatedAt,
+		Favorited:      art.Favorited,
+		FavoritesCount: int(art.FavoritesCount),
+		AuthorId:       authorId,
+	}, nil
+}
+
 func mapToDomain(as *pbarticle.ArticleSummary) domain.Article {
 	createdAt, err := time.Parse(time.RFC3339, as.CreatedAt)
 	if err != nil {

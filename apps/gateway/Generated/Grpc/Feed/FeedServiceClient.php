@@ -58,4 +58,18 @@ class FeedServiceClient extends \Grpc\BaseStub {
         $metadata, $options);
     }
 
+    /**
+     * @param \Generated\Grpc\Feed\GetArticleRequest $argument input argument
+     * @param array $metadata metadata
+     * @param array $options call options
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Feed\GetArticleResponse>
+     */
+    public function GetArticle(\Generated\Grpc\Feed\GetArticleRequest $argument,
+      $metadata = [], $options = []) {
+        return $this->_simpleRequest('/com.github.guihigashi.conduit.feed.FeedService/GetArticle',
+        $argument,
+        ['\Generated\Grpc\Feed\GetArticleResponse', 'decode'],
+        $metadata, $options);
+    }
+
 }

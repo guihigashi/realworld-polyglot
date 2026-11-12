@@ -14,11 +14,11 @@ export const api = createApi({
         headers.set("authorization", `Token ${auth.user.token}`)
       }
 
-      if (endpoint === "feedArticles" && state.causal.followsVersion) {
+      if ((endpoint === "feedArticles" || endpoint === "getArticle") && state.causal.followsVersion) {
         headers.set("X-Follows-Version", state.causal.followsVersion)
       }
 
-      if ((endpoint === "feedArticles" || endpoint === "listArticles") && state.causal.favoritesVersion) {
+      if ((endpoint === "feedArticles" || endpoint === "listArticles" || endpoint === "getArticle") && state.causal.favoritesVersion) {
         headers.set("X-Favorites-Version", state.causal.favoritesVersion)
       }
 

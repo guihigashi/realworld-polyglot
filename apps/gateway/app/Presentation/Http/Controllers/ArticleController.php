@@ -43,8 +43,15 @@ readonly class ArticleController
     public function show(Request $request, string $slug): JsonResponse
     {
         $requestorId = $request->attributes->get('auth_user_id');
+        $minFavoritesVersion = $request->header('X-Favorites-Version');
+        $minFollowsVersion = $request->header('X-Follows-Version');
 
-        $article = $this->getArticleUseCase->execute($slug, $requestorId);
+        $article = $this->getArticleUseCase->execute(
+            slug: $slug,
+            requestorId: $requestorId,
+            minFavoritesVersion: $minFavoritesVersion !== null ? (int) $minFavoritesVersion : null,
+            minFollowsVersion: $minFollowsVersion !== null ? (int) $minFollowsVersion : null,
+        );
 
         return response()->json([
             'article' => $article,

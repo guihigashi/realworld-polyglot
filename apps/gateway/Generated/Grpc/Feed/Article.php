@@ -50,6 +50,10 @@ class Article extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.com.github.guihigashi.conduit.feed.Author author = 9;</code>
      */
     protected $author = null;
+    /**
+     * Generated from protobuf field <code>string body = 10;</code>
+     */
+    protected $body = '';
 
     /**
      * Constructor.
@@ -66,6 +70,7 @@ class Article extends \Google\Protobuf\Internal\Message
      *     @type bool $favorited
      *     @type int $favorites_count
      *     @type \Generated\Grpc\Feed\Author $author
+     *     @type string $body
      * }
      */
     public function __construct($data = null)
@@ -276,6 +281,28 @@ class Article extends \Google\Protobuf\Internal\Message
     public function setAuthor(\Generated\Grpc\Feed\Author|null $var)
     {
         $this->author = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string body = 10;</code>
+     * @return string
+     */
+    public function getBody()
+    {
+        return $this->body;
+    }
+
+    /**
+     * Generated from protobuf field <code>string body = 10;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setBody(string $var)
+    {
+        GPBUtil::checkString($var, true);
+        $this->body = $var;
 
         return $this;
     }

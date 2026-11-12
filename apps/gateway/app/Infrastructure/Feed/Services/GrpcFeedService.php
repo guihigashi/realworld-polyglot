@@ -2,10 +2,13 @@
 
 namespace App\Infrastructure\Feed\Services;
 
+use App\Application\Article\Exceptions\ArticleNotFoundException;
 use App\Domain\Feed\Contracts\FeedServiceInterface;
 use App\Infrastructure\Traits\RequestorMetadata;
 use Generated\Grpc\Feed\Article;
 use Generated\Grpc\Feed\FeedServiceClient;
+use Generated\Grpc\Feed\GetArticleRequest;
+use Generated\Grpc\Feed\GetArticleResponse;
 use Generated\Grpc\Feed\GetFeedRequest;
 use Generated\Grpc\Feed\GetFeedResponse;
 use Generated\Grpc\Feed\GetTagsResponse;
@@ -104,7 +107,34 @@ readonly class GrpcFeedService implements FeedServiceInterface
                 }
             })(),
             'articlesCount' => $response->getArticlesCount(),
-        ];
+         ];
+    }
+
+    public function getArticle(string $slug, ?string $requestorId, ?int $minFavoritesVersion = null, ?int $minFollowsVersion = null): array
+    {
+        $request = (new GetArticleRequest)
+            ->setSlug($slug);
+
+        if ($minFavoritesVersion !== null) {
+            $request->setMinFavoritesVersion($minFavoritesVersion);
+        }
+        if ($minFollowsVersion !== null) {
+            $request->setMinFollowsVersion($minFollowsVersion);
+        }
+
+        /** @var GetArticleResponse $response */
+        [$response, $status] = $this->client->GetArticle(
+            $request, $this->metadataOfRequestor($requestorId))->wait();
+
+        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
+            throw new ArticleNotFoundException('not found');
+        }
+
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
+
+        return $this->mapArticleResponse($response->getArticle());
     }
 
     private function mapArticleResponse(Article $article): array
@@ -118,6 +148,7 @@ readonly class GrpcFeedService implements FeedServiceInterface
             'updatedAt' => $article->getUpdatedAt(),
             'favorited' => $article->getFavorited(),
             'favoritesCount' => $article->getFavoritesCount(),
+            'body' => $article->getBody(),
         ];
 
         $authorProto = $article->getAuthor();
