@@ -19,8 +19,13 @@ type fakeArticlesPort struct {
 	favCalls      int
 	getCalls      int
 	articles      []domain.Article
+	comments      []domain.Comment
 	totalCount    int
 	favoritedBy   map[uuid.UUID]map[uuid.UUID]struct{}
+}
+
+func (f *fakeArticlesPort) GetComments(_ context.Context, _ string) ([]domain.Comment, error) {
+	return f.comments, nil
 }
 
 func (f *fakeArticlesPort) GetArticle(_ context.Context, slug string) (*domain.Article, error) {
@@ -454,4 +459,48 @@ func TestListPublicArticles_GetArticle(t *testing.T) {
 		t.Fatalf("expected error for nonexistent slug")
 	}
 }
+
+func TestListPublicArticles_GetComments(t *testing.T) {
+	authorId := uuid.New()
+	readerId := uuid.New()
+
+	base := &fakeArticlesPort{
+		comments: []domain.Comment{
+			{
+				Id:        101,
+				CreatedAt: time.Now().UTC(),
+				UpdatedAt: time.Now().UTC(),
+				Body:      "Great article!",
+				AuthorId:  authorId,
+			},
+		},
+	}
+	social := &fakeSocialPort{
+		profiles: map[uuid.UUID]domain.Profile{
+			authorId: {Id: authorId, Username: "commenter1"},
+		},
+		following: map[uuid.UUID][]uuid.UUID{
+			readerId: {authorId},
+		},
+	}
+
+	favCache, _ := NewManageFavorites(base, 100)
+	followCache, _ := NewManageFollowing(social, 100)
+	usecase := NewListPublicArticles(base, social, followCache, favCache, 10)
+
+	// Context with logged-in reader
+	ctx := appctx.WithRequestorId(context.Background(), readerId)
+
+	comments, profiles, err := usecase.GetComments(ctx, "cached-slug", 0)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(comments) != 1 || comments[0].Body != "Great article!" {
+		t.Fatalf("expected 1 comment, got %+v", comments)
+	}
+	if p, ok := profiles[authorId]; !ok || !p.Following || p.Username != "commenter1" {
+		t.Fatalf("expected hydrated following profile, got %+v", p)
+	}
+}
+
 

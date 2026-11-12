@@ -72,4 +72,18 @@ class FeedServiceClient extends \Grpc\BaseStub {
         $metadata, $options);
     }
 
+    /**
+     * @param \Generated\Grpc\Feed\GetCommentsRequest $argument input argument
+     * @param array $metadata metadata
+     * @param array $options call options
+     * @return \Grpc\UnaryCall<\Generated\Grpc\Feed\GetCommentsResponse>
+     */
+    public function GetComments(\Generated\Grpc\Feed\GetCommentsRequest $argument,
+      $metadata = [], $options = []) {
+        return $this->_simpleRequest('/com.github.guihigashi.conduit.feed.FeedService/GetComments',
+        $argument,
+        ['\Generated\Grpc\Feed\GetCommentsResponse', 'decode'],
+        $metadata, $options);
+    }
+
 }

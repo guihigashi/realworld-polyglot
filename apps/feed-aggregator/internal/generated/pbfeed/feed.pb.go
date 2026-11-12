@@ -662,6 +662,178 @@ func (x *GetArticleResponse) GetArticle() *Article {
 	return nil
 }
 
+type Comment struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	CreatedAt     string                 `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     string                 `protobuf:"bytes,3,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Body          string                 `protobuf:"bytes,4,opt,name=body,proto3" json:"body,omitempty"`
+	Author        *Author                `protobuf:"bytes,5,opt,name=author,proto3" json:"author,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Comment) Reset() {
+	*x = Comment{}
+	mi := &file_feed_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Comment) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Comment) ProtoMessage() {}
+
+func (x *Comment) ProtoReflect() protoreflect.Message {
+	mi := &file_feed_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Comment.ProtoReflect.Descriptor instead.
+func (*Comment) Descriptor() ([]byte, []int) {
+	return file_feed_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *Comment) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Comment) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *Comment) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
+func (x *Comment) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
+}
+
+func (x *Comment) GetAuthor() *Author {
+	if x != nil {
+		return x.Author
+	}
+	return nil
+}
+
+type GetCommentsRequest struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Slug              string                 `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
+	MinFollowsVersion *int64                 `protobuf:"varint,2,opt,name=min_follows_version,json=minFollowsVersion,proto3,oneof" json:"min_follows_version,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *GetCommentsRequest) Reset() {
+	*x = GetCommentsRequest{}
+	mi := &file_feed_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCommentsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCommentsRequest) ProtoMessage() {}
+
+func (x *GetCommentsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_feed_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCommentsRequest.ProtoReflect.Descriptor instead.
+func (*GetCommentsRequest) Descriptor() ([]byte, []int) {
+	return file_feed_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetCommentsRequest) GetSlug() string {
+	if x != nil {
+		return x.Slug
+	}
+	return ""
+}
+
+func (x *GetCommentsRequest) GetMinFollowsVersion() int64 {
+	if x != nil && x.MinFollowsVersion != nil {
+		return *x.MinFollowsVersion
+	}
+	return 0
+}
+
+type GetCommentsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Comments      []*Comment             `protobuf:"bytes,1,rep,name=comments,proto3" json:"comments,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCommentsResponse) Reset() {
+	*x = GetCommentsResponse{}
+	mi := &file_feed_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCommentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCommentsResponse) ProtoMessage() {}
+
+func (x *GetCommentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_feed_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCommentsResponse.ProtoReflect.Descriptor instead.
+func (*GetCommentsResponse) Descriptor() ([]byte, []int) {
+	return file_feed_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetCommentsResponse) GetComments() []*Comment {
+	if x != nil {
+		return x.Comments
+	}
+	return nil
+}
+
 var File_feed_proto protoreflect.FileDescriptor
 
 const file_feed_proto_rawDesc = "" +
@@ -725,13 +897,28 @@ const file_feed_proto_rawDesc = "" +
 	"\x16_min_favorites_versionB\x16\n" +
 	"\x14_min_follows_version\"[\n" +
 	"\x12GetArticleResponse\x12E\n" +
-	"\aarticle\x18\x01 \x01(\v2+.com.github.guihigashi.conduit.feed.ArticleR\aarticle2\xda\x03\n" +
+	"\aarticle\x18\x01 \x01(\v2+.com.github.guihigashi.conduit.feed.ArticleR\aarticle\"\xaf\x01\n" +
+	"\aComment\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x02 \x01(\tR\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\x03 \x01(\tR\tupdatedAt\x12\x12\n" +
+	"\x04body\x18\x04 \x01(\tR\x04body\x12B\n" +
+	"\x06author\x18\x05 \x01(\v2*.com.github.guihigashi.conduit.feed.AuthorR\x06author\"u\n" +
+	"\x12GetCommentsRequest\x12\x12\n" +
+	"\x04slug\x18\x01 \x01(\tR\x04slug\x123\n" +
+	"\x13min_follows_version\x18\x02 \x01(\x03H\x00R\x11minFollowsVersion\x88\x01\x01B\x16\n" +
+	"\x14_min_follows_version\"^\n" +
+	"\x13GetCommentsResponse\x12G\n" +
+	"\bcomments\x18\x01 \x03(\v2+.com.github.guihigashi.conduit.feed.CommentR\bcomments2\xda\x04\n" +
 	"\vFeedService\x12r\n" +
 	"\aGetFeed\x122.com.github.guihigashi.conduit.feed.GetFeedRequest\x1a3.com.github.guihigashi.conduit.feed.GetFeedResponse\x12V\n" +
 	"\aGetTags\x12\x16.google.protobuf.Empty\x1a3.com.github.guihigashi.conduit.feed.GetTagsResponse\x12\x81\x01\n" +
 	"\fListArticles\x127.com.github.guihigashi.conduit.feed.ListArticlesRequest\x1a8.com.github.guihigashi.conduit.feed.ListArticlesResponse\x12{\n" +
 	"\n" +
-	"GetArticle\x125.com.github.guihigashi.conduit.feed.GetArticleRequest\x1a6.com.github.guihigashi.conduit.feed.GetArticleResponseBzZCgithub.com/guihigashi/conduit/feed/internal/generated/pbfeed;pbfeed\xca\x02\x13Generated\\Grpc\\Feed\xe2\x02\x1cGenerated\\Grpc\\Feed\\Metadatab\x06proto3"
+	"GetArticle\x125.com.github.guihigashi.conduit.feed.GetArticleRequest\x1a6.com.github.guihigashi.conduit.feed.GetArticleResponse\x12~\n" +
+	"\vGetComments\x126.com.github.guihigashi.conduit.feed.GetCommentsRequest\x1a7.com.github.guihigashi.conduit.feed.GetCommentsResponseBzZCgithub.com/guihigashi/conduit/feed/internal/generated/pbfeed;pbfeed\xca\x02\x13Generated\\Grpc\\Feed\xe2\x02\x1cGenerated\\Grpc\\Feed\\Metadatab\x06proto3"
 
 var (
 	file_feed_proto_rawDescOnce sync.Once
@@ -745,7 +932,7 @@ func file_feed_proto_rawDescGZIP() []byte {
 	return file_feed_proto_rawDescData
 }
 
-var file_feed_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_feed_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_feed_proto_goTypes = []any{
 	(*GetFeedRequest)(nil),       // 0: com.github.guihigashi.conduit.feed.GetFeedRequest
 	(*Article)(nil),              // 1: com.github.guihigashi.conduit.feed.Article
@@ -757,7 +944,10 @@ var file_feed_proto_goTypes = []any{
 	(*ListArticlesResponse)(nil), // 7: com.github.guihigashi.conduit.feed.ListArticlesResponse
 	(*GetArticleRequest)(nil),    // 8: com.github.guihigashi.conduit.feed.GetArticleRequest
 	(*GetArticleResponse)(nil),   // 9: com.github.guihigashi.conduit.feed.GetArticleResponse
-	(*emptypb.Empty)(nil),        // 10: google.protobuf.Empty
+	(*Comment)(nil),              // 10: com.github.guihigashi.conduit.feed.Comment
+	(*GetCommentsRequest)(nil),   // 11: com.github.guihigashi.conduit.feed.GetCommentsRequest
+	(*GetCommentsResponse)(nil),  // 12: com.github.guihigashi.conduit.feed.GetCommentsResponse
+	(*emptypb.Empty)(nil),        // 13: google.protobuf.Empty
 }
 var file_feed_proto_depIdxs = []int32{
 	2,  // 0: com.github.guihigashi.conduit.feed.Article.author:type_name -> com.github.guihigashi.conduit.feed.Author
@@ -765,19 +955,23 @@ var file_feed_proto_depIdxs = []int32{
 	4,  // 2: com.github.guihigashi.conduit.feed.GetTagsResponse.tags:type_name -> com.github.guihigashi.conduit.feed.CountedTag
 	1,  // 3: com.github.guihigashi.conduit.feed.ListArticlesResponse.articles:type_name -> com.github.guihigashi.conduit.feed.Article
 	1,  // 4: com.github.guihigashi.conduit.feed.GetArticleResponse.article:type_name -> com.github.guihigashi.conduit.feed.Article
-	0,  // 5: com.github.guihigashi.conduit.feed.FeedService.GetFeed:input_type -> com.github.guihigashi.conduit.feed.GetFeedRequest
-	10, // 6: com.github.guihigashi.conduit.feed.FeedService.GetTags:input_type -> google.protobuf.Empty
-	6,  // 7: com.github.guihigashi.conduit.feed.FeedService.ListArticles:input_type -> com.github.guihigashi.conduit.feed.ListArticlesRequest
-	8,  // 8: com.github.guihigashi.conduit.feed.FeedService.GetArticle:input_type -> com.github.guihigashi.conduit.feed.GetArticleRequest
-	3,  // 9: com.github.guihigashi.conduit.feed.FeedService.GetFeed:output_type -> com.github.guihigashi.conduit.feed.GetFeedResponse
-	5,  // 10: com.github.guihigashi.conduit.feed.FeedService.GetTags:output_type -> com.github.guihigashi.conduit.feed.GetTagsResponse
-	7,  // 11: com.github.guihigashi.conduit.feed.FeedService.ListArticles:output_type -> com.github.guihigashi.conduit.feed.ListArticlesResponse
-	9,  // 12: com.github.guihigashi.conduit.feed.FeedService.GetArticle:output_type -> com.github.guihigashi.conduit.feed.GetArticleResponse
-	9,  // [9:13] is the sub-list for method output_type
-	5,  // [5:9] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	2,  // 5: com.github.guihigashi.conduit.feed.Comment.author:type_name -> com.github.guihigashi.conduit.feed.Author
+	10, // 6: com.github.guihigashi.conduit.feed.GetCommentsResponse.comments:type_name -> com.github.guihigashi.conduit.feed.Comment
+	0,  // 7: com.github.guihigashi.conduit.feed.FeedService.GetFeed:input_type -> com.github.guihigashi.conduit.feed.GetFeedRequest
+	13, // 8: com.github.guihigashi.conduit.feed.FeedService.GetTags:input_type -> google.protobuf.Empty
+	6,  // 9: com.github.guihigashi.conduit.feed.FeedService.ListArticles:input_type -> com.github.guihigashi.conduit.feed.ListArticlesRequest
+	8,  // 10: com.github.guihigashi.conduit.feed.FeedService.GetArticle:input_type -> com.github.guihigashi.conduit.feed.GetArticleRequest
+	11, // 11: com.github.guihigashi.conduit.feed.FeedService.GetComments:input_type -> com.github.guihigashi.conduit.feed.GetCommentsRequest
+	3,  // 12: com.github.guihigashi.conduit.feed.FeedService.GetFeed:output_type -> com.github.guihigashi.conduit.feed.GetFeedResponse
+	5,  // 13: com.github.guihigashi.conduit.feed.FeedService.GetTags:output_type -> com.github.guihigashi.conduit.feed.GetTagsResponse
+	7,  // 14: com.github.guihigashi.conduit.feed.FeedService.ListArticles:output_type -> com.github.guihigashi.conduit.feed.ListArticlesResponse
+	9,  // 15: com.github.guihigashi.conduit.feed.FeedService.GetArticle:output_type -> com.github.guihigashi.conduit.feed.GetArticleResponse
+	12, // 16: com.github.guihigashi.conduit.feed.FeedService.GetComments:output_type -> com.github.guihigashi.conduit.feed.GetCommentsResponse
+	12, // [12:17] is the sub-list for method output_type
+	7,  // [7:12] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_feed_proto_init() }
@@ -788,13 +982,14 @@ func file_feed_proto_init() {
 	file_feed_proto_msgTypes[0].OneofWrappers = []any{}
 	file_feed_proto_msgTypes[6].OneofWrappers = []any{}
 	file_feed_proto_msgTypes[8].OneofWrappers = []any{}
+	file_feed_proto_msgTypes[11].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_feed_proto_rawDesc), len(file_feed_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

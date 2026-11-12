@@ -19,8 +19,13 @@ readonly class CommentController
     public function index(Request $request, string $slug)
     {
         $requestorId = $request->attributes->get('auth_user_id');
+        $minFollowsVersion = $request->header('X-Follows-Version');
 
-        $comments = $this->getCommentsUseCase->execute($slug, $requestorId);
+        $comments = $this->getCommentsUseCase->execute(
+            slug: $slug,
+            requestorId: $requestorId,
+            minFollowsVersion: $minFollowsVersion !== null ? (int) $minFollowsVersion : null,
+        );
 
         return response()->json([
             'comments' => $comments,

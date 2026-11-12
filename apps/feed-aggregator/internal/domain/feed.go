@@ -31,3 +31,12 @@ type CountedTag struct {
 	Tag   string
 	Count int
 }
+
+type Comment struct {
+	Id        int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Body      string
+	AuthorId  uuid.UUID
+}
+

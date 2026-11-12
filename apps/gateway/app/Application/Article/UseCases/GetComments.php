@@ -2,37 +2,16 @@
 
 namespace App\Application\Article\UseCases;
 
-use App\Domain\Article\Contracts\ArticleServiceInterface;
-use App\Domain\Profile\Contracts\SocialGraphServiceInterface;
+use App\Domain\Feed\Contracts\FeedServiceInterface;
 
 readonly class GetComments
 {
     public function __construct(
-        private ArticleServiceInterface $articleService,
-        private SocialGraphServiceInterface $socialGraphService
+        private FeedServiceInterface $feedService
     ) {}
 
-    public function execute(string $slug, ?string $requestorId): array
+    public function execute(string $slug, ?string $requestorId, ?int $minFollowsVersion = null): array
     {
-        $comments = $this->articleService->getComments($slug, $requestorId);
-
-        return $this->resolveAuthors($comments, $requestorId);
-    }
-
-    private function resolveAuthors(array $comments, ?string $requestorId): array
-    {
-        $ids = collect($comments)->pluck('authorId')->unique()->toArray();
-
-        $profiles = $this->socialGraphService->getProfilesByIds($ids, $requestorId);
-
-        $newComments = [];
-
-        foreach ($comments as $comment) {
-            $comment['author'] = $profiles[$comment['authorId']];
-            unset($comment['authorId']);
-            $newComments[] = $comment;
-        }
-
-        return $newComments;
+        return $this->feedService->getComments($slug, $requestorId, $minFollowsVersion);
     }
 }

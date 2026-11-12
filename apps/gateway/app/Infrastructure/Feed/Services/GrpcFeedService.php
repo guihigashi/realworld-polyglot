@@ -9,6 +9,8 @@ use Generated\Grpc\Feed\Article;
 use Generated\Grpc\Feed\FeedServiceClient;
 use Generated\Grpc\Feed\GetArticleRequest;
 use Generated\Grpc\Feed\GetArticleResponse;
+use Generated\Grpc\Feed\GetCommentsRequest;
+use Generated\Grpc\Feed\GetCommentsResponse;
 use Generated\Grpc\Feed\GetFeedRequest;
 use Generated\Grpc\Feed\GetFeedResponse;
 use Generated\Grpc\Feed\GetTagsResponse;
@@ -135,6 +137,46 @@ readonly class GrpcFeedService implements FeedServiceInterface
         }
 
         return $this->mapArticleResponse($response->getArticle());
+    }
+
+    public function getComments(string $slug, ?string $requestorId, ?int $minFollowsVersion = null): array
+    {
+        $request = (new GetCommentsRequest)->setSlug($slug);
+        if ($minFollowsVersion !== null) {
+            $request->setMinFollowsVersion($minFollowsVersion);
+        }
+
+        /** @var GetCommentsResponse $response */
+        [$response, $status] = $this->client->GetComments(
+            $request, $this->metadataOfRequestor($requestorId))->wait();
+
+        if ($status->code === \Grpc\STATUS_NOT_FOUND) {
+            throw new ArticleNotFoundException('not found');
+        }
+        if ($status->code !== \Grpc\STATUS_OK) {
+            throw new \RuntimeException('gRPC Error: '.$status->details);
+        }
+
+        return array_map(function (\Generated\Grpc\Feed\Comment $comment) {
+            $authorProto = $comment->getAuthor();
+            $author = null;
+            if ($authorProto !== null) {
+                $author = [
+                    'username' => $authorProto->getUsername(),
+                    'bio' => $authorProto->getBio(),
+                    'image' => $authorProto->getImage(),
+                    'following' => $authorProto->getFollowing(),
+                ];
+            }
+
+            return [
+                'id' => $comment->getId(),
+                'createdAt' => $comment->getCreatedAt(),
+                'updatedAt' => $comment->getUpdatedAt(),
+                'body' => $comment->getBody(),
+                'author' => $author,
+            ];
+        }, iterator_to_array($response->getComments()));
     }
 
     private function mapArticleResponse(Article $article): array

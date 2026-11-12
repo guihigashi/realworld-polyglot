@@ -81,6 +81,40 @@ func (h *FeedHandler) GetArticle(ctx context.Context, req *pbfeed.GetArticleRequ
 	}, nil
 }
 
+func (h *FeedHandler) GetComments(ctx context.Context, req *pbfeed.GetCommentsRequest) (*pbfeed.GetCommentsResponse, error) {
+	comments, profiles, err := h.ListPublicArticles.GetComments(ctx, req.GetSlug(), req.GetMinFollowsVersion())
+	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			return nil, status.Error(codes.NotFound, "article not found")
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	pbComments := make([]*pbfeed.Comment, len(comments))
+	for i, c := range comments {
+		var author *pbfeed.Author
+		if p, ok := profiles[c.AuthorId]; ok {
+			author = &pbfeed.Author{
+				Username:  p.Username,
+				Bio:       p.Bio,
+				Image:     p.Image,
+				Following: p.Following,
+			}
+		}
+		pbComments[i] = &pbfeed.Comment{
+			Id:        c.Id,
+			CreatedAt: c.CreatedAt.Format(time.RFC3339),
+			UpdatedAt: c.UpdatedAt.Format(time.RFC3339),
+			Body:      c.Body,
+			Author:    author,
+		}
+	}
+
+	return &pbfeed.GetCommentsResponse{
+		Comments: pbComments,
+	}, nil
+}
+
 func (h *FeedHandler) GetFeed(ctx context.Context, req *pbfeed.GetFeedRequest) (*pbfeed.GetFeedResponse, error) {
 	userId, ok := appctx.RequestorIdFromContext(ctx)
 	if !ok {

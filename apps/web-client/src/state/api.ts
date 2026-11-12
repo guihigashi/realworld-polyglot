@@ -14,7 +14,7 @@ export const api = createApi({
         headers.set("authorization", `Token ${auth.user.token}`)
       }
 
-      if ((endpoint === "feedArticles" || endpoint === "getArticle") && state.causal.followsVersion) {
+      if ((endpoint === "feedArticles" || endpoint === "getArticle" || endpoint === "getComments") && state.causal.followsVersion) {
         headers.set("X-Follows-Version", state.causal.followsVersion)
       }
 

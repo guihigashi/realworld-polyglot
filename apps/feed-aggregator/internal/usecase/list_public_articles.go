@@ -27,6 +27,7 @@ const (
 type PublicArticlesArticles interface {
 	ListArticlesFiltered(ctx context.Context, tag *string, authorId, favoritedById *uuid.UUID, limit, offset int) ([]domain.Article, int, error)
 	GetArticle(ctx context.Context, slug string) (*domain.Article, error)
+	GetComments(ctx context.Context, slug string) ([]domain.Comment, error)
 }
 
 // PublicArticlesSocial is the social-graph port needed to resolve usernames and hydrate authors.
@@ -272,6 +273,42 @@ func (l *ListPublicArticles) GetArticle(ctx context.Context, slug string, minFav
 	}
 
 	return &article, &profile, nil
+}
+
+func (l *ListPublicArticles) GetComments(ctx context.Context, slug string, minFollowsVersion int64) ([]domain.Comment, map[uuid.UUID]domain.Profile, error) {
+	comments, err := l.articles.GetComments(ctx, slug)
+	if err != nil {
+		return nil, nil, err
+	}
+	if len(comments) == 0 {
+		return []domain.Comment{}, map[uuid.UUID]domain.Profile{}, nil
+	}
+
+	authorIds := lo.UniqMap(comments, func(c domain.Comment, _ int) uuid.UUID { return c.AuthorId })
+	profiles, err := l.social.GetProfilesByIds(ctx, authorIds)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	commentProfiles := make(map[uuid.UUID]domain.Profile, len(profiles))
+	for id, p := range profiles {
+		p.Following = false
+		commentProfiles[id] = p
+	}
+
+	requestorId, loggedIn := appctx.RequestorIdFromContext(ctx)
+	if loggedIn && l.following != nil {
+		followingIds, err := l.following.GetFollowing(ctx, requestorId, minFollowsVersion)
+		if err != nil {
+			return nil, nil, err
+		}
+		for id, p := range commentProfiles {
+			p.Following = slices.Contains(followingIds, id)
+			commentProfiles[id] = p
+		}
+	}
+
+	return comments, commentProfiles, nil
 }
 
 func (l *ListPublicArticles) Execute(ctx context.Context, q ListArticlesQuery) (*ArticlesPage, error) {

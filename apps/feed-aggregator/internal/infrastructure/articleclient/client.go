@@ -162,6 +162,38 @@ func (c *Client) GetArticle(ctx context.Context, slug string) (*domain.Article, 
 	}, nil
 }
 
+func (c *Client) GetComments(ctx context.Context, slug string) ([]domain.Comment, error) {
+	res, err := c.client.GetComments(ctx, &pbarticle.GetCommentsRequest{
+		Slug: slug,
+	})
+	if err != nil {
+		return nil, err
+	}
+	comments := make([]domain.Comment, len(res.GetComments()))
+	for i, cm := range res.GetComments() {
+		createdAt, err := time.Parse(time.RFC3339, cm.CreatedAt)
+		if err != nil {
+			createdAt = time.Now()
+		}
+		var updatedAt time.Time
+		if cm.UpdatedAt != "" {
+			updatedAt, _ = time.Parse(time.RFC3339, cm.UpdatedAt)
+		}
+		var authorId uuid.UUID
+		if cm.AuthorId != "" {
+			authorId, _ = uuid.Parse(cm.AuthorId)
+		}
+		comments[i] = domain.Comment{
+			Id:        cm.Id,
+			CreatedAt: createdAt,
+			UpdatedAt: updatedAt,
+			Body:      cm.Body,
+			AuthorId:  authorId,
+		}
+	}
+	return comments, nil
+}
+
 func mapToDomain(as *pbarticle.ArticleSummary) domain.Article {
 	createdAt, err := time.Parse(time.RFC3339, as.CreatedAt)
 	if err != nil {
