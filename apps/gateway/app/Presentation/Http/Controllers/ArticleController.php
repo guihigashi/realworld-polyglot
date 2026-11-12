@@ -25,6 +25,7 @@ readonly class ArticleController
     public function index(Request $request): StreamedJsonResponse
     {
         $requestorId = $request->attributes->get('auth_user_id');
+        $minFavoritesVersion = $request->header('X-Favorites-Version');
 
         $paginatedArticles = $this->listArticlesUseCase->execute(
             tag: $request->query('tag'),
@@ -32,7 +33,8 @@ readonly class ArticleController
             favoritedBy: $request->query('favorited'),
             limit: (int) $request->query('limit', 20),
             offset: (int) $request->query('offset', 0),
-            requestorId: $requestorId
+            requestorId: $requestorId,
+            minFavoritesVersion: $minFavoritesVersion !== null ? (int) $minFavoritesVersion : null,
         );
 
         return response()->streamJson($paginatedArticles);

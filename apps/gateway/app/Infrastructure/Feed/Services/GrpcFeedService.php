@@ -22,7 +22,7 @@ readonly class GrpcFeedService implements FeedServiceInterface
         private FeedServiceClient $client
     ) {}
 
-    public function getFeed(int $limit, int $offset, string $requestorId, ?int $minFollowsVersion = null): array
+    public function getFeed(int $limit, int $offset, string $requestorId, ?int $minFollowsVersion = null, ?int $minFavoritesVersion = null): array
     {
         $request = (new GetFeedRequest)
             ->setLimit($limit)
@@ -30,6 +30,9 @@ readonly class GrpcFeedService implements FeedServiceInterface
 
         if ($minFollowsVersion !== null) {
             $request->setMinFollowsVersion($minFollowsVersion);
+        }
+        if ($minFavoritesVersion !== null) {
+            $request->setMinFavoritesVersion($minFavoritesVersion);
         }
 
         /** @var GetFeedResponse $response */
@@ -67,7 +70,7 @@ readonly class GrpcFeedService implements FeedServiceInterface
         }
     }
 
-    public function listArticles(?string $tag, ?string $author, ?string $favorited, int $limit, int $offset, ?string $requestorId): array
+    public function listArticles(?string $tag, ?string $author, ?string $favorited, int $limit, int $offset, ?string $requestorId, ?int $minFavoritesVersion = null): array
     {
         $request = (new ListArticlesRequest)
             ->setLimit($limit)
@@ -81,6 +84,9 @@ readonly class GrpcFeedService implements FeedServiceInterface
         }
         if ($favorited !== null) {
             $request->setFavorited($favorited);
+        }
+        if ($minFavoritesVersion !== null) {
+            $request->setMinFavoritesVersion($minFavoritesVersion);
         }
 
         /** @var ListArticlesResponse $response */

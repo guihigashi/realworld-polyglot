@@ -14,7 +14,8 @@ readonly class UnfavoriteArticle
 
     public function execute(string $slug, string $requestorId): array
     {
-        $article = $this->articleService->unfavoriteArticle($slug, $requestorId);
+        $result = $this->articleService->unfavoriteArticle($slug, $requestorId);
+        $article = $result['article'];
 
         // Gateway Aggregation: Hydrate the author profile from the Social Graph Service
         if (! empty($article['authorId'])) {
@@ -24,6 +25,9 @@ readonly class UnfavoriteArticle
         }
         unset($article['authorId']);
 
-        return $article;
+        return [
+            'article' => $article,
+            'favoritesVersion' => $result['favoritesVersion'],
+        ];
     }
 }

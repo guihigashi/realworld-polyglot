@@ -15,20 +15,25 @@ import (
 )
 
 type FavoritesStore interface {
-	UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error)
+	UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, int64, error)
 }
 
-// ManageFavorites keeps the set of article IDs each logged-in user has favorited in memory.
+type cachedFavorites struct {
+	ids     map[uuid.UUID]struct{}
+	version int64
+}
+
+// ManageFavorites keeps the set of article IDs each logged-in user has favorited in memory along with their favorites_version.
 //
-//   - Filled on demand from article-service on a miss, bounded by an LRU over users.
-//   - Kept current by article.favorited / article.unfavorited / article.deleted events (idempotent, copy-on-write).
+//   - Filled on demand from article-service on a miss (or when cached version < minFavoritesVersion), bounded by an LRU over users.
+//   - Kept current by article.favorited / article.unfavorited / article.deleted events (idempotent, monotonic version check).
 //   - Cached maps are immutable: readers need no lock and must not modify the returned map.
 //
 // Events for users that are not cached are ignored: the next miss reads the current state from article-service.
 type ManageFavorites struct {
 	store FavoritesStore
 
-	cache  *lru.Cache[uuid.UUID, map[uuid.UUID]struct{}]
+	cache  *lru.Cache[uuid.UUID, cachedFavorites]
 	flight singleflight.Group
 
 	// mu serializes event application and load completion so an event arriving while a load is in flight
@@ -38,7 +43,7 @@ type ManageFavorites struct {
 }
 
 func NewManageFavorites(store FavoritesStore, maxUsers int) (*ManageFavorites, error) {
-	cache, err := lru.New[uuid.UUID, map[uuid.UUID]struct{}](maxUsers)
+	cache, err := lru.New[uuid.UUID, cachedFavorites](maxUsers)
 	if err != nil {
 		return nil, err
 	}
@@ -49,13 +54,19 @@ func NewManageFavorites(store FavoritesStore, maxUsers int) (*ManageFavorites, e
 	}, nil
 }
 
-// GetFavorited returns the article IDs favorited by userId. The returned map is shared and must not be modified.
-func (m *ManageFavorites) GetFavorited(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error) {
-	if ids, ok := m.cache.Get(userId); ok {
-		return ids, nil
+// GetFavorited returns the article IDs favorited by userId, ensuring the returned state is at least minVersion.
+func (m *ManageFavorites) GetFavorited(ctx context.Context, userId uuid.UUID, minVersion int64) (map[uuid.UUID]struct{}, error) {
+	if entry, ok := m.cache.Get(userId); ok && entry.version >= minVersion {
+		return entry.ids, nil
 	}
 
-	v, err, _ := m.flight.Do(userId.String(), func() (any, error) {
+	flightKey := userId.String()
+	v, err, _ := m.flight.Do(flightKey, func() (any, error) {
+		// Double check under flight
+		if entry, ok := m.cache.Get(userId); ok && entry.version >= minVersion {
+			return entry.ids, nil
+		}
+
 		loadCtx, cancel := context.WithTimeout(appctx.WithRequestorId(context.WithoutCancel(ctx), userId), loadTimeout)
 		defer cancel()
 
@@ -64,7 +75,7 @@ func (m *ManageFavorites) GetFavorited(ctx context.Context, userId uuid.UUID) (m
 		m.loading[userId] = state
 		m.mu.Unlock()
 
-		ids, err := m.store.UserFavoritedArticles(loadCtx, userId)
+		ids, version, err := m.store.UserFavoritedArticles(loadCtx, userId)
 
 		m.mu.Lock()
 		defer m.mu.Unlock()
@@ -75,8 +86,11 @@ func (m *ManageFavorites) GetFavorited(ctx context.Context, userId uuid.UUID) (m
 		if ids == nil {
 			ids = make(map[uuid.UUID]struct{})
 		}
-		if !state.dirty {
-			m.cache.Add(userId, ids)
+
+		// Only overwrite cache if no newer event arrived while loading and current cache is not already ahead
+		current, exists := m.cache.Peek(userId)
+		if !state.dirty && (!exists || version >= current.version) {
+			m.cache.Add(userId, cachedFavorites{ids: ids, version: version})
 		}
 		return ids, nil
 	})
@@ -90,6 +104,7 @@ type favoriteArticleEvent struct {
 	Payload struct {
 		ArticleId uuid.UUID `json:"articleId"`
 		UserId    uuid.UUID `json:"userId"`
+		Version   int64     `json:"version"`
 	} `json:"payload"`
 }
 
@@ -124,17 +139,18 @@ func (m *ManageFavorites) HandleArticleEvent(routingKey string, body []byte) {
 			if !ok {
 				continue
 			}
-			if _, exists := current[articleId]; !exists {
+			if _, exists := current.ids[articleId]; !exists {
 				continue
 			}
-			next := maps.Clone(current)
+			next := maps.Clone(current.ids)
 			delete(next, articleId)
-			m.cache.Add(userId, next)
+			m.cache.Add(userId, cachedFavorites{ids: next, version: current.version})
 		}
 		return
 	}
 
 	userId := event.Payload.UserId
+	version := event.Payload.Version
 	if userId == uuid.Nil() {
 		return
 	}
@@ -148,23 +164,35 @@ func (m *ManageFavorites) HandleArticleEvent(routingKey string, body []byte) {
 		return
 	}
 
-	switch routingKey {
-	case "article.favorited":
-		if _, exists := current[articleId]; exists {
-			return
-		}
-		next := make(map[uuid.UUID]struct{}, len(current)+1)
-		maps.Copy(next, current)
-		next[articleId] = struct{}{}
-		m.cache.Add(userId, next)
-	case "article.unfavorited":
-		if _, exists := current[articleId]; !exists {
-			return
-		}
-		next := maps.Clone(current)
-		delete(next, articleId)
-		m.cache.Add(userId, next)
+	if version > 0 && current.version >= version {
+		slog.Debug("ignoring older or duplicate favorite event", slog.Int64("current_version", current.version), slog.Int64("event_version", version))
+		return
 	}
 
-	slog.Debug("favorites updated from article event", slog.String("routing_key", routingKey))
+	newVersion := version
+	if newVersion <= current.version {
+		newVersion = current.version + 1
+	}
+
+	switch routingKey {
+	case "article.favorited":
+		if _, exists := current.ids[articleId]; exists {
+			m.cache.Add(userId, cachedFavorites{ids: current.ids, version: newVersion})
+			return
+		}
+		next := make(map[uuid.UUID]struct{}, len(current.ids)+1)
+		maps.Copy(next, current.ids)
+		next[articleId] = struct{}{}
+		m.cache.Add(userId, cachedFavorites{ids: next, version: newVersion})
+	case "article.unfavorited":
+		if _, exists := current.ids[articleId]; !exists {
+			m.cache.Add(userId, cachedFavorites{ids: current.ids, version: newVersion})
+			return
+		}
+		next := maps.Clone(current.ids)
+		delete(next, articleId)
+		m.cache.Add(userId, cachedFavorites{ids: next, version: newVersion})
+	}
+
+	slog.Debug("favorites updated from article event", slog.String("routing_key", routingKey), slog.Int64("version", newVersion))
 }

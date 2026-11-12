@@ -117,7 +117,7 @@ func main() {
 						warmCtx, warmCancel := context.WithTimeout(context.Background(), 10*time.Second)
 						defer warmCancel()
 						_, _ = manageFollowing.GetFollowing(warmCtx, ev.Data.UserId, 0)
-						_, _ = manageFavorites.GetFavorited(warmCtx, ev.Data.UserId)
+						_, _ = manageFavorites.GetFavorited(warmCtx, ev.Data.UserId, 0)
 					},
 				},
 				{

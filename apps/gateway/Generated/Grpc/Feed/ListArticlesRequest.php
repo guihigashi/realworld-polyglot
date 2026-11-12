@@ -34,6 +34,10 @@ class ListArticlesRequest extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>int32 offset = 5;</code>
      */
     protected $offset = 0;
+    /**
+     * Generated from protobuf field <code>optional int64 min_favorites_version = 6;</code>
+     */
+    protected $min_favorites_version = null;
 
     /**
      * Constructor.
@@ -46,6 +50,7 @@ class ListArticlesRequest extends \Google\Protobuf\Internal\Message
      *     @type string $favorited
      *     @type int $limit
      *     @type int $offset
+     *     @type int|string $min_favorites_version
      * }
      */
     public function __construct($data = null)
@@ -190,6 +195,38 @@ class ListArticlesRequest extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkInt32($var);
         $this->offset = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>optional int64 min_favorites_version = 6;</code>
+     * @return int|string
+     */
+    public function getMinFavoritesVersion()
+    {
+        return isset($this->min_favorites_version) ? $this->min_favorites_version : GPBUtil::compatibleInt64(0, '0');
+    }
+
+    public function hasMinFavoritesVersion()
+    {
+        return isset($this->min_favorites_version);
+    }
+
+    public function clearMinFavoritesVersion()
+    {
+        unset($this->min_favorites_version);
+    }
+
+    /**
+     * Generated from protobuf field <code>optional int64 min_favorites_version = 6;</code>
+     * @param int|string $var
+     * @return $this
+     */
+    public function setMinFavoritesVersion(int|string $var)
+    {
+        GPBUtil::checkInt64($var);
+        $this->min_favorites_version = $var;
 
         return $this;
     }

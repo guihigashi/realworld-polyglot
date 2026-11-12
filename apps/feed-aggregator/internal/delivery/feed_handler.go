@@ -42,11 +42,12 @@ func (h *FeedHandler) GetTags(ctx context.Context, _ *emptypb.Empty) (*pbfeed.Ge
 // ListArticles serves the article listing, overlaying favorited and following when a requestor is present.
 func (h *FeedHandler) ListArticles(ctx context.Context, req *pbfeed.ListArticlesRequest) (*pbfeed.ListArticlesResponse, error) {
 	page, err := h.ListPublicArticles.Execute(ctx, usecase.ListArticlesQuery{
-		Tag:       req.GetTag(),
-		Author:    req.GetAuthor(),
-		Favorited: req.GetFavorited(),
-		Limit:     int(req.GetLimit()),
-		Offset:    int(req.GetOffset()),
+		Tag:                 req.GetTag(),
+		Author:              req.GetAuthor(),
+		Favorited:           req.GetFavorited(),
+		Limit:               int(req.GetLimit()),
+		Offset:              int(req.GetOffset()),
+		MinFavoritesVersion: req.GetMinFavoritesVersion(),
 	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -69,7 +70,7 @@ func (h *FeedHandler) GetFeed(ctx context.Context, req *pbfeed.GetFeedRequest) (
 		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
 	}
 
-	feed, err := h.GenerateFeed.Execute(ctx, userId, int(req.GetLimit()), int(req.GetOffset()), req.GetMinFollowsVersion())
+	feed, err := h.GenerateFeed.Execute(ctx, userId, int(req.GetLimit()), int(req.GetOffset()), req.GetMinFollowsVersion(), req.GetMinFavoritesVersion())
 	if err != nil {
 		return nil, err
 	}

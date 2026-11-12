@@ -23,12 +23,13 @@ const (
 )
 
 type GetFeedRequest struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	Limit             int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset            int32                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
-	MinFollowsVersion *int64                 `protobuf:"varint,3,opt,name=min_follows_version,json=minFollowsVersion,proto3,oneof" json:"min_follows_version,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Limit               int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset              int32                  `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	MinFollowsVersion   *int64                 `protobuf:"varint,3,opt,name=min_follows_version,json=minFollowsVersion,proto3,oneof" json:"min_follows_version,omitempty"`
+	MinFavoritesVersion *int64                 `protobuf:"varint,4,opt,name=min_favorites_version,json=minFavoritesVersion,proto3,oneof" json:"min_favorites_version,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *GetFeedRequest) Reset() {
@@ -78,6 +79,13 @@ func (x *GetFeedRequest) GetOffset() int32 {
 func (x *GetFeedRequest) GetMinFollowsVersion() int64 {
 	if x != nil && x.MinFollowsVersion != nil {
 		return *x.MinFollowsVersion
+	}
+	return 0
+}
+
+func (x *GetFeedRequest) GetMinFavoritesVersion() int64 {
+	if x != nil && x.MinFavoritesVersion != nil {
+		return *x.MinFavoritesVersion
 	}
 	return 0
 }
@@ -407,14 +415,15 @@ func (x *GetTagsResponse) GetTags() []*CountedTag {
 }
 
 type ListArticlesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Tag           *string                `protobuf:"bytes,1,opt,name=tag,proto3,oneof" json:"tag,omitempty"`
-	Author        *string                `protobuf:"bytes,2,opt,name=author,proto3,oneof" json:"author,omitempty"`
-	Favorited     *string                `protobuf:"bytes,3,opt,name=favorited,proto3,oneof" json:"favorited,omitempty"`
-	Limit         int32                  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        int32                  `protobuf:"varint,5,opt,name=offset,proto3" json:"offset,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Tag                 *string                `protobuf:"bytes,1,opt,name=tag,proto3,oneof" json:"tag,omitempty"`
+	Author              *string                `protobuf:"bytes,2,opt,name=author,proto3,oneof" json:"author,omitempty"`
+	Favorited           *string                `protobuf:"bytes,3,opt,name=favorited,proto3,oneof" json:"favorited,omitempty"`
+	Limit               int32                  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset              int32                  `protobuf:"varint,5,opt,name=offset,proto3" json:"offset,omitempty"`
+	MinFavoritesVersion *int64                 `protobuf:"varint,6,opt,name=min_favorites_version,json=minFavoritesVersion,proto3,oneof" json:"min_favorites_version,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ListArticlesRequest) Reset() {
@@ -482,6 +491,13 @@ func (x *ListArticlesRequest) GetOffset() int32 {
 	return 0
 }
 
+func (x *ListArticlesRequest) GetMinFavoritesVersion() int64 {
+	if x != nil && x.MinFavoritesVersion != nil {
+		return *x.MinFavoritesVersion
+	}
+	return 0
+}
+
 type ListArticlesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Articles      []*Article             `protobuf:"bytes,1,rep,name=articles,proto3" json:"articles,omitempty"`
@@ -539,12 +555,14 @@ var File_feed_proto protoreflect.FileDescriptor
 const file_feed_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"feed.proto\x12\"com.github.guihigashi.conduit.feed\x1a\x1bgoogle/protobuf/empty.proto\"\x8b\x01\n" +
+	"feed.proto\x12\"com.github.guihigashi.conduit.feed\x1a\x1bgoogle/protobuf/empty.proto\"\xde\x01\n" +
 	"\x0eGetFeedRequest\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x16\n" +
 	"\x06offset\x18\x02 \x01(\x05R\x06offset\x123\n" +
-	"\x13min_follows_version\x18\x03 \x01(\x03H\x00R\x11minFollowsVersion\x88\x01\x01B\x16\n" +
-	"\x14_min_follows_version\"\xb9\x02\n" +
+	"\x13min_follows_version\x18\x03 \x01(\x03H\x00R\x11minFollowsVersion\x88\x01\x01\x127\n" +
+	"\x15min_favorites_version\x18\x04 \x01(\x03H\x01R\x13minFavoritesVersion\x88\x01\x01B\x16\n" +
+	"\x14_min_follows_versionB\x18\n" +
+	"\x16_min_favorites_version\"\xb9\x02\n" +
 	"\aArticle\x12\x12\n" +
 	"\x04slug\x18\x01 \x01(\tR\x04slug\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
@@ -570,17 +588,19 @@ const file_feed_proto_rawDesc = "" +
 	"\x03tag\x18\x01 \x01(\tR\x03tag\x12\x14\n" +
 	"\x05count\x18\x02 \x01(\x05R\x05count\"U\n" +
 	"\x0fGetTagsResponse\x12B\n" +
-	"\x04tags\x18\x01 \x03(\v2..com.github.guihigashi.conduit.feed.CountedTagR\x04tags\"\xbb\x01\n" +
+	"\x04tags\x18\x01 \x03(\v2..com.github.guihigashi.conduit.feed.CountedTagR\x04tags\"\x8e\x02\n" +
 	"\x13ListArticlesRequest\x12\x15\n" +
 	"\x03tag\x18\x01 \x01(\tH\x00R\x03tag\x88\x01\x01\x12\x1b\n" +
 	"\x06author\x18\x02 \x01(\tH\x01R\x06author\x88\x01\x01\x12!\n" +
 	"\tfavorited\x18\x03 \x01(\tH\x02R\tfavorited\x88\x01\x01\x12\x14\n" +
 	"\x05limit\x18\x04 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x05 \x01(\x05R\x06offsetB\x06\n" +
+	"\x06offset\x18\x05 \x01(\x05R\x06offset\x127\n" +
+	"\x15min_favorites_version\x18\x06 \x01(\x03H\x03R\x13minFavoritesVersion\x88\x01\x01B\x06\n" +
 	"\x04_tagB\t\n" +
 	"\a_authorB\f\n" +
 	"\n" +
-	"_favorited\"\x86\x01\n" +
+	"_favoritedB\x18\n" +
+	"\x16_min_favorites_version\"\x86\x01\n" +
 	"\x14ListArticlesResponse\x12G\n" +
 	"\barticles\x18\x01 \x03(\v2+.com.github.guihigashi.conduit.feed.ArticleR\barticles\x12%\n" +
 	"\x0earticles_count\x18\x02 \x01(\x05R\rarticlesCount2\xdd\x02\n" +

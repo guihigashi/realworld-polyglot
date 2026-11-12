@@ -30,7 +30,7 @@ func (f *fakeArticlesPort) ListArticles(_ context.Context, _ []uuid.UUID, limit,
 	return sliceArticles(f.articles, offset, limit), f.totalCount, nil
 }
 
-func (f *fakeArticlesPort) UserFavoritedArticles(_ context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error) {
+func (f *fakeArticlesPort) UserFavoritedArticles(_ context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, int64, error) {
 	f.favCalls++
 	out := make(map[uuid.UUID]struct{})
 	if set, ok := f.favoritedBy[userId]; ok {
@@ -38,7 +38,7 @@ func (f *fakeArticlesPort) UserFavoritedArticles(_ context.Context, userId uuid.
 			out[id] = struct{}{}
 		}
 	}
-	return out, nil
+	return out, 1, nil
 }
 
 type fakeSocialPort struct {
@@ -239,7 +239,7 @@ func TestListPublicArticles_GranularEventsAndUserAggregation(t *testing.T) {
 		Articles:       articlesPort,
 		NewestArticles: uc,
 	}
-	feed, err := genFeed.Execute(authCtx, viewer, 10, 0, 0)
+	feed, err := genFeed.Execute(authCtx, viewer, 10, 0, 0, 0)
 	if err != nil {
 		t.Fatalf("GenerateFeed.Execute: %v", err)
 	}
@@ -267,4 +267,94 @@ func TestListPublicArticles_GranularEventsAndUserAggregation(t *testing.T) {
 	if page.ArticlesCount != 1 || len(page.Articles) != 1 || page.Articles[0].Slug != "second-article-renamed" {
 		t.Fatalf("expected only second-article-renamed after delete, got %+v", page)
 	}
+}
+
+func TestManageFavorites_CausalConsistency(t *testing.T) {
+	userId := uuid.MustParse("33333333-3333-3333-3333-333333333333")
+	art1 := uuid.MustParse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+	art2 := uuid.MustParse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+
+	var currentVersion int64 = 1
+	store := &fakeArticlesPort{
+		favoritedBy: map[uuid.UUID]map[uuid.UUID]struct{}{
+			userId: {art1: {}},
+		},
+	}
+	// Overwrite fake implementation to return currentVersion
+	favStore := &versionedFavStore{
+		port:    store,
+		version: &currentVersion,
+	}
+
+	favCache, err := NewManageFavorites(favStore, 10)
+	if err != nil {
+		t.Fatalf("NewManageFavorites: %v", err)
+	}
+
+	// 1. Initial lookup populates cache with version 1
+	favs, err := favCache.GetFavorited(context.Background(), userId, 1)
+	if err != nil {
+		t.Fatalf("GetFavorited: %v", err)
+	}
+	if _, ok := favs[art1]; !ok {
+		t.Fatalf("expected art1 in favorites")
+	}
+
+	// 2. Event arrives with version 2 adding art2
+	eventBody, _ := json.Marshal(map[string]any{
+		"payload": map[string]any{
+			"articleId": art2.String(),
+			"userId":    userId.String(),
+			"version":   2,
+		},
+	})
+	favCache.HandleArticleEvent("article.favorited", eventBody)
+
+	favs, err = favCache.GetFavorited(context.Background(), userId, 2)
+	if err != nil {
+		t.Fatalf("GetFavorited v2: %v", err)
+	}
+	if _, ok := favs[art2]; !ok {
+		t.Fatalf("expected art2 in favorites after event v2")
+	}
+
+	// 3. Stale event with version 1 is ignored
+	staleBody, _ := json.Marshal(map[string]any{
+		"payload": map[string]any{
+			"articleId": art2.String(),
+			"userId":    userId.String(),
+			"version":   1,
+		},
+	})
+	favCache.HandleArticleEvent("article.unfavorited", staleBody)
+	favs, err = favCache.GetFavorited(context.Background(), userId, 2)
+	if err != nil {
+		t.Fatalf("GetFavorited: %v", err)
+	}
+	if _, ok := favs[art2]; !ok {
+		t.Fatalf("art2 should still be favorited because stale event was ignored")
+	}
+
+	// 4. Request with minVersion 3 forces cache refresh from store
+	currentVersion = 3
+	store.favoritedBy[userId][art2] = struct{}{}
+	favs, err = favCache.GetFavorited(context.Background(), userId, 3)
+	if err != nil {
+		t.Fatalf("GetFavorited v3: %v", err)
+	}
+	if favStore.calls < 2 {
+		t.Fatalf("expected store to be called again for minVersion 3, got calls=%d", favStore.calls)
+	}
+}
+
+type versionedFavStore struct {
+	port    *fakeArticlesPort
+	version *int64
+	calls   int
+}
+
+func (v *versionedFavStore) UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, int64, error) {
+	v.calls++
+	favs, _, err := v.port.UserFavoritedArticles(ctx, userId)
+	return favs, *v.version, err
 }

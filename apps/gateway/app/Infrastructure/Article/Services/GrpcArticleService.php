@@ -255,7 +255,10 @@ readonly class GrpcArticleService implements ArticleServiceInterface
             throw new \RuntimeException('gRPC Error: '.$status->details);
         }
 
-        return $this->mapArticleResponse($response->getArticle());
+        return [
+            'article' => $this->mapArticleResponse($response->getArticle()),
+            'favoritesVersion' => $response->getFavoritesVersion(),
+        ];
     }
 
     public function unfavoriteArticle(string $slug, string $requestorId): array
@@ -275,7 +278,10 @@ readonly class GrpcArticleService implements ArticleServiceInterface
             throw new \RuntimeException('gRPC Error: '.$status->details);
         }
 
-        return $this->mapArticleResponse($response->getArticle());
+        return [
+            'article' => $this->mapArticleResponse($response->getArticle()),
+            'favoritesVersion' => $response->getFavoritesVersion(),
+        ];
     }
 
     public function getTags(): array

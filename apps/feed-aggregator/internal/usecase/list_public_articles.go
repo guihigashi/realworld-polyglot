@@ -35,7 +35,7 @@ type PublicArticlesSocial interface {
 }
 
 type Favorites interface {
-	GetFavorited(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error)
+	GetFavorited(ctx context.Context, userId uuid.UUID, minVersion int64) (map[uuid.UUID]struct{}, error)
 }
 
 // ArticlesPage is a hydrated page of articles ready for delivery.
@@ -46,11 +46,12 @@ type ArticlesPage struct {
 }
 
 type ListArticlesQuery struct {
-	Tag       string
-	Author    string // username
-	Favorited string // username
-	Limit     int
-	Offset    int
+	Tag                 string
+	Author              string // username
+	Favorited           string // username
+	Limit               int
+	Offset              int
+	MinFavoritesVersion int64
 }
 
 func (q ListArticlesQuery) normalized() ListArticlesQuery {
@@ -215,7 +216,7 @@ func (l *ListPublicArticles) Execute(ctx context.Context, q ListArticlesQuery) (
 
 	var favoritedBySet map[uuid.UUID]struct{}
 	if favoritedById != nil && l.favorites != nil {
-		favoritedBySet, err = l.favorites.GetFavorited(ctx, *favoritedById)
+		favoritedBySet, err = l.favorites.GetFavorited(ctx, *favoritedById, q.MinFavoritesVersion)
 		if err != nil {
 			return nil, err
 		}
@@ -229,7 +230,7 @@ func (l *ListPublicArticles) Execute(ctx context.Context, q ListArticlesQuery) (
 		return nil, err
 	}
 
-	return l.hydratePage(ctx, articles, totalCount)
+	return l.hydratePage(ctx, articles, totalCount, q.MinFavoritesVersion)
 }
 
 func (l *ListPublicArticles) selectArticles(
@@ -293,7 +294,7 @@ func (l *ListPublicArticles) fetchFromService(ctx context.Context, q ListArticle
 	return articles, count, nil
 }
 
-func (l *ListPublicArticles) hydratePage(ctx context.Context, articles []domain.Article, totalCount int) (*ArticlesPage, error) {
+func (l *ListPublicArticles) hydratePage(ctx context.Context, articles []domain.Article, totalCount int, minFavoritesVersion int64) (*ArticlesPage, error) {
 	if len(articles) == 0 {
 		return &ArticlesPage{Articles: []domain.Article{}, ArticlesCount: totalCount}, nil
 	}
@@ -330,7 +331,7 @@ func (l *ListPublicArticles) hydratePage(ctx context.Context, articles []domain.
 	}
 
 	if l.favorites != nil {
-		favoritedIds, err := l.favorites.GetFavorited(ctx, requestorId)
+		favoritedIds, err := l.favorites.GetFavorited(ctx, requestorId, minFavoritesVersion)
 		if err != nil {
 			return nil, err
 		}
@@ -466,26 +467,7 @@ func (l *ListPublicArticles) HandleArticleEvent(routingKey string, body []byte) 
 			totalCount: current.totalCount + 1,
 		})
 
-		if l.publisher != nil {
-			go func(slug string, articleId uuid.UUID, ts time.Time) {
-				pubCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-				defer cancel()
-				err := l.publisher.Publish(pubCtx, "read.article-created", map[string]any{
-					"eventId":   uuid.New(),
-					"eventType": "read.article-created",
-					"timestamp": ts,
-					"payload": map[string]any{
-						"articleId": articleId,
-						"slug":      slug,
-					},
-				})
-				if err != nil {
-					slog.Error("failed to publish read.article-created", slog.Any("error", err), slog.String("slug", slug))
-				} else {
-					slog.Info("published read.article-created", slog.String("slug", slug))
-				}
-			}(created.Slug, created.Id, created.CreatedAt)
-		}
+		l.publishReadEvent("read.article-created", created.Slug, created.Id, created.CreatedAt)
 
 	case "article.updated":
 		var event articleUpdatedEvent
@@ -513,6 +495,7 @@ func (l *ListPublicArticles) HandleArticleEvent(routingKey string, body []byte) 
 			articles:   next,
 			totalCount: current.totalCount,
 		})
+		l.publishReadEvent("read.article-updated", updated.Slug, updated.Id, updated.UpdatedAt)
 
 	case "article.deleted":
 		var event articleDeletedEvent
@@ -533,6 +516,7 @@ func (l *ListPublicArticles) HandleArticleEvent(routingKey string, body []byte) 
 			articles:   next,
 			totalCount: nextTotal,
 		})
+		l.publishReadEvent("read.article-deleted", p.Slug, p.ArticleId, time.Now().UTC())
 
 	case "article.favorited", "article.unfavorited":
 		var event articleFavoriteCountEvent
@@ -551,9 +535,35 @@ func (l *ListPublicArticles) HandleArticleEvent(routingKey string, body []byte) 
 			articles:   next,
 			totalCount: current.totalCount,
 		})
+		readEventType := "read." + routingKey
+		l.publishReadEvent(readEventType, p.Slug, p.ArticleId, time.Now().UTC())
 	}
 
 	slog.Debug("newest articles cache updated from event", slog.String("routing_key", routingKey))
+}
+
+func (l *ListPublicArticles) publishReadEvent(eventType, slug string, articleId uuid.UUID, ts time.Time) {
+	if l.publisher == nil {
+		return
+	}
+	go func() {
+		pubCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		err := l.publisher.Publish(pubCtx, eventType, map[string]any{
+			"eventId":   uuid.New(),
+			"eventType": eventType,
+			"timestamp": ts,
+			"payload": map[string]any{
+				"articleId": articleId,
+				"slug":      slug,
+			},
+		})
+		if err != nil {
+			slog.Error("failed to publish "+eventType, slog.Any("error", err), slog.String("slug", slug))
+		} else {
+			slog.Info("published "+eventType, slog.String("slug", slug))
+		}
+	}()
 }
 
 func findArticleIndex(articles []domain.Article, id uuid.UUID, slug, previousSlug string) int {

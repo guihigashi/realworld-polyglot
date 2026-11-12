@@ -19,7 +19,7 @@ type Social interface {
 
 type Articles interface {
 	ListArticles(ctx context.Context, followingIds []uuid.UUID, limit, offset int) ([]domain.Article, int, error)
-	UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error)
+	UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, int64, error)
 }
 
 type NewestArticlesWindow interface {
@@ -40,7 +40,7 @@ type Feed struct {
 	Profiles      map[uuid.UUID]domain.Profile
 }
 
-func (f *GenerateFeed) Execute(ctx context.Context, userId uuid.UUID, limit, offset int, minFollowsVersion int64) (*Feed, error) {
+func (f *GenerateFeed) Execute(ctx context.Context, userId uuid.UUID, limit, offset int, minFollowsVersion, minFavoritesVersion int64) (*Feed, error) {
 	if offset < 0 {
 		offset = 0
 	}
@@ -103,9 +103,9 @@ func (f *GenerateFeed) Execute(ctx context.Context, userId uuid.UUID, limit, off
 
 	var userFavorited map[uuid.UUID]struct{}
 	if f.Favorites != nil {
-		userFavorited, err = f.Favorites.GetFavorited(ctx, userId)
+		userFavorited, err = f.Favorites.GetFavorited(ctx, userId, minFavoritesVersion)
 	} else {
-		userFavorited, err = f.Articles.UserFavoritedArticles(ctx, userId)
+		userFavorited, _, err = f.Articles.UserFavoritedArticles(ctx, userId)
 	}
 	if err != nil {
 		return nil, err

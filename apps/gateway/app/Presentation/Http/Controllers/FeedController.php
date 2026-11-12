@@ -16,12 +16,14 @@ readonly class FeedController
     {
         $requestorId = $request->attributes->get('auth_user_id');
         $minFollowsVersion = $request->header('X-Follows-Version');
+        $minFavoritesVersion = $request->header('X-Favorites-Version');
 
         $articles = $this->getFeedUseCase->execute(
             $request->query('limit', 20),
             $request->query('offset', 0),
             $requestorId,
-            $minFollowsVersion !== null ? (int) $minFollowsVersion : null
+            $minFollowsVersion !== null ? (int) $minFollowsVersion : null,
+            $minFavoritesVersion !== null ? (int) $minFavoritesVersion : null
         );
 
         return response()->streamJson($articles);

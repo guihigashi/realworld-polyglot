@@ -51,11 +51,11 @@ func (c *Client) GetTags(ctx context.Context) ([]domain.CountedTag, error) {
 	return tags, nil
 }
 
-func (c *Client) UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, error) {
+func (c *Client) UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (map[uuid.UUID]struct{}, int64, error) {
 	ctx = appctx.WithRequestorId(ctx, userId)
 	response, err := c.client.UserFavoritedArticles(ctx, &emptypb.Empty{})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	ids := response.GetArticlesIds()
@@ -66,7 +66,7 @@ func (c *Client) UserFavoritedArticles(ctx context.Context, userId uuid.UUID) (m
 		m[idUuid] = struct{}{}
 	}
 
-	return m, nil
+	return m, response.GetFavoritesVersion(), nil
 }
 
 func (c *Client) ListArticles(ctx context.Context, followingIds []uuid.UUID, limit, offset int) ([]domain.Article, int, error) {

@@ -17,21 +17,21 @@ readonly class FavoriteController
     {
         $requestorId = $request->attributes->get('auth_user_id');
 
-        $article = $this->favoriteArticleUseCase->execute($slug, $requestorId);
+        $result = $this->favoriteArticleUseCase->execute($slug, $requestorId);
 
         return response()->json([
-            'article' => $article,
-        ]);
+            'article' => $result['article'],
+        ])->header('X-Favorites-Version', (string) $result['favoritesVersion']);
     }
 
     public function destroy(Request $request, string $slug)
     {
         $requestorId = $request->attributes->get('auth_user_id');
 
-        $article = $this->unfavoriteArticleUseCase->execute($slug, $requestorId);
+        $result = $this->unfavoriteArticleUseCase->execute($slug, $requestorId);
 
         return response()->json([
-            'article' => $article,
-        ]);
+            'article' => $result['article'],
+        ])->header('X-Favorites-Version', (string) $result['favoritesVersion']);
     }
 }

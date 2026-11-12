@@ -179,11 +179,11 @@ func (c *Consumer) handleDelivery(routingKey string, body []byte) {
 
 func determineResource(routingKey, eventType string) string {
 	combined := routingKey + " " + eventType
-	if strings.Contains(combined, "article") {
-		return "articles"
-	}
 	if strings.Contains(combined, "comment") {
 		return "comments"
+	}
+	if strings.Contains(combined, "article") {
+		return "articles"
 	}
 	if strings.Contains(combined, "user") || strings.Contains(combined, "social") {
 		return "profiles"

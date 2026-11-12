@@ -1,17 +1,25 @@
 import { createApi, fetchBaseQuery, type TagDescription } from "@reduxjs/toolkit/query/react"
 import type { RootState } from "@/state/store.ts"
-
-let latestFollowsVersion: string | null = null
+import { setFollowsVersion, setFavoritesVersion } from "@/state/causalSlice.ts"
 
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_BASE_URL,
-    prepareHeaders: (headers, api1) => {
-      const auth = (api1.getState() as RootState).auth
+    prepareHeaders: (headers, { getState, endpoint }) => {
+      const state = getState() as RootState
+      const auth = state.auth
 
       if (auth.status === "authenticated") {
         headers.set("authorization", `Token ${auth.user.token}`)
+      }
+
+      if (endpoint === "feedArticles" && state.causal.followsVersion) {
+        headers.set("X-Follows-Version", state.causal.followsVersion)
+      }
+
+      if ((endpoint === "feedArticles" || endpoint === "listArticles") && state.causal.favoritesVersion) {
+        headers.set("X-Favorites-Version", state.causal.favoritesVersion)
       }
 
       return headers
@@ -42,12 +50,12 @@ export const api = createApi({
     }),
     followUser: build.mutation<WrapProfile<Profile>, string>({
       query: (username) => ({ url: `/profiles/${username}/follow`, method: "POST" }),
-      async onQueryStarted(_arg, { queryFulfilled }) {
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
           const { meta } = await queryFulfilled
           const v = meta?.response?.headers.get("x-follows-version")
           if (v) {
-            latestFollowsVersion = v
+            dispatch(setFollowsVersion(v))
           }
         } catch {
           // ignore
@@ -63,12 +71,12 @@ export const api = createApi({
     }),
     unfollowUser: build.mutation<WrapProfile<Profile>, string>({
       query: (username) => ({ url: `/profiles/${username}/follow`, method: "DELETE" }),
-      async onQueryStarted(_arg, { queryFulfilled }) {
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
           const { meta } = await queryFulfilled
           const v = meta?.response?.headers.get("x-follows-version")
           if (v) {
-            latestFollowsVersion = v
+            dispatch(setFollowsVersion(v))
           }
         } catch {
           // ignore
@@ -109,12 +117,7 @@ export const api = createApi({
       },
     }),
     feedArticles: build.query<WrapArticles<ArticleSummary>, { limit?: number; offset?: number } | undefined>({
-      query: (params) => ({
-        url: "/articles/feed",
-        method: "GET",
-        params,
-        headers: latestFollowsVersion ? { "X-Follows-Version": latestFollowsVersion } : undefined,
-      }),
+      query: (params) => ({ url: "/articles/feed", method: "GET", params }),
       providesTags: (result, error) => {
         if (error) return []
 
@@ -183,6 +186,17 @@ export const api = createApi({
     }),
     favoriteArticle: build.mutation<WrapArticle<Article>, string>({
       query: (slug) => ({ url: `/articles/${slug}/favorite`, method: "POST" }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { meta } = await queryFulfilled
+          const v = meta?.response?.headers.get("x-favorites-version")
+          if (v) {
+            dispatch(setFavoritesVersion(v))
+          }
+        } catch {
+          // ignore
+        }
+      },
       invalidatesTags: (_result, error, slug) =>
         error
           ? []
@@ -193,6 +207,17 @@ export const api = createApi({
     }),
     unfavoriteArticle: build.mutation<WrapArticle<Article>, string>({
       query: (slug) => ({ url: `/articles/${slug}/favorite`, method: "DELETE" }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { meta } = await queryFulfilled
+          const v = meta?.response?.headers.get("x-favorites-version")
+          if (v) {
+            dispatch(setFavoritesVersion(v))
+          }
+        } catch {
+          // ignore
+        }
+      },
       invalidatesTags: (_result, error, slug) =>
         error
           ? []

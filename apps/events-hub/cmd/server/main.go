@@ -46,7 +46,7 @@ func main() {
 	// Initialize RabbitMQ Consumer
 	rabbitURI := viper.GetString("rabbitmq.uri")
 	rabbitExchange := viper.GetString("rabbitmq.exchange")
-	routingKeys := []string{"read.article-created"}
+	routingKeys := []string{"read.article-*", "article.comment-*"}
 
 	consumer, err := rabbitmq.NewConsumer(rabbitmq.Config{
 		URI:         rabbitURI,

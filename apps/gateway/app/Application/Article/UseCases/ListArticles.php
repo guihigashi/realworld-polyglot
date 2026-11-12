@@ -21,7 +21,8 @@ readonly class ListArticles
         int $limit,
         int $offset,
         ?string $requestorId,
+        ?int $minFavoritesVersion = null,
     ): array {
-        return $this->feedService->listArticles($tag, $author, $favoritedBy, $limit, $offset, $requestorId);
+        return $this->feedService->listArticles($tag, $author, $favoritedBy, $limit, $offset, $requestorId, $minFavoritesVersion);
     }
 }
