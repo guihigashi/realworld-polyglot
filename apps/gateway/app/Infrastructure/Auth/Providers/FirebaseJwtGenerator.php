@@ -21,9 +21,13 @@ class FirebaseJwtGenerator implements JwtGeneratorInterface
             'exp' => time() + (60 * 60 * 24 * 30),
         ];
 
-        // We use Laravel's existing APP_KEY to sign the token
-        // You could also use a dedicated env('JWT_SECRET') if you prefer
         $secret = config('app.key');
+        if (is_string($secret) && str_starts_with($secret, 'base64:')) {
+            $decoded = base64_decode(substr($secret, 7), true);
+            if ($decoded !== false) {
+                $secret = $decoded;
+            }
+        }
 
         return JWT::encode($payload, $secret, 'HS256');
     }
