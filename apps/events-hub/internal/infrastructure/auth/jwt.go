@@ -1,7 +1,9 @@
 package auth
 
 import (
+	"encoding/base64"
 	"fmt"
+	"strings"
 	"uuid"
 
 	"github.com/lestrrat-go/jwx/v4/jwa"
@@ -19,8 +21,15 @@ type Validator struct {
 }
 
 func NewValidator(secret string) *Validator {
+	key := []byte(secret)
+	if after, ok := strings.CutPrefix(secret, "base64:"); ok {
+		if decoded, err := base64.StdEncoding.DecodeString(after); err == nil {
+			key = decoded
+		}
+	}
+
 	return &Validator{
-		secret: []byte(secret),
+		secret: key,
 	}
 }
 
