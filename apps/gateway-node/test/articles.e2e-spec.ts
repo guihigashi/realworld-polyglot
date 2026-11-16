@@ -36,6 +36,7 @@ import { SOCIAL_GRAPH_SERVICE, type SocialGraphService } from "@/domain/profile/
 import { Profile } from "@/domain/profile/entities/profile.entity.js"
 import { ProfileNotFoundException } from "@/domain/profile/exceptions/profile.exceptions.js"
 import { InMemoryEventPublisher } from "@/infrastructure/messaging/in-memory-event-publisher.js"
+import { NODE_ADAPTER_OPTIONS } from "@/presentation/http/node-adapter.options.js"
 
 interface StoredArticle extends ArticleData {
   favoritedBy: Set<string>
@@ -420,7 +421,7 @@ describe("Articles, Comments, Favorites, Feed, and Tags (e2e)", () => {
 
     jwtGenerator = moduleRef.get<JwtGenerator>(JWT_GENERATOR)
 
-    app = moduleRef.createNestApplication<NestNodeApplication>(new NodeAdapter())
+    app = moduleRef.createNestApplication<NestNodeApplication>(new NodeAdapter(NODE_ADAPTER_OPTIONS))
     app.setGlobalPrefix("api", {
       exclude: [{ path: "", method: RequestMethod.GET }],
     })
@@ -645,5 +646,45 @@ describe("Articles, Comments, Favorites, Feed, and Tags (e2e)", () => {
       .expect((res) => {
         expect(res.body.errors.body[0]).toBe("can't be blank")
       })
+  })
+
+  it("supports slugs longer than 100 characters without 414 on favorite, unfavorite, and article reads", async () => {
+    const tokenA = await seedUser("usr-a", "alice")
+    const tokenB = await seedUser("usr-b", "bob")
+    const longTitle =
+      "This Is A Very Long Article Title Exceeding One Hundred Characters Once Slugified With Its Random Suffix"
+
+    const created = await request(app.getHttpServer())
+      .post("/api/articles")
+      .set("Authorization", `Token ${tokenA}`)
+      .send({
+        article: { title: longTitle, description: "Desc", body: "Body" },
+      })
+      .expect(201)
+
+    const longSlug = created.body.article.slug as string
+    expect(longSlug.length).toBeGreaterThan(100)
+
+    const favRes = await request(app.getHttpServer())
+      .post(`/api/articles/${longSlug}/favorite`)
+      .set("Authorization", `Token ${tokenB}`)
+      .expect(200)
+    expect(favRes.headers["x-favorites-version"]).toBe("1")
+    expect(favRes.body.article.favorited).toBe(true)
+
+    const getRes = await request(app.getHttpServer())
+      .get(`/api/articles/${longSlug}`)
+      .set("Authorization", `Token ${tokenB}`)
+      .set("X-Favorites-Version", "1")
+      .expect(200)
+    expect(getRes.body.article.favorited).toBe(true)
+    expect(backend.recordedFeedCalls.getArticle?.minFavoritesVersion).toBe(1)
+
+    const unfavRes = await request(app.getHttpServer())
+      .delete(`/api/articles/${longSlug}/favorite`)
+      .set("Authorization", `Token ${tokenB}`)
+      .expect(200)
+    expect(unfavRes.headers["x-favorites-version"]).toBe("2")
+    expect(unfavRes.body.article.favorited).toBe(false)
   })
 })

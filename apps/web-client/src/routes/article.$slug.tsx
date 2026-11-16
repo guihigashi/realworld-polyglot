@@ -141,7 +141,7 @@ function ArticleMeta({ article, userIsOwner }: { article: Article; userIsOwner: 
           }}
         />
       )}
-      <FavoriteToggle className="btn btn-sm btn-outline-primary" article={article} />
+      <FavoriteToggle article={article} />
       {userIsOwner && (
         <>
           <RouterButton to="/editor/$slug" params={{ slug: article.slug }} className="btn btn-sm btn-outline-secondary">

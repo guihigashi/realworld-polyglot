@@ -2,29 +2,48 @@ import { createApi, fetchBaseQuery, type TagDescription } from "@reduxjs/toolkit
 import type { RootState } from "@/state/store.ts"
 import { setFollowsVersion, setFavoritesVersion } from "@/state/causalSlice.ts"
 
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: import.meta.env.VITE_API_BASE_URL,
+  prepareHeaders: (headers, { getState, endpoint }) => {
+    const state = getState() as RootState
+    const auth = state.auth
+
+    if (auth.status === "authenticated") {
+      headers.set("authorization", `Token ${auth.user.token}`)
+    }
+
+    if ((endpoint === "feedArticles" || endpoint === "getArticle" || endpoint === "getComments") && state.causal.followsVersion) {
+      headers.set("X-Follows-Version", state.causal.followsVersion)
+    }
+
+    if ((endpoint === "feedArticles" || endpoint === "listArticles" || endpoint === "getArticle") && state.causal.favoritesVersion) {
+      headers.set("X-Favorites-Version", state.causal.favoritesVersion)
+    }
+
+    return headers
+  },
+})
+
+const baseQueryWithCausalVersions: typeof rawBaseQuery = async (args, baseQueryApi, extraOptions) => {
+  const result = await rawBaseQuery(args, baseQueryApi, extraOptions)
+  const headers = result.meta?.response?.headers
+
+  const followsVersion = headers?.get("x-follows-version")
+  if (followsVersion) {
+    baseQueryApi.dispatch(setFollowsVersion(followsVersion))
+  }
+
+  const favoritesVersion = headers?.get("x-favorites-version")
+  if (favoritesVersion) {
+    baseQueryApi.dispatch(setFavoritesVersion(favoritesVersion))
+  }
+
+  return result
+}
+
 export const api = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_BASE_URL,
-    prepareHeaders: (headers, { getState, endpoint }) => {
-      const state = getState() as RootState
-      const auth = state.auth
-
-      if (auth.status === "authenticated") {
-        headers.set("authorization", `Token ${auth.user.token}`)
-      }
-
-      if ((endpoint === "feedArticles" || endpoint === "getArticle" || endpoint === "getComments") && state.causal.followsVersion) {
-        headers.set("X-Follows-Version", state.causal.followsVersion)
-      }
-
-      if ((endpoint === "feedArticles" || endpoint === "listArticles" || endpoint === "getArticle") && state.causal.favoritesVersion) {
-        headers.set("X-Favorites-Version", state.causal.favoritesVersion)
-      }
-
-      return headers
-    },
-  }),
+  baseQuery: baseQueryWithCausalVersions,
   tagTypes: ["CurrentUser", "Profile", "Article", "ArticleSummary", "Comment"],
   endpoints: (build) => ({
     login: build.mutation<WrapUser<User>, WrapUser<LoginRequest>>({
@@ -50,17 +69,6 @@ export const api = createApi({
     }),
     followUser: build.mutation<WrapProfile<Profile>, string>({
       query: (username) => ({ url: `/profiles/${username}/follow`, method: "POST" }),
-      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        try {
-          const { meta } = await queryFulfilled
-          const v = meta?.response?.headers.get("x-follows-version")
-          if (v) {
-            dispatch(setFollowsVersion(v))
-          }
-        } catch {
-          // ignore
-        }
-      },
       invalidatesTags: (_result, error, arg) =>
         error
           ? []
@@ -71,17 +79,6 @@ export const api = createApi({
     }),
     unfollowUser: build.mutation<WrapProfile<Profile>, string>({
       query: (username) => ({ url: `/profiles/${username}/follow`, method: "DELETE" }),
-      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        try {
-          const { meta } = await queryFulfilled
-          const v = meta?.response?.headers.get("x-follows-version")
-          if (v) {
-            dispatch(setFollowsVersion(v))
-          }
-        } catch {
-          // ignore
-        }
-      },
       invalidatesTags: (_result, error, arg) =>
         error
           ? []
@@ -186,13 +183,14 @@ export const api = createApi({
     }),
     favoriteArticle: build.mutation<WrapArticle<Article>, string>({
       query: (slug) => ({ url: `/articles/${slug}/favorite`, method: "POST" }),
-      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+      async onQueryStarted(slug, { dispatch, queryFulfilled }) {
         try {
-          const { meta } = await queryFulfilled
-          const v = meta?.response?.headers.get("x-favorites-version")
-          if (v) {
-            dispatch(setFavoritesVersion(v))
-          }
+          const { data } = await queryFulfilled
+          dispatch(
+            api.util.updateQueryData("getArticle", slug, (draft) => {
+              draft.article = data.article
+            }),
+          )
         } catch {
           // ignore
         }
@@ -202,18 +200,19 @@ export const api = createApi({
           ? []
           : [
               { type: "ArticleSummary", id: slug },
-              { type: "Article", id: slug },
+              { type: "ArticleSummary", id: "LIST" },
             ],
     }),
     unfavoriteArticle: build.mutation<WrapArticle<Article>, string>({
       query: (slug) => ({ url: `/articles/${slug}/favorite`, method: "DELETE" }),
-      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+      async onQueryStarted(slug, { dispatch, queryFulfilled }) {
         try {
-          const { meta } = await queryFulfilled
-          const v = meta?.response?.headers.get("x-favorites-version")
-          if (v) {
-            dispatch(setFavoritesVersion(v))
-          }
+          const { data } = await queryFulfilled
+          dispatch(
+            api.util.updateQueryData("getArticle", slug, (draft) => {
+              draft.article = data.article
+            }),
+          )
         } catch {
           // ignore
         }
@@ -223,7 +222,7 @@ export const api = createApi({
           ? []
           : [
               { type: "ArticleSummary", id: slug },
-              { type: "Article", id: slug },
+              { type: "ArticleSummary", id: "LIST" },
             ],
     }),
     getTags: build.query<{ tags: string[] }, void>({

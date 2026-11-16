@@ -12,6 +12,7 @@ import { SOCIAL_GRAPH_SERVICE, type SocialGraphService } from "@/domain/profile/
 import { Profile } from "@/domain/profile/entities/profile.entity.js"
 import { ProfileNotFoundException } from "@/domain/profile/exceptions/profile.exceptions.js"
 import { InMemoryEventPublisher } from "@/infrastructure/messaging/in-memory-event-publisher.js"
+import { NODE_ADAPTER_OPTIONS } from "@/presentation/http/node-adapter.options.js"
 
 class InMemorySocialGraphService implements SocialGraphService {
   private readonly profiles = new Map<
@@ -131,7 +132,7 @@ describe("Profiles and Social Graph (e2e)", () => {
 
     jwtGenerator = moduleRef.get<JwtGenerator>(JWT_GENERATOR)
 
-    app = moduleRef.createNestApplication<NestNodeApplication>(new NodeAdapter())
+    app = moduleRef.createNestApplication<NestNodeApplication>(new NodeAdapter(NODE_ADAPTER_OPTIONS))
     app.setGlobalPrefix("api", {
       exclude: [{ path: "", method: RequestMethod.GET }],
     })
