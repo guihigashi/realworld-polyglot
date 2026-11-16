@@ -16,6 +16,11 @@ description = "Start Laravel Octane gateway"
 dir = "apps/gateway"
 run = "php artisan serve"
 
+[tasks."dev:gateway-node"]
+description = "Start NestJS gateway"
+dir = "apps/gateway-node"
+run = "yarn start:dev"
+
 [tasks."dev:events"]
 description = "Start Go events hub"
 dir = "apps/events-hub"
@@ -48,7 +53,7 @@ run = "sbt ~runReload"
 # --- Dev Up Orchestrator ---
 [tasks."dev:up"]
 description = "Start infra and run all dev services in parallel"
-depends = ["dev:infra", "dev:web", "dev:gateway", "dev:events", "dev:feed", "dev:article", "dev:social"]
+depends = ["dev:infra", "dev:web", "dev:gateway-node", "dev:events", "dev:feed", "dev:article", "dev:social"]
 
 # Optional: allows `mise dev up` in addition to `mise dev:up`
 [tasks.dev]
