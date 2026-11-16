@@ -55,7 +55,12 @@ describe("User and Authentication (e2e)", () => {
 
   beforeEach(async () => {
     upsertProfileProjection = vi.fn<(user: User) => Promise<void>>().mockResolvedValue(undefined)
-    const socialGraphMock: SocialGraphService = { upsertProfileProjection }
+    const socialGraphMock: SocialGraphService = {
+      getProfile: vi.fn(),
+      followUser: vi.fn(),
+      unfollowUser: vi.fn(),
+      upsertProfileProjection,
+    }
     userRepo = new InMemoryUserRepository(socialGraphMock)
     eventPublisher = new InMemoryEventPublisher()
 

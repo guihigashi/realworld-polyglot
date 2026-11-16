@@ -6,6 +6,7 @@ import { AuthModule } from "@/auth.module.js"
 import { configurations } from "@/config/configuration.js"
 import { envSchema } from "@/config/env.schema.js"
 import { DatabaseModule } from "@/infrastructure/database/database.module.js"
+import { ProfileModule } from "@/profile.module.js"
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DatabaseModule } from "@/infrastructure/database/database.module.js"
     }),
     DatabaseModule,
     AuthModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],
