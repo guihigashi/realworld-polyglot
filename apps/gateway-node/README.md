@@ -1,6 +1,6 @@
 # gateway-node
 
-NestJS 12 API gateway (`@nestjs/platform-node`, ESM, TypeScript, Zod, Drizzle ORM, gRPC) implementing the RealWorld Conduit API (`docs/openapi.yml`).
+NestJS 12 API gateway (`@nestjs/platform-node`, ESM, TypeScript, Zod, Drizzle ORM, gRPC) implementing the RealWorld Conduit API ([`reference/realworld-spec/specs/api/openapi.yml`](../../reference/realworld-spec/specs/api/openapi.yml)).
 
 ## Setup
 
