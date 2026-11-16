@@ -4,7 +4,7 @@ import { of, throwError } from "rxjs"
 import { describe, expect, it, vi } from "vitest"
 import { User } from "@/domain/auth/entities/user.entity.js"
 import { ProfileNotFoundException } from "@/domain/profile/exceptions/profile.exceptions.js"
-import type { SocialGraphServiceClient } from "@/generated/grpc/social_graph.js"
+import type { ProfileResponse, SocialGraphServiceClient } from "@/generated/grpc/social_graph.js"
 import { GrpcSocialGraphService } from "@/infrastructure/profile/grpc-social-graph.service.js"
 
 function createServiceWithMockClient() {
@@ -38,6 +38,7 @@ function createServiceWithMockClient() {
     getProfile,
     followUser,
     unfollowUser,
+    getProfilesByIds,
     upsertProfileProjection,
   }
 }
@@ -50,9 +51,7 @@ describe("GrpcSocialGraphService", () => {
         username: "celeb",
         bio: undefined,
         image: undefined,
-        following: false,
-        followsVersion: 0,
-      }),
+      } as unknown as ProfileResponse),
     )
 
     const profile = await service.getProfile("celeb", null)
@@ -143,6 +142,37 @@ describe("GrpcSocialGraphService", () => {
     await expect(service.followUser("usr-1", "missing")).rejects.toThrow(ProfileNotFoundException)
     await expect(service.unfollowUser("usr-1", "missing")).rejects.toThrow(ProfileNotFoundException)
     await expect(service.getProfile("celeb", null)).rejects.toThrow("unavailable")
+  })
+
+  it("gets profiles by ids and short-circuits empty list", async () => {
+    const { service, getProfilesByIds } = createServiceWithMockClient()
+    expect(await service.getProfilesByIds([], "usr-1")).toEqual({})
+    expect(getProfilesByIds).not.toHaveBeenCalled()
+
+    getProfilesByIds.mockReturnValue(
+      of({
+        profiles: {
+          "usr-2": {
+            username: "bob",
+            bio: "Bob bio",
+            image: undefined,
+            following: true,
+            followsVersion: 0,
+          },
+        },
+      }),
+    )
+
+    const result = await service.getProfilesByIds(["usr-2"], "usr-1")
+    expect(result["usr-2"].toJSON()).toEqual({
+      username: "bob",
+      bio: "Bob bio",
+      image: null,
+      following: true,
+    })
+    const [req, metadata] = getProfilesByIds.mock.calls[0]
+    expect(req).toEqual({ userIds: ["usr-2"] })
+    expect((metadata as Metadata).get("x-requestor-id")).toEqual(["usr-1"])
   })
 
   it("projects user profile with x-requestor-id metadata", async () => {

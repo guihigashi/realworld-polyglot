@@ -1,11 +1,14 @@
-import { Module } from "@nestjs/common"
-import { ConfigModule } from "@nestjs/config"
+import { Inject, type MiddlewareConsumer, Module, type NestModule } from "@nestjs/common"
+import { ConfigModule, type ConfigType } from "@nestjs/config"
 import { AppController } from "./app.controller.js"
 import { AppService } from "./app.service.js"
+import { ArticleModule } from "@/article.module.js"
 import { AuthModule } from "@/auth.module.js"
-import { configurations } from "@/config/configuration.js"
+import { appConfig, configurations } from "@/config/configuration.js"
 import { envSchema } from "@/config/env.schema.js"
+import { FeedModule } from "@/feed.module.js"
 import { DatabaseModule } from "@/infrastructure/database/database.module.js"
+import { RequestDurationMiddleware } from "@/presentation/http/middleware/request-duration.middleware.js"
 import { ProfileModule } from "@/profile.module.js"
 
 @Module({
@@ -20,8 +23,21 @@ import { ProfileModule } from "@/profile.module.js"
     DatabaseModule,
     AuthModule,
     ProfileModule,
+    FeedModule,
+    ArticleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  constructor(
+    @Inject(appConfig.KEY)
+    private readonly cfg: ConfigType<typeof appConfig>,
+  ) {}
+
+  configure(consumer: MiddlewareConsumer): void {
+    if (this.cfg.requestDurationMiddleware) {
+      consumer.apply(RequestDurationMiddleware).forRoutes("*")
+    }
+  }
+}

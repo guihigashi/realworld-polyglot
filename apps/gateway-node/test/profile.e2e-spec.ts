@@ -86,6 +86,22 @@ class InMemorySocialGraphService implements SocialGraphService {
       followsVersion: this.versionCounter,
     })
   }
+
+  async getProfilesByIds(userIds: string[], requestorId?: string | null): Promise<Record<string, Profile>> {
+    const result: Record<string, Profile> = {}
+    for (const profile of this.profiles.values()) {
+      if (userIds.includes(profile.id)) {
+        const following = requestorId ? (this.follows.get(requestorId)?.has(profile.username) ?? false) : false
+        result[profile.id] = new Profile({
+          username: profile.username,
+          bio: profile.bio,
+          image: profile.image,
+          following,
+        })
+      }
+    }
+    return result
+  }
 }
 
 describe("Profiles and Social Graph (e2e)", () => {

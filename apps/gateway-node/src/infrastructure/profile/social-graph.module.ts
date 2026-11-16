@@ -5,6 +5,7 @@ import { join } from "node:path"
 import { grpcConfig } from "@/config/configuration.js"
 import { SOCIAL_GRAPH_SERVICE } from "@/domain/profile/contracts/social-graph.service.js"
 import { COM_GITHUB_GUIHIGASHI_CONDUIT_SOCIAL_PACKAGE_NAME } from "@/generated/grpc/social_graph.js"
+import { DEFAULT_GRPC_CHANNEL_OPTIONS } from "@/infrastructure/grpc/grpc-channel-options.js"
 import { GrpcSocialGraphService, SOCIAL_GRAPH_GRPC_CLIENT } from "@/infrastructure/profile/grpc-social-graph.service.js"
 
 @Module({
@@ -19,6 +20,7 @@ import { GrpcSocialGraphService, SOCIAL_GRAPH_GRPC_CLIENT } from "@/infrastructu
             url: grpcCfg.socialGraphTarget,
             package: COM_GITHUB_GUIHIGASHI_CONDUIT_SOCIAL_PACKAGE_NAME,
             protoPath: join(import.meta.dirname, "../../proto/social_graph.proto"),
+            channelOptions: DEFAULT_GRPC_CHANNEL_OPTIONS,
           },
         }),
       },

@@ -10,12 +10,14 @@ function createSocialGraphMock() {
   const getProfile = vi.fn<SocialGraphService["getProfile"]>()
   const followUser = vi.fn<SocialGraphService["followUser"]>()
   const unfollowUser = vi.fn<SocialGraphService["unfollowUser"]>()
+  const getProfilesByIds = vi.fn<SocialGraphService["getProfilesByIds"]>()
   const upsertProfileProjection = vi.fn<SocialGraphService["upsertProfileProjection"]>()
 
   const socialGraph: SocialGraphService = {
     getProfile,
     followUser,
     unfollowUser,
+    getProfilesByIds,
     upsertProfileProjection,
   }
 

@@ -59,6 +59,7 @@ describe("User and Authentication (e2e)", () => {
       getProfile: vi.fn(),
       followUser: vi.fn(),
       unfollowUser: vi.fn(),
+      getProfilesByIds: vi.fn(),
       upsertProfileProjection,
     }
     userRepo = new InMemoryUserRepository(socialGraphMock)

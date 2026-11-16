@@ -7,5 +7,6 @@ export interface SocialGraphService {
   getProfile(targetUsername: string, requestorId?: string | null): Promise<Profile>
   followUser(followerId: string, targetUsername: string): Promise<Profile>
   unfollowUser(followerId: string, targetUsername: string): Promise<Profile>
+  getProfilesByIds(userIds: string[], requestorId?: string | null): Promise<Record<string, Profile>>
   upsertProfileProjection(user: User): Promise<void>
 }

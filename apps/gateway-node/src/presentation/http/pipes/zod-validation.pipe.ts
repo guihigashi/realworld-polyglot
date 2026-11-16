@@ -18,7 +18,9 @@ export class ZodValidationPipe<TSchema extends z.ZodType> implements PipeTransfo
     for (const issue of result.error.issues) {
       const cleanPath = issue.path
         .map(String)
-        .filter((segment, index) => !(index === 0 && segment === "user"))
+        .filter(
+          (segment, index) => !(index === 0 && (segment === "user" || segment === "article" || segment === "comment")),
+        )
         .join(".")
       const key = cleanPath || "body"
       if (!errors[key]) {

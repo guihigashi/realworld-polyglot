@@ -11,17 +11,9 @@ import {
   SOCIAL_GRAPH_SERVICE_NAME,
   type SocialGraphServiceClient,
 } from "@/generated/grpc/social_graph.js"
+import { getGrpcErrorCode } from "@/infrastructure/grpc/grpc-channel-options.js"
 
 export const SOCIAL_GRAPH_GRPC_CLIENT = Symbol("SOCIAL_GRAPH_GRPC_CLIENT")
-
-function isGrpcNotFoundError(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error as { code: unknown }).code === status.NOT_FOUND
-  )
-}
 
 @Injectable()
 export class GrpcSocialGraphService implements SocialGraphService, OnModuleInit {
@@ -43,7 +35,7 @@ export class GrpcSocialGraphService implements SocialGraphService, OnModuleInit 
       )
       return this.toProfile(response)
     } catch (error) {
-      if (isGrpcNotFoundError(error)) {
+      if (getGrpcErrorCode(error) === status.NOT_FOUND) {
         throw new ProfileNotFoundException()
       }
       throw error
@@ -57,7 +49,7 @@ export class GrpcSocialGraphService implements SocialGraphService, OnModuleInit 
       )
       return this.toProfile(response)
     } catch (error) {
-      if (isGrpcNotFoundError(error)) {
+      if (getGrpcErrorCode(error) === status.NOT_FOUND) {
         throw new ProfileNotFoundException()
       }
       throw error
@@ -71,11 +63,27 @@ export class GrpcSocialGraphService implements SocialGraphService, OnModuleInit 
       )
       return this.toProfile(response)
     } catch (error) {
-      if (isGrpcNotFoundError(error)) {
+      if (getGrpcErrorCode(error) === status.NOT_FOUND) {
         throw new ProfileNotFoundException()
       }
       throw error
     }
+  }
+
+  async getProfilesByIds(userIds: string[], requestorId?: string | null): Promise<Record<string, Profile>> {
+    if (userIds.length === 0) {
+      return {}
+    }
+
+    const response = await lastValueFrom(
+      this.client.getProfilesByIds({ userIds }, this.createRequestorMetadata(requestorId)),
+    )
+
+    const profiles: Record<string, Profile> = {}
+    for (const [id, profile] of Object.entries(response.profiles ?? {})) {
+      profiles[id] = this.toProfile(profile)
+    }
+    return profiles
   }
 
   async upsertProfileProjection(user: User): Promise<void> {
@@ -101,10 +109,10 @@ export class GrpcSocialGraphService implements SocialGraphService, OnModuleInit 
 
   private toProfile(response: ProfileResponse): Profile {
     return new Profile({
-      username: response.username,
+      username: response.username ?? "",
       bio: response.bio ?? null,
       image: response.image ?? null,
-      following: response.following,
+      following: response.following ?? false,
       followsVersion: Number(response.followsVersion ?? 0),
     })
   }
