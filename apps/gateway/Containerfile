@@ -9,7 +9,7 @@ COPY apps/web-client/package.json apps/web-client/yarn.lock apps/web-client/.yar
 RUN yarn install --immutable
 
 COPY apps/web-client/ .
-RUN yarn build
+RUN yarn tsc -b && yarn vite build --outDir /workspace/apps/gateway/public/dist --emptyOutDir
 
 # -------------------------------------------------------------------
 # Stage 2: Gateway PHP Runtime

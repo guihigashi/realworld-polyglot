@@ -101,17 +101,15 @@ services:
         condition: service_healthy
       social-graph:
         condition: service_healthy
-  gateway:
-    image: ghcr.io/guihigashi/realworld-polyglot/gateway:latest
-    command: 'php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000'
+  gateway-node:
+    image: ghcr.io/guihigashi/realworld-polyglot/gateway-node:latest
     build:
       context: .
-      dockerfile: apps/gateway/Containerfile
+      dockerfile: apps/gateway-node/Containerfile
     ports:
       - "8000:8000"
     volumes:
       - ./staging/gateway/.env:/app/.env:z,ro
-      - ./staging/gateway/logs:/app/storage/logs:z
     depends_on:
       <<: *infra_deps
       article-service:
