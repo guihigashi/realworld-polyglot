@@ -1,9 +1,11 @@
 import { Module } from "@nestjs/common"
 import { ConfigModule } from "@nestjs/config"
+import { AppController } from "./app.controller.js"
+import { AppService } from "./app.service.js"
+import { AuthModule } from "@/auth.module.js"
 import { configurations } from "@/config/configuration.js"
 import { envSchema } from "@/config/env.schema.js"
-import { AppController } from "@/app.controller.js"
-import { AppService } from "@/app.service.js"
+import { DatabaseModule } from "@/infrastructure/database/database.module.js"
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { AppService } from "@/app.service.js"
       validationSchema: envSchema,
       load: configurations,
     }),
+    DatabaseModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
