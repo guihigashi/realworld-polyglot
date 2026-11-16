@@ -32,6 +32,7 @@
     "@nestjs/drizzle": "^0.0.2",
     "@nestjs/microservices": "^12.5.0",
     "@nestjs/platform-node": "^12.5.0",
+    "@nestjs/serve-static": "^12.1.1",
     "amqplib": "^2.4.0",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "1.0.0-rc.5",

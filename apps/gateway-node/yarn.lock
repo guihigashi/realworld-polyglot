@@ -758,6 +758,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/serve-static@npm:^12.1.1":
+  version: 12.1.1
+  resolution: "@nestjs/serve-static@npm:12.1.1"
+  dependencies:
+    path-to-regexp: "npm:8.4.2"
+  peerDependencies:
+    "@fastify/static": ^10.0.0
+    "@nestjs/common": ^12.0.0
+    "@nestjs/core": ^12.0.0
+    "@nestjs/platform-node": ^12.3.1
+    express: ^5.0.1
+    fastify: ^5.2.1
+  peerDependenciesMeta:
+    "@fastify/static":
+      optional: true
+    "@nestjs/platform-node":
+      optional: true
+    express:
+      optional: true
+    fastify:
+      optional: true
+  checksum: 10c0/28e7c430d77289672886b0485f10fb29d00781eea8a638cbbdefb222e6637180904ed3c86a21f6d3cf16d15538f5dbce0de1bbdff7dbbec33061247d09913a9a
+  languageName: node
+  linkType: hard
+
 "@nestjs/testing@npm:^12.0.1":
   version: 12.5.0
   resolution: "@nestjs/testing@npm:12.5.0"
@@ -2653,6 +2678,7 @@ __metadata:
     "@nestjs/microservices": "npm:^12.5.0"
     "@nestjs/platform-node": "npm:^12.5.0"
     "@nestjs/schematics": "npm:^12.0.0"
+    "@nestjs/serve-static": "npm:^12.1.1"
     "@nestjs/testing": "npm:^12.0.1"
     "@types/amqplib": "npm:^0.10.8"
     "@types/bcryptjs": "npm:^3.0.0"

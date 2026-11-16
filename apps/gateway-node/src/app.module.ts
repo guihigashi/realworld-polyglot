@@ -1,7 +1,7 @@
 import { Inject, type MiddlewareConsumer, Module, type NestModule } from "@nestjs/common"
 import { ConfigModule, type ConfigType } from "@nestjs/config"
-import { AppController } from "./app.controller.js"
-import { AppService } from "./app.service.js"
+import { ServeStaticModule } from "@nestjs/serve-static"
+import { join } from "node:path"
 import { ArticleModule } from "@/article.module.js"
 import { AuthModule } from "@/auth.module.js"
 import { appConfig, configurations } from "@/config/configuration.js"
@@ -20,14 +20,16 @@ import { ProfileModule } from "@/profile.module.js"
       validationSchema: envSchema,
       load: configurations,
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(import.meta.dirname, "..", "public", "dist"),
+      exclude: /^\/api(?:\/|$)/,
+    }),
     DatabaseModule,
     AuthModule,
     ProfileModule,
     FeedModule,
     ArticleModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule implements NestModule {
   constructor(

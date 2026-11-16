@@ -1,0 +1,57 @@
+# -------------------------------------------------------------------
+# Stage 1: Build the Vite SPA frontend
+# -------------------------------------------------------------------
+FROM docker.io/library/node:24-alpine AS frontend
+WORKDIR /workspace/apps/web-client
+RUN corepack enable
+
+COPY apps/web-client/package.json apps/web-client/yarn.lock apps/web-client/.yarnrc.yml ./
+RUN yarn install --immutable
+
+COPY apps/web-client/index.html apps/web-client/vite.config.ts apps/web-client/tsconfig*.json apps/web-client/.env.production ./
+COPY apps/web-client/public ./public
+COPY apps/web-client/src ./src
+RUN yarn tsc -b && yarn vite build --outDir /workspace/apps/gateway-node/public/dist --emptyOutDir
+
+# -------------------------------------------------------------------
+# Stage 2: Build gateway-node TypeScript bundle
+# -------------------------------------------------------------------
+FROM docker.io/library/node:lts-slim AS builder
+WORKDIR /workspace/apps/gateway-node
+RUN npm install -g corepack && corepack enable
+
+COPY apps/gateway-node/package.json apps/gateway-node/yarn.lock apps/gateway-node/.yarnrc.yml ./
+RUN yarn install --immutable
+
+COPY apps/gateway-node/nest-cli.json apps/gateway-node/tsconfig.json apps/gateway-node/tsconfig.build.json ./
+COPY apps/gateway-node/src ./src
+RUN yarn build
+
+# -------------------------------------------------------------------
+# Stage 3: Production dependencies only
+# -------------------------------------------------------------------
+FROM docker.io/library/node:lts-slim AS prod-deps
+WORKDIR /workspace/apps/gateway-node
+RUN npm install -g corepack && corepack enable
+
+COPY apps/gateway-node/package.json apps/gateway-node/yarn.lock apps/gateway-node/.yarnrc.yml ./
+RUN CI=true yarn workspaces focus --production && yarn cache clean --all
+
+# -------------------------------------------------------------------
+# Stage 4: Gateway Node.js Runtime
+# -------------------------------------------------------------------
+FROM docker.io/library/node:lts-slim
+
+WORKDIR /app
+
+ENV NODE_ENV=production \
+    PORT=8000
+
+COPY --from=prod-deps /workspace/apps/gateway-node/package.json ./
+COPY --from=prod-deps /workspace/apps/gateway-node/node_modules ./node_modules
+COPY --from=builder /workspace/apps/gateway-node/dist ./dist
+COPY --from=frontend /workspace/apps/gateway-node/public/dist ./public/dist
+
+EXPOSE 8000
+
+CMD ["node", "dist/main"]
