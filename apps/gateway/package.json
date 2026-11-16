@@ -1,8 +1,0 @@
-{
-    "private": true,
-    "type": "module",
-    "devDependencies": {
-        "chokidar": "^5.0.0"
-    },
-    "packageManager": "yarn@4.18.0"
-}

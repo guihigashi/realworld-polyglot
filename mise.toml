@@ -11,11 +11,6 @@ description = "Start React web-client Vite dev server"
 dir = "apps/web-client"
 run = "yarn dev"
 
-[tasks."dev:gateway"]
-description = "Start Laravel Octane gateway"
-dir = "apps/gateway"
-run = "php artisan serve"
-
 [tasks."dev:gateway-node"]
 description = "Start NestJS gateway"
 dir = "apps/gateway-node"

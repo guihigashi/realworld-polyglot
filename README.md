@@ -13,8 +13,7 @@ via [RealWorld Studio](https://github.com/guihigashi/realworld-studio), an AI-dr
 This project showcases a polyglot microservice architecture adhering to Clean Architecture and Domain-Driven Design
 principles across diverse runtime ecosystems:
 
-* **API Gateway (`apps/gateway`):** PHP & Laravel Octane (Swoole) handling HTTP REST endpoints, JWT authentication, and
-  routing via gRPC.
+* **API Gateway (`apps/gateway-node`):** TypeScript & NestJS (`@nestjs/platform-node`) handling HTTP REST endpoints, JWT authentication, SPA static serving, and routing via gRPC.
 * **Article Service (`apps/article-service`):** Java 25 & Spring Boot gRPC service managing articles, comments,
   favorites, and tags.
 * **Social Graph (`apps/social-graph`):** Scala 3 & ZIO gRPC service managing profiles and follow relationships.

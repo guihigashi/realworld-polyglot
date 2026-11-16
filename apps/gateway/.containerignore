@@ -1,5 +1,0 @@
-.yarn
-node_modules
-.env
-storage/framework/**/*.php
-storage/logs/*.log
