@@ -503,4 +503,131 @@ func TestListPublicArticles_GetComments(t *testing.T) {
 	}
 }
 
+func TestManageFavorites_FirstFavoriteAfterEmptyVersionZeroRead(t *testing.T) {
+	userId := uuid.MustParse("33333333-3333-3333-3333-333333333333")
+	art1 := uuid.MustParse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+
+	var currentVersion int64 = 0
+	store := &fakeArticlesPort{
+		favoritedBy: map[uuid.UUID]map[uuid.UUID]struct{}{
+			userId: {},
+		},
+	}
+	favStore := &versionedFavStore{
+		port:    store,
+		version: &currentVersion,
+	}
+
+	favCache, err := NewManageFavorites(favStore, 10)
+	if err != nil {
+		t.Fatalf("NewManageFavorites: %v", err)
+	}
+
+	// 1. User reads feed before any favorites exist -> cached with version 0 and empty set
+	favs, err := favCache.GetFavorited(context.Background(), userId, 0)
+	if err != nil {
+		t.Fatalf("GetFavorited initial: %v", err)
+	}
+	if len(favs) != 0 {
+		t.Fatalf("expected empty favorites initially, got %v", favs)
+	}
+
+	// 2. First favorite produces version 1 -> event must NOT be dropped (0 < 1)
+	eventBody, _ := json.Marshal(map[string]any{
+		"payload": map[string]any{
+			"articleId": art1.String(),
+			"userId":    userId.String(),
+			"version":   1,
+		},
+	})
+	favCache.HandleArticleEvent("article.favorited", eventBody)
+
+	favs, err = favCache.GetFavorited(context.Background(), userId, 1)
+	if err != nil {
+		t.Fatalf("GetFavorited v1: %v", err)
+	}
+	if _, ok := favs[art1]; !ok {
+		t.Fatalf("expected art1 to be favorited after v1 event")
+	}
+
+	// 3. Even if the event hasn't arrived yet, minVersion=1 must reload from store when cached at version=0
+	favCache2, err := NewManageFavorites(favStore, 10)
+	if err != nil {
+		t.Fatalf("NewManageFavorites 2: %v", err)
+	}
+	favStore.calls = 0
+	currentVersion = 0
+	store.favoritedBy[userId] = map[uuid.UUID]struct{}{}
+	_, err = favCache2.GetFavorited(context.Background(), userId, 0)
+	if err != nil {
+		t.Fatalf("GetFavorited initial 2: %v", err)
+	}
+
+	currentVersion = 1
+	store.favoritedBy[userId][art1] = struct{}{}
+	favs, err = favCache2.GetFavorited(context.Background(), userId, 1)
+	if err != nil {
+		t.Fatalf("GetFavorited minVersion=1: %v", err)
+	}
+	if _, ok := favs[art1]; !ok {
+		t.Fatalf("expected art1 after minVersion=1 refresh")
+	}
+	if favStore.calls != 2 {
+		t.Fatalf("expected 2 store calls (v0 then v1), got %d", favStore.calls)
+	}
+}
+
+type recordingPublisher struct {
+	events chan string
+}
+
+func (r *recordingPublisher) Publish(_ context.Context, routingKey string, _ any) error {
+	r.events <- routingKey
+	return nil
+}
+
+func TestListPublicArticles_PublishesHyphenatedReadFavoriteEvent(t *testing.T) {
+	author1 := uuid.New()
+	viewer := uuid.New()
+	art1 := uuid.New()
+	t0 := time.Now().UTC()
+
+	articlesPort := &fakeArticlesPort{
+		articles: []domain.Article{
+			{Id: art1, Slug: "fav-slug", Title: "Fav", Description: "Desc", CreatedAt: t0, UpdatedAt: t0, AuthorId: author1},
+		},
+		totalCount: 1,
+	}
+	socialPort := &fakeSocialPort{
+		profiles: map[uuid.UUID]domain.Profile{author1: {Id: author1, Username: "alice"}},
+	}
+	uc := NewListPublicArticles(articlesPort, socialPort, nil, nil, 10)
+	pub := &recordingPublisher{events: make(chan string, 2)}
+	uc.SetPublisher(pub)
+
+	if err := uc.WarmUp(context.Background()); err != nil {
+		t.Fatalf("WarmUp: %v", err)
+	}
+
+	favBody, _ := json.Marshal(map[string]any{
+		"payload": map[string]any{
+			"articleId":      art1.String(),
+			"slug":           "fav-slug",
+			"userId":         viewer.String(),
+			"favoritesCount": 1,
+		},
+	})
+	uc.HandleArticleEvent("article.favorited", favBody)
+
+	select {
+	case rk := <-pub.events:
+		if rk != "read.article-favorited" {
+			t.Fatalf("expected routing key read.article-favorited, got %q", rk)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("timed out waiting for read.article-favorited publish")
+	}
+}
+
+
 

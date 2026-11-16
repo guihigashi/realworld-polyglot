@@ -232,7 +232,13 @@ func (l *ListPublicArticles) GetArticle(ctx context.Context, slug string, minFav
 				cIdx := findArticleIndex(current.articles, uuid.Nil(), slug, "")
 				if cIdx >= 0 {
 					next := slices.Clone(current.articles)
+					next[cIdx].Slug = article.Slug
+					next[cIdx].Title = article.Title
+					next[cIdx].Description = article.Description
 					next[cIdx].Body = article.Body
+					next[cIdx].TagList = normalizeTagList(article.TagList)
+					next[cIdx].UpdatedAt = article.UpdatedAt
+					next[cIdx].FavoritesCount = article.FavoritesCount
 					if article.Id != uuid.Nil() {
 						next[cIdx].Id = article.Id
 					}
@@ -649,7 +655,7 @@ func (l *ListPublicArticles) HandleArticleEvent(routingKey string, body []byte) 
 			articles:   next,
 			totalCount: current.totalCount,
 		})
-		readEventType := "read." + routingKey
+		readEventType := "read." + strings.ReplaceAll(routingKey, ".", "-")
 		l.publishReadEvent(readEventType, p.Slug, p.ArticleId, time.Now().UTC())
 	}
 

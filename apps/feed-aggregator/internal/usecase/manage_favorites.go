@@ -91,6 +91,10 @@ func (m *ManageFavorites) GetFavorited(ctx context.Context, userId uuid.UUID, mi
 		current, exists := m.cache.Peek(userId)
 		if !state.dirty && (!exists || version >= current.version) {
 			m.cache.Add(userId, cachedFavorites{ids: ids, version: version})
+			return ids, nil
+		}
+		if exists && current.version > version {
+			return current.ids, nil
 		}
 		return ids, nil
 	})

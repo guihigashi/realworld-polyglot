@@ -239,7 +239,7 @@ public class JpaArticleRepositoryAdapter implements ArticleRepository {
     private long getFavoritesVersion(UUID userId) {
         return userFavoritesVersionRepository.findById(userId)
                 .map(UserFavoritesVersionEntity::getVersion)
-                .orElse(1L);
+                .orElse(0L);
     }
 
     private Article mapToDomain(ArticleEntity entity, UUID currentUserId) {
