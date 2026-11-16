@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import request from "supertest"
-import { AppModule } from "./../src/app.module.js"
+import { AppModule } from "@/app.module.js"
 import { NestNodeApplication, NodeAdapter } from "@nestjs/platform-node"
 
 describe("AppController (e2e)", () => {
